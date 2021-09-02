@@ -1,0 +1,139 @@
+@import "scss/reset"; 
+@import "scss/landing"; 
+@import "scss/header";
+@import "scss/home";
+
+
+/****************************************************************/
+.new-btn{
+    float: right;
+    background: #1976D2;
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 20px;
+    text-decoration: none;
+    &:hover{
+        background: darken(#1976D2,10%);
+    }
+}
+.label{
+    float: left;
+    width: 100%;
+    color: #333;
+    font-size: 14px;
+    padding: 10px 0;
+}
+strong{
+    font-weight: bold;
+}
+
+.goRight{
+    text-align: right;
+}
+.border_right{
+    border-right: 1px solid #e1e1e1;
+}
+.goCenter{
+    text-align: center;
+}
+.th{
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 12px;
+    line-height: 21px;
+    @media (max-width:959px){
+        display: none;
+    }
+}
+.ch{
+    border-bottom: 1px solid #e1e1e1;
+    padding: 15px 10px !important;
+    @media (max-width:959px){
+        text-align: left !important;
+        border:none;
+    }
+    strong{
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 12px;
+        line-height: 21px;
+        float: left;
+        width: 100%;
+        margin-bottom: 5px;
+        display: none;
+        @media (max-width:959px){
+            display: block;
+        }
+    }
+}
+.tot_mob{
+    @media (max-width:959px){
+        text-align: center !important;
+    }
+    strong{
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 12px;
+        line-height: 21px;
+        float: left;
+        width: 100%;
+        margin-bottom: 5px;
+        display: none;
+        @media (max-width:959px){
+            display: block;
+        }
+    }
+}
+.hideMobile{
+    @media (max-width:959px){
+        display: none;
+    }
+}
+.no_margin{
+    color: red;
+}
+.mobile{
+    display: none;
+    @media (max-width:959px){
+        display: block;
+    }
+}
+.separator{
+    background: #e1e1e1;
+    height: 0;
+    margin: 10px 0 !important;
+    padding:4px !important;
+    display: none;
+    @media (max-width:959px){
+        display: block;
+    }
+}
+
+.credit-digits{
+    font-size: 35px;
+    padding: 45px 0 0;
+}
+
+.date-picker{
+    width: 100%;
+    .react-datepicker-wrapper{
+        width: 100%;        
+    }
+    input{
+        margin-top: 27px;
+        height: 38px;
+        width: 100%;
+        border: 1px solid hsl(0,0%,80%);
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 16px;
+        color: hsl(0,0%,50%);
+    }
+}
+.fix-right{
+    margin-right: 10px !important;
+}
+.z-fix{
+    z-index: 99;
+    .react-datepicker-popper{
+        z-index: 99;
+    }
+}
