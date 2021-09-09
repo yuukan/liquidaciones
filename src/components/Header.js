@@ -12,7 +12,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { LocalShipping, ListAltTwoTone, CheckBox, Schedule, Report } from '@material-ui/icons';
+import { VerifiedUserSharp, Business } from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import swal from 'sweetalert';
 
@@ -62,7 +62,6 @@ class Header extends Component {
 
     render() {
         let cl = "";
-        if (!this.props.prices_flag) cl = "red";
         // We check if the user is logged in
         if (this.props.isLoggedIn) {
             return (
@@ -73,26 +72,9 @@ class Header extends Component {
                                 <MenuIcon />
                             </IconButton>
                             <Typography variant="h6">
-                                {
-                                    !this.props.prices_flag ? (
-                                        <span>{`(Precios no actualizados)`}</span>
-                                    ) :
-                                        (
-                                            <img src="images/logo.png" alt="" />
-                                        )
-                                }
+                                <img src="images/logo.png" alt="" />
                             </Typography>
-                            {
-                                this.props.loading ?
-                                (
-                                    !this.props.prices_flag ? (
-                                        <img src="images/loadingwhite.gif" alt="" width="32" />
-                                    ):
-                                    (
-                                        <img src="images/loading.gif" alt="" width="32" />
-                                    )
-                                ): ""
-                            }
+
                             <Button color="inherit" onClick={this.logOut}>Salir</Button>
                         </Toolbar>
                     </AppBar>
@@ -109,117 +91,23 @@ class Header extends Component {
                         </div>
                         <Divider />
                         <List>
-                            {
-                                this.props.user_permissions.includes("1") ?
-                                    (
-                                        <Link className="link" to="/nueva-orden" onClick={() => this.changeIndex(0)}>
-                                            <ListItem button selected={this.state.selectedIndex === 0}>
-                                                <ListItemIcon>
-                                                    <LocalShipping />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Solicitar Pedido`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-
-                            <Link className="link" to="/order-list" onClick={() => this.changeIndex(1)}>
+                            <Link className="link" to="/usuarios" onClick={() => this.changeIndex(1)}>
                                 <ListItem button selected={this.state.selectedIndex === 1}>
                                     <ListItemIcon>
-                                        <ListAltTwoTone />
+                                        <VerifiedUserSharp />
                                     </ListItemIcon>
-                                    <ListItemText primary={`Listado de Pedidos`} />
+                                    <ListItemText primary={`Usuarios`} />
                                 </ListItem>
                             </Link>
-                            {
-                                this.props.user_permissions.includes("2") ?
-                                    (
-                                        <Link className="link" to="/new-list" onClick={() => this.changeIndex(2)}>
-                                            <ListItem button selected={this.state.selectedIndex === 2}>
-                                                <ListItemIcon>
-                                                    <ListAltTwoTone />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Asignar Horario`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            {
-                                this.props.user_permissions.includes("3") ?
-                                    (
-                                        <Link className="link" to="/credit-list" onClick={() => this.changeIndex(3)}>
-                                            <ListItem button selected={this.state.selectedIndex === 3}>
-                                                <ListItemIcon>
-                                                    <ListAltTwoTone />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Validación Crédito`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            {
-                                this.props.user_permissions.includes("6") ?
-                                    (
-                                        <Link className="link" to="/to-schedule" onClick={() => this.changeIndex(7)}>
-                                            <ListItem button selected={this.state.selectedIndex === 7}>
-                                                <ListItemIcon>
-                                                    <Schedule />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Pendientes de Programar`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            {
-                                this.props.user_permissions.includes("4") ?
-                                    (
-                                        <Link className="link" to="/sap-list" onClick={() => this.changeIndex(4)}>
-                                            <ListItem button selected={this.state.selectedIndex === 4}>
-                                                <ListItemIcon>
-                                                    <ListAltTwoTone />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Subir a SAP`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            {
-                                this.props.user_permissions.includes("7") ?
-                                    (
-                                        <Link className="link" to="/cancelled-list" onClick={() => this.changeIndex(5)}>
-                                            <ListItem button selected={this.state.selectedIndex === 5}>
-                                                <ListItemIcon>
-                                                    <ListAltTwoTone />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Pedidos Anulados`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            {
-                                this.props.user_permissions.includes("8") ?
-                                    (
-                                        <Link className="link" to="/processed-list" onClick={() => this.changeIndex(6)}>
-                                            <ListItem button selected={this.state.selectedIndex === 6}>
-                                                <ListItemIcon>
-                                                    <CheckBox />
-                                                </ListItemIcon>
-                                                <ListItemText primary={`Procesadas`} />
-                                            </ListItem>
-                                        </Link>
-                                    ) : ""
-                            }
-                            <Divider />
-                            <Link className="link" to="/reporte-vendedores" onClick={() => this.changeIndex(7)}>
-                                <ListItem button selected={this.state.selectedIndex === 7}>
+                            <Link className="link" to="/empresas" onClick={() => this.changeIndex(2)}>
+                                <ListItem button selected={this.state.selectedIndex === 2}>
                                     <ListItemIcon>
-                                        <Report />
+                                        <Business />
                                     </ListItemIcon>
-                                    <ListItemText primary={`Reporte Vendedores`} />
+                                    <ListItemText primary={`Empresas`} />
                                 </ListItem>
                             </Link>
                         </List>
-                        <Divider />
                     </Drawer>
                 </React.Fragment >
             );

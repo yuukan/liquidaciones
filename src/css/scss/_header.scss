@@ -1,18 +1,9 @@
 header{
     .toolbar{
         justify-content: space-between;
-        background:white;
-        &.red{
-            background:transparent;
-            background-image: -webkit-linear-gradient( 60deg, rgb(222,63,138) 0%, rgb(250,97,97) 100%);
-            svg,
-            .MuiButton-text{
-                color: white;
-            }
-        }
         svg,
         .MuiButton-text{
-            color: black;
+            color: white;
         }
     }
     h6{
@@ -34,7 +25,7 @@ header{
 }
 .MuiDrawer-paper{
     background-color: transparent !important;
-    background-image: -webkit-linear-gradient( 60deg, rgb(242,50,50) 0%, rgb(244,102,66) 100%) !important;
+    background-image: -webkit-linear-gradient( 60deg, rgb(63,81,181) 0%, rgb(78, 99, 213) 100%) !important;
     .MuiButtonBase-root,
     svg{
         color: white !important;

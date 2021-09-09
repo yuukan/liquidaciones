@@ -58,8 +58,7 @@ body,
 .routes-container {
   width: 100%;
   height: 100%;
-  font-family: 'Roboto';
-  background: #ECF0F5; }
+  font-family: 'Roboto'; }
 
 h1.welcome {
   float: left;
@@ -68,7 +67,7 @@ h1.welcome {
   font-size: 25px; }
 
 .landing {
-  background: url(../images/bg.png);
+  background: #e9e9e9;
   width: 100%;
   height: calc(100% + 50px);
   position: relative;
@@ -76,100 +75,56 @@ h1.welcome {
   .landing .buttons-container {
     float: left; }
   .landing .splash {
+    background-color: #0D2144;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 100%;
     max-width: 330px;
-    background: #fefefe;
-    padding: 25px;
-    border-radius: 10px;
-    border: 2px solid #ccc; }
+    box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
+    padding: 25px 0; }
     .landing .splash img {
-      width: 100%; }
-    .landing .splash .social-btn {
+      width: 100%;
+      padding: 25px; }
+    .landing .splash .input-container {
+      padding: 0 25px; }
+      .landing .splash .input-container input {
+        float: left;
+        width: 100%;
+        height: 30px;
+        margin-top: 15px;
+        padding: 10px;
+        line-height: 30px;
+        font-size: 15px;
+        background: transparent;
+        color: #427adb;
+        border: none;
+        border-bottom: 1px solid #427adb; }
+        .landing .splash .input-container input::placeholder {
+          color: #427adb; }
+    .landing .splash .login-btn {
       float: left;
       width: 100%;
-      color: white;
-      font-family: 'Roboto';
+      color: #e9e9e9;
+      font-family: "Roboto";
       font-size: 20px;
       margin-top: 15px;
       line-height: normal;
-      background: black;
-      border: none;
-      padding: 0; }
-      .landing .splash .social-btn:nth-of-type(1) {
-        background: #3b5998; }
-      .landing .splash .social-btn:nth-of-type(2) {
-        background: #db3236; }
-      .landing .splash .social-btn svg {
-        display: inline-block;
-        padding: 10px 0px 0 0;
-        font-size: 20px;
-        width: 20px;
-        margin-right: 5px; }
-      .landing .splash .social-btn span {
-        padding: 10px 10px 10px 0;
-        display: inline-block; }
-    .landing .splash .gohome {
-      float: left;
-      width: 100%;
-      color: #fff;
-      font-family: 'Roboto';
-      font-size: 20px;
-      margin-top: 15px;
-      line-height: normal;
-      background: black;
+      background: #194084;
       border: none;
       padding: 0;
       text-align: center; }
-      .landing .splash .gohome.goBack {
-        margin-top: 35px;
-        background: #999;
-        width: auto;
-        font-size: 12px;
-        border-radius: 5px; }
-        .landing .splash .gohome.goBack svg {
-          display: inline-block;
-          padding: 0 0 0 5px;
-          font-size: 12px;
-          margin-right: 5px;
-          width: 15px; }
-        .landing .splash .gohome.goBack span {
-          padding: 5px 5px 5px 0; }
-      .landing .splash .gohome svg {
+      .landing .splash .login-btn svg {
         display: inline-block;
         padding: 10px 0px 0 0;
         font-size: 31px;
         width: 31px;
         margin-right: 5px; }
-      .landing .splash .gohome span {
+      .landing .splash .login-btn span {
         padding: 10px 10px 10px 0;
         display: inline-block;
         font-size: 18px; }
-    .landing .splash .invitado {
-      text-decoration: none;
-      float: left;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-size: 14px;
-      margin-top: 25px; }
-
-.email-form {
-  float: left;
-  width: 100%;
-  padding-top: 25px; }
-  .email-form input {
-    float: left;
-    width: 100%;
-    height: 30px;
-    margin-top: 5px;
-    padding: 5px;
-    border: 1px solid #CFCFCF;
-    line-height: 30px;
-    font-size: 15px; }
 
 .loading {
   width: 100%;
@@ -178,17 +133,10 @@ h1.welcome {
     display: inline-block; }
 
 header .toolbar {
-  justify-content: space-between;
-  background: white; }
-  header .toolbar.red {
-    background: transparent;
-    background-image: -webkit-linear-gradient(60deg, #de3f8a 0%, #fa6161 100%); }
-    header .toolbar.red svg,
-    header .toolbar.red .MuiButton-text {
-      color: white; }
+  justify-content: space-between; }
   header .toolbar svg,
   header .toolbar .MuiButton-text {
-    color: black; }
+    color: white; }
 
 header h6 img {
   height: 50px; }
@@ -206,7 +154,7 @@ header h6 span {
 
 .MuiDrawer-paper {
   background-color: transparent !important;
-  background-image: -webkit-linear-gradient(60deg, #f23232 0%, #f46642 100%) !important; }
+  background-image: -webkit-linear-gradient(60deg, #3f51b5 0%, #4e63d5 100%) !important; }
   .MuiDrawer-paper .MuiButtonBase-root,
   .MuiDrawer-paper svg {
     color: white !important; }
@@ -215,14 +163,48 @@ header h6 span {
   .MuiDrawer-paper hr {
     background-color: rgba(255, 255, 255, 0.25); }
 
+.user-container {
+  width: 100%;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; }
+  .user-container .left {
+    width: calc(40% - 10px);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 25px; }
+  .user-container .right {
+    width: calc(60% - 10px);
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 25px; }
+    .user-container .right .MuiFormControl-root {
+      width: 100%; }
+  .user-container .full-button {
+    margin-top: 50px;
+    width: 100%; }
+
+.table-container {
+  width: 100%;
+  margin-top: 25px; }
+  .table-container .detail-table {
+    width: 100%;
+    font-size: 12px; }
+    .table-container .detail-table thead tr th {
+      background: #1d4b9a;
+      padding: 15px 0;
+      color: white;
+      border: 1px solid white; }
+    .table-container .detail-table tbody tr td {
+      background: #e9e9e9;
+      border: 1px solid white;
+      text-align: center; }
+
 .main-container {
   padding: 27px 15px; }
   .main-container .landing-container {
     background: white;
     width: 100%;
-    padding: 0 15px 15px; }
-    .main-container .landing-container.with-spacing {
-      padding: 25px; }
+    padding: 0; }
     .main-container .landing-container .form-item {
       width: 100%; }
       .main-container .landing-container .form-item.margin-fix {
@@ -370,125 +352,16 @@ h3.transporte-title {
 button.margin-fix2 {
   margin-top: 27px !important; }
 
-/****************************************************************/
 .new-btn {
   float: right;
-  background: #1976D2;
+  background: #0D2144;
   color: white;
-  border-radius: 10px;
-  padding: 15px;
-  font-size: 20px;
-  text-decoration: none; }
+  margin-right: 25px;
+  margin-top: 17px;
+  font-size: 16px;
+  text-decoration: none;
+  padding: 10px 25px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
   .new-btn:hover {
-    background: #145ca4; }
-
-.label {
-  float: left;
-  width: 100%;
-  color: #333;
-  font-size: 14px;
-  padding: 10px 0; }
-
-strong {
-  font-weight: bold; }
-
-.goRight {
-  text-align: right; }
-
-.border_right {
-  border-right: 1px solid #e1e1e1; }
-
-.goCenter {
-  text-align: center; }
-
-.th {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 12px;
-  line-height: 21px; }
-  @media (max-width: 959px) {
-    .th {
-      display: none; } }
-
-.ch {
-  border-bottom: 1px solid #e1e1e1;
-  padding: 15px 10px !important; }
-  @media (max-width: 959px) {
-    .ch {
-      text-align: left !important;
-      border: none; } }
-  .ch strong {
-    color: rgba(0, 0, 0, 0.54);
-    font-size: 12px;
-    line-height: 21px;
-    float: left;
-    width: 100%;
-    margin-bottom: 5px;
-    display: none; }
-    @media (max-width: 959px) {
-      .ch strong {
-        display: block; } }
-
-@media (max-width: 959px) {
-  .tot_mob {
-    text-align: center !important; } }
-
-.tot_mob strong {
-  color: rgba(0, 0, 0, 0.54);
-  font-size: 12px;
-  line-height: 21px;
-  float: left;
-  width: 100%;
-  margin-bottom: 5px;
-  display: none; }
-  @media (max-width: 959px) {
-    .tot_mob strong {
-      display: block; } }
-
-@media (max-width: 959px) {
-  .hideMobile {
-    display: none; } }
-
-.no_margin {
-  color: red; }
-
-.mobile {
-  display: none; }
-  @media (max-width: 959px) {
-    .mobile {
-      display: block; } }
-
-.separator {
-  background: #e1e1e1;
-  height: 0;
-  margin: 10px 0 !important;
-  padding: 4px !important;
-  display: none; }
-  @media (max-width: 959px) {
-    .separator {
-      display: block; } }
-
-.credit-digits {
-  font-size: 35px;
-  padding: 45px 0 0; }
-
-.date-picker {
-  width: 100%; }
-  .date-picker .react-datepicker-wrapper {
-    width: 100%; }
-  .date-picker input {
-    margin-top: 27px;
-    height: 38px;
-    width: 100%;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    padding: 10px;
-    font-size: 16px;
-    color: gray; }
-
-.fix-right {
-  margin-right: 10px !important; }
-
-.z-fix {
-  z-index: 99; }
-  .z-fix .react-datepicker-popper {
-    z-index: 99; }
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22); }

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Redirect } from 'react-router'
 import axios from 'axios';
 import swal from 'sweetalert';
@@ -9,9 +8,6 @@ class Landing extends Component {
     constructor() {
         super();
         this.login = this.login.bind(this);
-        this.state = {
-            email: false
-        };
         this.email = React.createRef();
         this.password = React.createRef();
     }
@@ -25,25 +21,28 @@ class Landing extends Component {
         let email = this.email.current.value;
         let password = this.password.current.value;
 
-        axios.post(this.props.url + "api/login", {
+        var data = JSON.stringify({
             email,
             password
+        });
+
+        axios({
+            method: 'post',
+            url: this.props.url + 'users/login',
+            data,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
         })
-            .then(function (response) {
-                if (response.data.error === 0) {
-                    localStorage.setItem("tp_uid", response.data.id);
-                    this_.props.setUserPermissions(response.data.permissions.split(","));
-                    localStorage.setItem("tp_uid_per", response.data.permissions.split(","));
-                    localStorage.setItem("tp_vendedor", response.data.vendedor);
-                    this_.props.changeLogged(true);
-                    this_.props.get_vendedores();
-                    this_.props.loadAll();
-                } else {
-                    swal("Error", response.data.message, "error");
-                }
+            .then(function (resp) {
+                localStorage.setItem("lu_id", resp.data.id);
+                localStorage.setItem("lu_n", resp.data.nombre);
+                this_.props.changeLogged(true);
+                this_.props.loadAll();
+                // this_.props.setUserPermissions(resp.data.permissions.split(","));
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch(function (err) {
+                console.log(err);
+                swal("Error", err.response.data.msg, "error");
             });
     }
     //####################################Login####################################
@@ -52,20 +51,25 @@ class Landing extends Component {
         return (
             <div className="landing">
                 {
-                    this.props.logged ? (<Redirect to="/order-list" />) : ""
+                    this.props.logged ? (<Redirect to="/main" />) : ""
                 }
                 <div className="splash">
                     <img src="images/logo.png" alt="Logo" />
                     <div className="email-form">
                         <form onSubmit={this.login}>
-                            <input type="text" autoFocus placeholder="Email" required ref={this.email} />
-                            <input type="password" placeholder="Contraseña" required ref={this.password} />
-                            <button type="submit" className="gohome">
-                                <FontAwesomeIcon icon="sign-in" />
-                                <span>
-                                    Ingresar
-                                </span>
-                            </button>
+                            <div className="input-container">
+                                <input type="text" autoFocus placeholder="Email" required ref={this.email} />
+                            </div>
+                            <div className="input-container">
+                                <input type="password" placeholder="Contraseña" required ref={this.password} />
+                            </div>
+                            <div className="input-container">
+                                <button type="submit" className="login-btn">
+                                    <span>
+                                        Ingresar
+                                    </span>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
