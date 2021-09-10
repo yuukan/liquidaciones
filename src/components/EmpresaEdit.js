@@ -9,6 +9,8 @@ import Switch from '@material-ui/core/Switch';
 import { makeStyles } from '@material-ui/core/styles';
 import swal from 'sweetalert';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -152,6 +154,9 @@ const EmpresaEdit = (props) => {
     return (
         <div className="main-container">
             <Typography variant="h3" component="h1" gutterBottom>
+                <Link className="link" to="/empresas">
+                    <ArrowBackIosIcon />
+                </Link>
                 {
                     typeof props.match.params.id !== "undefined" ? "Editar empresa" : "Crear empresa"
                 }
@@ -470,7 +475,7 @@ const EmpresaEdit = (props) => {
                 </form>
 
                 <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
-                    Guardar Usuario
+                    Guardar
                 </Button>
             </div>
         </div>

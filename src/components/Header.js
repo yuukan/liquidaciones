@@ -12,7 +12,12 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { VerifiedUserSharp, Business } from '@material-ui/icons';
+import {
+    VerifiedUserSharp,
+    Business,
+    AccountBalance,
+    AccountBalanceWallet
+} from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import swal from 'sweetalert';
 
@@ -54,7 +59,7 @@ class Header extends Component {
                 localStorage.removeItem("tp_uid_per");
                 localStorage.removeItem("tp_vendedor");
                 this.props.clearState();
-                window.location.href="/";
+                window.location.href = "/";
             }
         });
     }
@@ -105,6 +110,22 @@ class Header extends Component {
                                         <Business />
                                     </ListItemIcon>
                                     <ListItemText primary={`Empresas`} />
+                                </ListItem>
+                            </Link>
+                            <Link className="link" to="/bancos" onClick={() => this.changeIndex(3)}>
+                                <ListItem button selected={this.state.selectedIndex === 3}>
+                                    <ListItemIcon>
+                                        <AccountBalance />
+                                    </ListItemIcon>
+                                    <ListItemText primary={`Bancos`} />
+                                </ListItem>
+                            </Link>
+                            <Link className="link" to="/cuentas" onClick={() => this.changeIndex(4)}>
+                                <ListItem button selected={this.state.selectedIndex === 4}>
+                                    <ListItemIcon>
+                                        <AccountBalanceWallet />
+                                    </ListItemIcon>
+                                    <ListItemText primary={`Cuentas`} />
                                 </ListItem>
                             </Link>
                         </List>

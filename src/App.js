@@ -5,9 +5,13 @@ import Header from './components/Header';
 import Landing from './components/Landing';
 import Main from './components/Main';
 import Usuarios from './components/Usuarios';
-import Empresas from './components/Empresas';
 import UserEdit from './components/UserEdit';
+import Empresas from './components/Empresas';
 import EmpresaEdit from './components/EmpresaEdit';
+import Bancos from './components/Bancos';
+import BancoEdit from './components/BancoEdit';
+import Cuentas from './components/Cuentas';
+import CuentaEdit from './components/CuentaEdit';
 import axios from 'axios';
 // We import the css
 import './css/App.css';
@@ -30,11 +34,15 @@ class App extends Component {
     this.loadEmpresas = this.loadEmpresas.bind(this);
     this.loadSAP = this.loadSAP.bind(this);
     this.loadRoles = this.loadRoles.bind(this);
+    this.loadBancos = this.loadBancos.bind(this);
+    this.loadCuentas = this.loadCuentas.bind(this);
 
     this.state = {
       logged: false,
       users: [],
       empresas: [],
+      bancos: [],
+      cuentas: [],
       usuariosSAP: [],
       proveedoresSAP: [],
       roles: []
@@ -69,6 +77,8 @@ class App extends Component {
     this.loadEmpresas();
     this.loadSAP();
     this.loadRoles();
+    this.loadBancos();
+    this.loadCuentas();
   }
 
   loadUsers() {
@@ -115,6 +125,40 @@ class App extends Component {
     })
       .then(function (resp) {
         t.setState({ roles: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  // Load bancos info
+  loadBancos() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'bancos',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ bancos: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  // Load bancos info
+  loadCuentas() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'cuentas',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ cuentas: resp.data });
       })
       .catch(function (err) {
         console.log(err);
@@ -226,7 +270,7 @@ class App extends Component {
                       <Empresas {...props}
                         url={url}
                         data={this.state.empresas}
-                        loadUsers={this.loadUsers}
+                        loadEmpresas={this.loadEmpresas}
                       />} />
 
                   <Route path="/edit-empresa/:id?"
@@ -235,6 +279,41 @@ class App extends Component {
                         url={url}
                         loadEmpresas={this.loadEmpresas}
                       />} />
+
+                  <Route path="/bancos"
+                    render={(props) =>
+                      <Bancos {...props}
+                        url={url}
+                        data={this.state.bancos}
+                        loadBancos={this.loadBancos}
+                      />} />
+
+                  <Route path="/edit-banco/:id?"
+                    render={(props) =>
+                      <BancoEdit {...props}
+                        url={url}
+                        data={this.state.bancos}
+                        loadBancos={this.loadBancos}
+                        empresas={this.state.empresas}
+                      />} />
+
+                  <Route path="/cuentas"
+                    render={(props) =>
+                      <Cuentas {...props}
+                        url={url}
+                        data={this.state.cuentas}
+                        loadCuentas={this.loadCuentas}
+                      />} />
+
+                      <Route path="/edit-cuenta/:id?"
+                      render={(props) =>
+                        <CuentaEdit {...props}
+                          url={url}
+                          data={this.state.cuentas}
+                          loadCuentas={this.loadCuentas}
+                          empresas={this.state.empresas}
+                          bancos={this.state.bancos}
+                        />} />
 
                 </React.Fragment>
               )}

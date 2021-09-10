@@ -6,8 +6,6 @@ import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Select2 from 'react-select';
 import { makeStyles } from '@material-ui/core/styles';
-import TableUsuariosEmpresas from './sub/TableUsuariosEmpresas';
-import AddEmpresas from './sub/AddEmpresas';
 import swal from 'sweetalert';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -31,54 +29,38 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const UserEdit = (props) => {
-    const [empresas, setEmpresas] = useState([]);
-    const [supervisor, setSupervisor] = useState(null);
-    const [roles, setRoles] = useState(null);
+const BancoEdit = (props) => {
     const [id, setId] = useState(-1);
-
-    const handleChangeSelect = (option, b) => {
-        if (b.name === "supervisor") {
-            setSupervisor(option);
-        }
-        if (b.name === "roles") {
-            setRoles(option);
-        }
-    }
+    const [empresa, setEmpresa] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
     // be called when the form is submitted
     const formik = useFormik({
         initialValues: {
-            email: '',
             nombre: '',
-            password: ''
+            codigo_banco_sap: '',
+            codigo_banco_file: '',
+            ruta_archivos: '',
         },
         onSubmit: values => {
             values.user_id = id;
-            values.empresas = empresas;
-            values.supervisor = supervisor;
-            values.roles = roles;
-            let data = JSON.stringify(values);
+            values.empresa = empresa;
 
-            if (
-                typeof props.match.params.id === "undefined" &&
-                values.password === ""
-            ) {
-                swal("Error", "¡Debe de ingresar la contraseña!", "error");
-            }
+            let data = JSON.stringify(values);
 
             if (id === -1) {
                 axios({
                     method: 'post',
-                    url: props.url + 'users',
+                    url: props.url + 'banco',
                     data,
                     responseType: "json",
                     headers: { "Content-Type": "application/json" }
                 })
                     .then(function (resp) {
                         swal("Éxito", resp.data.msg, "success");
+                        props.loadBancos();
+                        props.history.push(`/bancos`);
                     })
                     .catch(function (err) {
                         console.log(err);
@@ -87,43 +69,54 @@ const UserEdit = (props) => {
             } else {
                 axios({
                     method: 'put',
-                    url: props.url + 'users/' + id,
+                    url: props.url + 'banco/' + id,
                     data,
                     responseType: "json",
                     headers: { "Content-Type": "application/json" }
                 })
                     .then(function (resp) {
                         swal("Éxito", resp.data.msg, "success");
+                        props.loadBancos();
+                        props.history.push(`/bancos`);
                     })
                     .catch(function (err) {
                         console.log(err);
                         swal("Error", err.response.data.msg, "error");
                     });
             }
+
         },
     });
+
+    const handleChangeSelect = (option, b) => {
+        if (b.name === "empresa") {
+            setEmpresa(option);
+        }
+    }
 
     useEffect(() => {
         if (typeof props.match.params.id !== "undefined") {
             setId(props.match.params.id);
             axios({
                 method: 'get',
-                url: props.url + 'users/' + props.match.params.id,
+                url: props.url + 'banco/' + props.match.params.id,
                 responseType: "json",
                 headers: { "Content-Type": "application/json" }
             })
                 .then(function (resp) {
+                    // formik.setFieldValue('nombre', resp.data.nombre, false);
                     formik.setFieldValue('nombre', resp.data.nombre, false);
-                    formik.setFieldValue('email', resp.data.email, false);
-                    setEmpresas(resp.data.empresas);
-                    setSupervisor(
+                    formik.setFieldValue('codigo_banco_sap', resp.data.codigo_banco_sap, false);
+                    formik.setFieldValue('codigo_banco_file', resp.data.codigo_banco_file, false);
+                    formik.setFieldValue('ruta_archivos', resp.data.ruta_archivos, false);
+
+                    setEmpresa(
                         {
-                            "value": resp.data.supervisor,
-                            "label": resp.data.nombre_supervisor
+                            "value": resp.data.id_empresa,
+                            "label": resp.data.empresa
                         }
                     );
-                    setRoles(resp.data.roles);
-                    // swal("Atención", resp.data.msg, "success");
+
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -133,123 +126,87 @@ const UserEdit = (props) => {
         }
     }, [])
 
-    const removeEmpresa = (idx) => {
-        if (idx > -1) {
-            swal({
-                title: "¿Esta seguro?",
-                text: "¡Esta operación no se puede revertir!",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            })
-                .then((willDelete) => {
-                    if (willDelete) {
-                        let e = [...empresas];
-                        e.splice(idx, 1);
-                        setEmpresas(e);
-                    }
-                });
-        }
-    }
 
     return (
         <div className="main-container">
             <Typography variant="h3" component="h1" gutterBottom>
-                <Link className="link" to="/usuarios">
+                <Link className="link" to="/bancos">
                     <ArrowBackIosIcon />
                 </Link>
                 {
-                    typeof props.match.params.id !== "undefined" ? "Editar Usuario" : "Crear usuario"
+                    typeof props.match.params.id !== "undefined" ? "Editar banco" : "Crear banco"
                 }
             </Typography>
-            <div className="user-container">
-                <div className="left">
-                    <form onSubmit={formik.handleSubmit}>
+            <div className="empresa-container">
+                <form onSubmit={formik.handleSubmit}>
+                    <div className="left">
+                        <h2>Datos Banco</h2>
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
                                 id="nombre"
                                 name="nombre"
-                                label="Nombre"
+                                type="text"
+                                label="Nombre del banco"
                                 value={formik.values.nombre}
                                 onChange={formik.handleChange}
-                                error={formik.touched.nombre && Boolean(formik.errors.nombre)}
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
-                                id="email"
-                                name="email"
-                                label="Email"
-                                value={formik.values.email}
+                                id="codigo_banco_sap"
+                                name="codigo_banco_sap"
+                                type="text"
+                                label="Código Banco SAP"
+                                value={formik.values.codigo_banco_sap}
                                 onChange={formik.handleChange}
-                                error={formik.touched.email && Boolean(formik.errors.email)}
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
-                                id="password"
-                                name="password"
-                                label="Contraseña"
-                                type="password"
-                                value={formik.values.password}
+                                id="codigo_banco_file"
+                                name="codigo_banco_file"
+                                type="text"
+                                label="Código Archivo Banco"
+                                value={formik.values.codigo_banco_file}
                                 onChange={formik.handleChange}
-                                error={formik.touched.password && Boolean(formik.errors.password)}
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
-                            <FormControl variant="outlined" className="form-item">
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={supervisor}
-                                    name="supervisor"
-                                    id="supervisor"
-                                    options={props.users}
-                                    placeholder="*Selecciones supervisor"
-                                />
-                            </FormControl>
+                            <TextField
+                                fullWidth
+                                id="ruta_archivos"
+                                name="ruta_archivos"
+                                type="text"
+                                label="Ruta de Archivos"
+                                value={formik.values.ruta_archivos}
+                                onChange={formik.handleChange}
+                            />
                         </FormControl>
+
                         <FormControl className={classes.formControl}>
                             <FormControl variant="outlined" className="form-item">
                                 <Select2
                                     isSearchable={true}
                                     onChange={handleChangeSelect}
-                                    value={roles}
-                                    name="roles"
-                                    id="roles"
-                                    isMulti
-                                    options={props.roles}
-                                    placeholder="*Seleccione sus roles"
+                                    value={empresa}
+                                    name="empresa"
+                                    id="empresa"
+                                    options={props.empresas}
+                                    placeholder="*Selecciones empresa"
                                 />
                             </FormControl>
                         </FormControl>
-                    </form>
+                    </div>
+                </form>
 
-                </div>
-
-                <div className="right">
-
-                    <AddEmpresas
-                        setEmpresas={setEmpresas}
-                        data={empresas}
-                        ListadoEmpresas={props.ListadoEmpresas}
-                        proveedoresSAP={props.proveedoresSAP}
-                        usuariosSAP={props.usuariosSAP}
-                    />
-
-                    <TableUsuariosEmpresas
-                        data={empresas}
-                        removeEmpresa={removeEmpresa}
-                    />
-                </div>
-                <Button color="primary" variant="contained" className="full-button" fullWidth type="button" onClick={() => formik.submitForm()}>
-                    Guardar Usuario
+                <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
+                    Guardar
                 </Button>
             </div>
         </div>
     );
 };
-export default UserEdit;
+export default BancoEdit;

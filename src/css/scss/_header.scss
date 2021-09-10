@@ -1,39 +1,40 @@
-header{
-    .toolbar{
+header {
+    .toolbar {
         justify-content: space-between;
         svg,
-        .MuiButton-text{
+        .MuiButton-text {
             color: white;
         }
     }
-    h6{
-        img{
+    h6 {
+        img {
             height: 50px;
+            padding-top: 5px;
         }
-        span{
+        span {
             font-size: 18px;
             margin-left: 25px;
         }
     }
 }
-.drawer-header{
+.drawer-header {
     text-align: right;
 }
-.link{
+.link {
     text-decoration: none;
     color: rgba(0, 0, 0, 0.54);
 }
-.MuiDrawer-paper{
+.MuiDrawer-paper {
     background-color: transparent !important;
-    background-image: -webkit-linear-gradient( 60deg, rgb(63,81,181) 0%, rgb(78, 99, 213) 100%) !important;
+    background-image: -webkit-linear-gradient(60deg, rgb(63, 81, 181) 0%, rgb(78, 99, 213) 100%) !important;
     .MuiButtonBase-root,
-    svg{
+    svg {
         color: white !important;
     }
-    .Mui-selected{
+    .Mui-selected {
         background-color: rgba(255, 255, 255, 0.25) !important;
     }
-    hr{
+    hr {
         background-color: rgba(255, 255, 255, 0.25);
     }
 }

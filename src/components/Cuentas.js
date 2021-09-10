@@ -7,14 +7,15 @@ import swal from 'sweetalert';
 import axios from 'axios';
 import tableIcons from './sub/tableIcons';
 
-class Empresas extends Component {
+class Cuentas extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             columns: [
                 { title: 'ID', field: 'value' },
-                { title: 'Nombre', field: 'label' }
+                { title: 'Banco', field: 'banco' },
+                { title: 'Número de Cuenta', field: 'label' }
             ]
         };
     }
@@ -28,9 +29,9 @@ class Empresas extends Component {
         return (
             <div className="main-container">
                 <Typography variant="h3" component="h1" gutterBottom>
-                    Empresa
-                    <Link className="new-btn" to="/edit-empresa">
-                        Nueva Empresa
+                    Cuentas
+                    <Link className="new-btn" to="/edit-cuenta">
+                        Nueva Cuenta
                     </Link>
                 </Typography>
                 <div className="landing-container">
@@ -47,14 +48,14 @@ class Empresas extends Component {
                                 actions={[
                                     rowData => ({
                                         icon: Edit,
-                                        tooltip: 'Editar Empresa',
+                                        tooltip: 'Editar Cuenta',
                                         onClick: (event, rowData) => {
-                                            this.props.history.push("/edit-empresa/" + rowData.value);
+                                            this.props.history.push("/edit-cuenta/" + rowData.value);
                                         },
                                     }),
                                     rowData => ({
                                         icon: Delete,
-                                        tooltip: 'Eliminar Empresa',
+                                        tooltip: 'Eliminar Cuenta',
                                         onClick: (event, rowData) => {
                                             let t = this;
                                             swal({
@@ -68,13 +69,13 @@ class Empresas extends Component {
                                                     if (willDelete) {
                                                         axios({
                                                             method: 'delete',
-                                                            url: this.props.url + 'empresas/' + rowData.value,
+                                                            url: this.props.url + 'cuentas/' + rowData.value,
                                                             responseType: "json",
                                                             headers: { "Content-Type": "application/json" }
                                                         })
                                                             .then(function (resp) {
                                                                 swal("Atención", resp.data.msg, "success");
-                                                                t.props.loadEmpresas();
+                                                                t.props.loadCuentas();
                                                             })
                                                             .catch(function (err) {
                                                                 console.log(err);
@@ -114,4 +115,4 @@ class Empresas extends Component {
         );
     }
 }
-export default Empresas;
+export default Cuentas;
