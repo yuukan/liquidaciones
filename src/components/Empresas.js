@@ -29,7 +29,7 @@ class Empresas extends Component {
             <div className="main-container">
                 <Typography variant="h3" component="h1" gutterBottom>
                     Empresa
-                    <Link className="new-btn" to="/nuevo-usuario">
+                    <Link className="new-btn" to="/edit-empresa">
                         Nueva Empresa
                     </Link>
                 </Typography>
@@ -49,7 +49,7 @@ class Empresas extends Component {
                                         icon: Edit,
                                         tooltip: 'Editar Empresa',
                                         onClick: (event, rowData) => {
-                                            this.props.history.push("/edit-user/" + rowData.id);
+                                            this.props.history.push("/edit-empresa/" + rowData.value);
                                         },
                                     }),
                                     rowData => ({
@@ -68,7 +68,7 @@ class Empresas extends Component {
                                                     if (willDelete) {
                                                         axios({
                                                             method: 'delete',
-                                                            url: this.props.url + 'empresas/' + rowData.id,
+                                                            url: this.props.url + 'empresas/' + rowData.value,
                                                             responseType: "json",
                                                             headers: { "Content-Type": "application/json" }
                                                         })

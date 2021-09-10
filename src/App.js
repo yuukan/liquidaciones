@@ -3,11 +3,11 @@ import { HashRouter as Router, Route } from "react-router-dom";
 // Custom Components
 import Header from './components/Header';
 import Landing from './components/Landing';
-import Home from './components/Home';
 import Main from './components/Main';
 import Usuarios from './components/Usuarios';
 import Empresas from './components/Empresas';
 import UserEdit from './components/UserEdit';
+import EmpresaEdit from './components/EmpresaEdit';
 import axios from 'axios';
 // We import the css
 import './css/App.css';
@@ -229,24 +229,13 @@ class App extends Component {
                         loadUsers={this.loadUsers}
                       />} />
 
-                  <Route path="/nueva-orden"
+                  <Route path="/edit-empresa/:id?"
                     render={(props) =>
-                      <Home {...props}
+                      <EmpresaEdit {...props}
                         url={url}
-                        logged={this.state.logged}
-                        changeLogged={this.changeLogged}
-                        setUserInfo={this.setUserInfo}
-                        clientes={this.state.clientes}
-                        productos={this.state.productos}
-                        fletes={this.state.fletes}
-                        plants={this.state.plants}
-                        load_orders={this.load_orders}
-                        load_products={this.load_products}
-                        config={this.state.config}
-                        tipo_pago={this.state.tipo_pago}
-                        vendedores={this.state.vendedores}
-                        vendedor={this.state.vendedor}
+                        loadEmpresas={this.loadEmpresas}
                       />} />
+
                 </React.Fragment>
               )}
         </div>
