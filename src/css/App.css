@@ -217,6 +217,16 @@ header h6 span {
 .empresa-container {
   width: 100%;
   padding-bottom: 0; }
+  .empresa-container .full {
+    width: 100%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 25px;
+    margin-bottom: 50px; }
+    .empresa-container .full h2 {
+      font-size: 20px;
+      margin-bottom: 25px;
+      color: #1d4b9a;
+      font-weight: bold; }
   .empresa-container form {
     width: 100%;
     padding: 0;
@@ -246,7 +256,8 @@ header h6 span {
         .empresa-container form .right .section h2 {
           font-size: 20px;
           color: #1d4b9a;
-          font-weight: bold; }
+          font-weight: bold;
+          margin-bottom: 25px; }
     .empresa-container form .full-button {
       margin-top: 50px;
       width: 100%; }

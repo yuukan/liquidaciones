@@ -1,6 +1,18 @@
 .empresa-container {
     width: 100%;
     padding-bottom: 0;
+    .full {
+        width: 100%;
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+        padding: 25px;
+        margin-bottom: 50px;
+        h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+            color: $light-blue;
+            font-weight: bold;
+        }
+    }
     form {
         width: 100%;
         padding: 0;
@@ -34,6 +46,7 @@
                     font-size: 20px;
                     color: $light-blue;
                     font-weight: bold;
+                    margin-bottom: 25px;
                 }
             }
         }
