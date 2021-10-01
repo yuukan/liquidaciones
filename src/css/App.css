@@ -262,6 +262,9 @@ header h6 span {
       margin-top: 50px;
       width: 100%; }
 
+.fix-top {
+  padding-top: 20px !important; }
+
 .main-container {
   padding: 27px 15px; }
   .main-container .landing-container {
