@@ -15,6 +15,7 @@ import CuentaEdit from './components/CuentaEdit';
 import Gastos from './components/Gastos';
 import axios from 'axios';
 import GastoEdit from './components/GastoEdit';
+import Presupuestos from './components/Presupuestos';
 // We import the css
 import './css/App.css';
 
@@ -53,7 +54,8 @@ class App extends Component {
       roles: [],
       grupos: [],
       cuentas_contables:[],
-      impuestos: []
+      impuestos: [],
+      presupuestos: []
     };
   }
 
@@ -71,7 +73,8 @@ class App extends Component {
       roles: [],
       grupos: [],
       cuentas_contables:[],
-      impuestos: []
+      impuestos: [],
+      presupuestos: []
     })
   }
 
@@ -98,6 +101,7 @@ class App extends Component {
     this.loadRoles();
     this.loadBancos();
     this.loadCuentas();
+    this.loadPresupuestos();
   }
 
   loadUsers() {
@@ -144,6 +148,23 @@ class App extends Component {
     })
       .then(function (resp) {
         t.setState({ gastos: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  // Load presupuestos list
+  loadPresupuestos() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'presupuestos',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ presupuestos: resp.data });
       })
       .catch(function (err) {
         console.log(err);
@@ -375,6 +396,14 @@ class App extends Component {
                         grupos={this.state.grupos}
                         cuentas_contables={this.state.cuentas_contables}
                         impuestos={this.state.impuestos}
+                      />} />
+
+                      <Route path="/presupuestos"
+                    render={(props) =>
+                      <Presupuestos {...props}
+                        url={url}
+                        data={this.state.presupuestos}
+                        loadBancos={this.loadPresupuestos}
                       />} />
 
                   <Route path="/bancos"
