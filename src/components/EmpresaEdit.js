@@ -421,6 +421,9 @@ const EmpresaEdit = (props) => {
                             />
                         </FormControl>
                         <FormControl className={classes.formControl} variant="outlined">
+                            <label htmlFor="valor_impuesto" className="manual">
+                                Valor Impuesto
+                            </label>
                             <Select2
                                 isSearchable={true}
                                 isClearable={true}
@@ -535,6 +538,9 @@ const EmpresaEdit = (props) => {
                         <div className="section">
                             <h2>SAP</h2>
                             <FormControl className={classes.formControl} variant="outlined">
+                                <label htmlFor="sap_db_type" className="manual">
+                                    Tipo Base de Datos SAP
+                                </label>
                                 <Select2
                                     isSearchable={true}
                                     isClearable={true}
