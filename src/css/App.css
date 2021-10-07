@@ -214,6 +214,11 @@ header h6 span {
       border: 1px solid white;
       text-align: center; }
 
+label.manual {
+  margin-bottom: 10px;
+  margin-top: 10px;
+  color: rgba(0, 0, 0, 0.54); }
+
 .empresa-container {
   width: 100%;
   padding-bottom: 0; }

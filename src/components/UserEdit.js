@@ -201,6 +201,9 @@ const UserEdit = (props) => {
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <FormControl variant="outlined" className="form-item">
+                                <label className="manual" htmlFor="supervisor">
+                                    Supervisor
+                                </label>
                                 <Select2
                                     isSearchable={true}
                                     onChange={handleChangeSelect}
@@ -214,6 +217,9 @@ const UserEdit = (props) => {
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <FormControl variant="outlined" className="form-item">
+                                <label className="manual" htmlFor="roles">
+                                    Roles
+                                </label>
                                 <Select2
                                     isSearchable={true}
                                     onChange={handleChangeSelect}
