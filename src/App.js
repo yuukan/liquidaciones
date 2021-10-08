@@ -16,6 +16,7 @@ import Gastos from './components/Gastos';
 import axios from 'axios';
 import GastoEdit from './components/GastoEdit';
 import Presupuestos from './components/Presupuestos';
+import PresupuestoEdit from './components/PresupuestoEdit';
 // We import the css
 import './css/App.css';
 
@@ -43,6 +44,10 @@ class App extends Component {
     this.loadGastosGrupos = this.loadGastosGrupos.bind(this);
     this.loadSAPEmpresa = this.loadSAPEmpresa.bind(this);
     this.cleanSAPEmpresa = this.cleanSAPEmpresa.bind(this);
+    this.loadTipoGasto = this.loadTipoGasto.bind(this);
+    this.loadCategoriaGasto = this.loadCategoriaGasto.bind(this);
+    this.loadFrecuenciaGasto = this.loadFrecuenciaGasto.bind(this);
+    this.loadPresupuestos = this.loadPresupuestos.bind(this);
 
     this.state = {
       logged: false,
@@ -58,7 +63,10 @@ class App extends Component {
       cuentas_contables: [],
       impuestos: [],
       presupuestos: [],
-      loading: false
+      loading: false,
+      tipo_gastos: [],
+      categoria_gastos: [],
+      frecuencia_gastos: [],
     };
   }
 
@@ -105,6 +113,9 @@ class App extends Component {
     this.loadBancos();
     this.loadCuentas();
     this.loadPresupuestos();
+    this.loadTipoGasto();
+    this.loadCategoriaGasto();
+    this.loadFrecuenciaGasto();
   }
 
   loadUsers() {
@@ -117,6 +128,54 @@ class App extends Component {
     })
       .then(function (resp) {
         t.setState({ users: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  loadTipoGasto() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'tipo-gasto',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ tipo_gastos: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  loadCategoriaGasto() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'categoria-gasto',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ categoria_gastos: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  loadFrecuenciaGasto() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'frecuencia-gasto',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ frecuencia_gastos: resp.data });
       })
       .catch(function (err) {
         console.log(err);
@@ -427,6 +486,18 @@ class App extends Component {
                         url={url}
                         data={this.state.presupuestos}
                         loadBancos={this.loadPresupuestos}
+                      />} />
+
+                      <Route path="/edit-presupuesto/:id?"
+                    render={(props) =>
+                      <PresupuestoEdit {...props}
+                        url={url}
+                        loadPresupuestos={this.loadPresupuestos}
+                        empresas={this.state.empresas}
+                        loading={this.state.loading}
+                        tipo_gastos={this.state.tipo_gastos}
+                        categoria_gastos={this.state.categoria_gastos}
+                        frecuencia_gastos={this.state.frecuencia_gastos}
                       />} />
 
                   <Route path="/bancos"
