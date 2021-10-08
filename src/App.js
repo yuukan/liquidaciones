@@ -441,6 +441,8 @@ class App extends Component {
                         proveedoresSAP={this.state.proveedoresSAP}
                         users={this.state.users}
                         roles={this.state.roles}
+                        presupuestos={this.state.presupuestos}
+                        loadUsers={this.loadUsers}
                       />} />
 
                   <Route path="/empresas"

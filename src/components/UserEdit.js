@@ -35,6 +35,7 @@ const UserEdit = (props) => {
     const [empresas, setEmpresas] = useState([]);
     const [supervisor, setSupervisor] = useState(null);
     const [roles, setRoles] = useState(null);
+    const [presupuestos, setPresupuestos] = useState(null);
     const [id, setId] = useState(-1);
 
     const handleChangeSelect = (option, b) => {
@@ -43,6 +44,9 @@ const UserEdit = (props) => {
         }
         if (b.name === "roles") {
             setRoles(option);
+        }
+        if (b.name === "presupuestos") {
+            setPresupuestos(option);
         }
     }
 
@@ -60,6 +64,7 @@ const UserEdit = (props) => {
             values.empresas = empresas;
             values.supervisor = supervisor;
             values.roles = roles;
+            values.presupuestos = presupuestos;
             let data = JSON.stringify(values);
 
             if (
@@ -79,6 +84,8 @@ const UserEdit = (props) => {
                 })
                     .then(function (resp) {
                         swal("Éxito", resp.data.msg, "success");
+                        props.loadUsers();
+                        props.history.push(`/usuarios`);
                     })
                     .catch(function (err) {
                         console.log(err);
@@ -94,6 +101,8 @@ const UserEdit = (props) => {
                 })
                     .then(function (resp) {
                         swal("Éxito", resp.data.msg, "success");
+                        props.loadUsers();
+                        props.history.push(`/usuarios`);
                     })
                     .catch(function (err) {
                         console.log(err);
@@ -123,6 +132,8 @@ const UserEdit = (props) => {
                         }
                     );
                     setRoles(resp.data.roles);
+
+                    setPresupuestos(resp.data.presupuestos);
                     // swal("Atención", resp.data.msg, "success");
                 })
                 .catch(function (err) {
@@ -229,6 +240,23 @@ const UserEdit = (props) => {
                                     isMulti
                                     options={props.roles}
                                     placeholder="*Seleccione sus roles"
+                                />
+                            </FormControl>
+                        </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <FormControl variant="outlined" className="form-item">
+                                <label className="manual" htmlFor="roles">
+                                    Presupuestos
+                                </label>
+                                <Select2
+                                    isSearchable={true}
+                                    onChange={handleChangeSelect}
+                                    value={presupuestos}
+                                    name="presupuestos"
+                                    id="presupuestos"
+                                    isMulti
+                                    options={props.presupuestos}
+                                    placeholder="*Seleccione sus presupuestos"
                                 />
                             </FormControl>
                         </FormControl>
