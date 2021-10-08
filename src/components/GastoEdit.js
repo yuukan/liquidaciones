@@ -50,6 +50,7 @@ const GastoEdit = (props) => {
     const [control_kilometraje, setKilometraje] = useState(false);
     const [exento_sub, setExentoSub] = useState(false);
     const [tipo, setTipo] = useState('cantidad');
+    const [empresa, setEmpresa] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
@@ -65,6 +66,7 @@ const GastoEdit = (props) => {
 
             if (
                 values.descripcion === '' ||
+                !empresa ||
                 grupo === null
             ) {
                 swal("Error", "¡Debes llenar todos los datos!", "error");
@@ -87,6 +89,8 @@ const GastoEdit = (props) => {
                 values.afecto_impuesto_nombre = codigo_impuesto_afecto.label;
                 values.remanente_impuesto_codigo = codigo_impuesto_remanente.value;
                 values.remanente_impuesto_nombre = codigo_impuesto_remanente.label;
+                values.empresa_codigo = empresa.value;
+                values.empresa_nombre = empresa.label;
 
                 values.sub = sub;
 
@@ -103,6 +107,7 @@ const GastoEdit = (props) => {
                         .then(function (resp) {
                             swal("Éxito", resp.data.msg, "success");
                             props.loadGastos();
+                            props.cleanSAPEmpresa();
                             props.history.push(`/gastos`);
                         })
                         .catch(function (err) {
@@ -120,6 +125,7 @@ const GastoEdit = (props) => {
                         .then(function (resp) {
                             swal("Éxito", resp.data.msg, "success");
                             props.loadGastos();
+                            props.cleanSAPEmpresa();
                             props.history.push(`/gastos`);
                         })
                         .catch(function (err) {
@@ -203,6 +209,10 @@ const GastoEdit = (props) => {
         if (b.name === "codigo_impuesto_remanente") {
             setImpuestoRemanente(option);
         }
+        if (b.name === "empresa") {
+            setEmpresa(option);
+            props.loadSAPEmpresa(option.value);
+        }
     }
 
     useEffect(() => {
@@ -271,6 +281,14 @@ const GastoEdit = (props) => {
                         }
                     );
 
+                    setEmpresa(
+                        {
+                            "value": resp.data.empresa_codigo,
+                            "label": resp.data.empresa_nombre
+                        }
+                    );
+                    
+                    props.loadSAPEmpresa(resp.data.empresa_codigo);
 
                     setSub(resp.data.sub);
 
@@ -299,6 +317,23 @@ const GastoEdit = (props) => {
                     <div className="left">
                         <h2>Datos Gastos</h2>
                         <FormControl variant="outlined" className={classes.formControl}>
+                            <label htmlFor="empresa" className="manual">
+                                Empresa
+                            </label>
+                            <Select2
+                                isSearchable={true}
+                                onChange={handleChangeSelect}
+                                value={empresa}
+                                name="empresa"
+                                id="empresa"
+                                options={props.empresas}
+                                placeholder="*Seleccione Empresa"
+                            />
+                        </FormControl>
+                        <FormControl variant="outlined" className={classes.formControl}>
+                            <label htmlFor="grupo" className="manual">
+                                Seleccione Grupo
+                            </label>
                             <Select2
                                 isSearchable={true}
                                 onChange={handleChangeSelect}
@@ -306,7 +341,7 @@ const GastoEdit = (props) => {
                                 name="grupo"
                                 id="grupo"
                                 options={props.grupos}
-                                placeholder="*Selecciones Grupo"
+                                placeholder="*Seleccione Grupo"
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
@@ -367,87 +402,116 @@ const GastoEdit = (props) => {
                         </FormControl>
                     </div>
                     <div className="right">
-                        <div className="section">
-                            <h2>
-                                Exento
-                            </h2>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={cuentas_contables_exento}
-                                    name="cuentas_contables_exento"
-                                    id="cuentas_contables_exento"
-                                    options={props.cuentas_contables}
-                                    placeholder="*Cuenta Contable"
-                                />
-                            </FormControl>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={codigo_impuesto_exento}
-                                    name="codigo_impuesto_exento"
-                                    id="codigo_impuesto_exento"
-                                    options={props.impuestos}
-                                    placeholder="*Impuesto"
-                                />
-                            </FormControl>
-                        </div>
-                        <div className="section">
-                            <h2>
-                                Afecto
-                            </h2>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={cuentas_contables_afecto}
-                                    name="cuentas_contables_afecto"
-                                    id="cuentas_contables_afecto"
-                                    options={props.cuentas_contables}
-                                    placeholder="*Cuenta Contable"
-                                />
-                            </FormControl>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={codigo_impuesto_afecto}
-                                    name="codigo_impuesto_afecto"
-                                    id="codigo_impuesto_afecto"
-                                    options={props.impuestos}
-                                    placeholder="*Impuesto"
-                                />
-                            </FormControl>
-                        </div>
-                        <div className="section">
-                            <h2>
-                                Remanente
-                            </h2>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={cuentas_contables_remanente}
-                                    name="cuentas_contables_remanente"
-                                    id="cuentas_contables_remanente"
-                                    options={props.cuentas_contables}
-                                    placeholder="*Cuenta Contable"
-                                />
-                            </FormControl>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={codigo_impuesto_remanente}
-                                    name="codigo_impuesto_remanente"
-                                    id="codigo_impuesto_remanente"
-                                    options={props.impuestos}
-                                    placeholder="*Impuesto"
-                                />
-                            </FormControl>
-                        </div>
+                        {
+                            props.loading ?
+                                (
+                                    <img src="./images/loading.gif" alt="" />
+                                ) :
+                                props.cuentas_contables.length > 0 && props.impuestos.length > 0 ?
+                                    (
+                                        <React.Fragment>
+                                            <div className="section">
+                                                <h2>
+                                                    Exento
+                                                </h2>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="cuentas_contables_exento" className="manual">
+                                                        Cuenta Contable
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={cuentas_contables_exento}
+                                                        name="cuentas_contables_exento"
+                                                        id="cuentas_contables_exento"
+                                                        options={props.cuentas_contables}
+                                                        placeholder="*Cuenta Contable"
+                                                    />
+                                                </FormControl>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="codigo_impuesto_exento" className="manual">
+                                                        Código Impuesto
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={codigo_impuesto_exento}
+                                                        name="codigo_impuesto_exento"
+                                                        id="codigo_impuesto_exento"
+                                                        options={props.impuestos}
+                                                        placeholder="*Impuesto"
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <div className="section">
+                                                <h2>
+                                                    Afecto
+                                                </h2>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="cuentas_contables_afecto" className="manual">
+                                                        Cuenta Contable
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={cuentas_contables_afecto}
+                                                        name="cuentas_contables_afecto"
+                                                        id="cuentas_contables_afecto"
+                                                        options={props.cuentas_contables}
+                                                        placeholder="*Cuenta Contable"
+                                                    />
+                                                </FormControl>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="codigo_impuesto_exento" className="manual">
+                                                        Código Impuesto
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={codigo_impuesto_afecto}
+                                                        name="codigo_impuesto_afecto"
+                                                        id="codigo_impuesto_afecto"
+                                                        options={props.impuestos}
+                                                        placeholder="*Impuesto"
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                            <div className="section">
+                                                <h2>
+                                                    Remanente
+                                                </h2>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="cuentas_contables_remanente" className="manual">
+                                                        Cuenta Contable
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={cuentas_contables_remanente}
+                                                        name="cuentas_contables_remanente"
+                                                        id="cuentas_contables_remanente"
+                                                        options={props.cuentas_contables}
+                                                        placeholder="*Cuenta Contable"
+                                                    />
+                                                </FormControl>
+                                                <FormControl variant="outlined" className={classes.formControl}>
+                                                    <label htmlFor="codigo_impuesto_remanente" className="manual">
+                                                        Código Impuesto
+                                                    </label>
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={codigo_impuesto_remanente}
+                                                        name="codigo_impuesto_remanente"
+                                                        id="codigo_impuesto_remanente"
+                                                        options={props.impuestos}
+                                                        placeholder="*Impuesto"
+                                                    />
+                                                </FormControl>
+                                            </div>
+                                        </React.Fragment>
+                                    ) : ""
+                        }
                     </div>
                 </form>
 

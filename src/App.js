@@ -41,6 +41,8 @@ class App extends Component {
     this.loadBancos = this.loadBancos.bind(this);
     this.loadCuentas = this.loadCuentas.bind(this);
     this.loadGastosGrupos = this.loadGastosGrupos.bind(this);
+    this.loadSAPEmpresa = this.loadSAPEmpresa.bind(this);
+    this.cleanSAPEmpresa = this.cleanSAPEmpresa.bind(this);
 
     this.state = {
       logged: false,
@@ -53,9 +55,10 @@ class App extends Component {
       proveedoresSAP: [],
       roles: [],
       grupos: [],
-      cuentas_contables:[],
+      cuentas_contables: [],
       impuestos: [],
-      presupuestos: []
+      presupuestos: [],
+      loading: false
     };
   }
 
@@ -72,7 +75,7 @@ class App extends Component {
       proveedoresSAP: [],
       roles: [],
       grupos: [],
-      cuentas_contables:[],
+      cuentas_contables: [],
       impuestos: [],
       presupuestos: []
     })
@@ -268,10 +271,18 @@ class App extends Component {
       .catch(function (err) {
         console.log(err);
       });
+  }
+
+  loadSAPEmpresa(empresa) {
+    let t = this;
+    t.setState({ loading: true });
     // Get cuentas contables de SAP
     axios({
       method: 'get',
       url: url + 'sap/cuentas-contables',
+      data: {
+        empresa: empresa
+      },
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -281,19 +292,27 @@ class App extends Component {
       .catch(function (err) {
         console.log(err);
       });
-    // Get usuarios de SAP
+
+    // Get impiuestos de SAP
     axios({
       method: 'get',
       url: url + 'sap/impuestos',
+      data: {
+        empresa: empresa
+      },
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
       .then(function (resp) {
-        t.setState({ impuestos: resp.data });
+        t.setState({ impuestos: resp.data, loading: false });
       })
       .catch(function (err) {
         console.log(err);
       });
+  }
+
+  cleanSAPEmpresa() {
+    this.setState({ impuestos: [], cuentas_contables: [] });
   }
 
   render() {
@@ -393,12 +412,16 @@ class App extends Component {
                       <GastoEdit {...props}
                         url={url}
                         loadGastos={this.loadGastos}
+                        loadSAPEmpresa={this.loadSAPEmpresa}
                         grupos={this.state.grupos}
                         cuentas_contables={this.state.cuentas_contables}
                         impuestos={this.state.impuestos}
+                        empresas={this.state.empresas}
+                        loading={this.state.loading}
+                        cleanSAPEmpresa={this.cleanSAPEmpresa}
                       />} />
 
-                      <Route path="/presupuestos"
+                  <Route path="/presupuestos"
                     render={(props) =>
                       <Presupuestos {...props}
                         url={url}
@@ -431,15 +454,15 @@ class App extends Component {
                         loadCuentas={this.loadCuentas}
                       />} />
 
-                      <Route path="/edit-cuenta/:id?"
-                      render={(props) =>
-                        <CuentaEdit {...props}
-                          url={url}
-                          data={this.state.cuentas}
-                          loadCuentas={this.loadCuentas}
-                          empresas={this.state.empresas}
-                          bancos={this.state.bancos}
-                        />} />
+                  <Route path="/edit-cuenta/:id?"
+                    render={(props) =>
+                      <CuentaEdit {...props}
+                        url={url}
+                        data={this.state.cuentas}
+                        loadCuentas={this.loadCuentas}
+                        empresas={this.state.empresas}
+                        bancos={this.state.bancos}
+                      />} />
 
                 </React.Fragment>
               )}
