@@ -501,42 +501,6 @@ class App extends Component {
                         categoria_gastos={this.state.categoria_gastos}
                         frecuencia_gastos={this.state.frecuencia_gastos}
                       />} />
-
-                  <Route path="/bancos"
-                    render={(props) =>
-                      <Bancos {...props}
-                        url={url}
-                        data={this.state.bancos}
-                        loadBancos={this.loadBancos}
-                      />} />
-
-                  <Route path="/edit-banco/:id?"
-                    render={(props) =>
-                      <BancoEdit {...props}
-                        url={url}
-                        data={this.state.bancos}
-                        loadBancos={this.loadBancos}
-                        empresas={this.state.empresas}
-                      />} />
-
-                  <Route path="/cuentas"
-                    render={(props) =>
-                      <Cuentas {...props}
-                        url={url}
-                        data={this.state.cuentas}
-                        loadCuentas={this.loadCuentas}
-                      />} />
-
-                  <Route path="/edit-cuenta/:id?"
-                    render={(props) =>
-                      <CuentaEdit {...props}
-                        url={url}
-                        data={this.state.cuentas}
-                        loadCuentas={this.loadCuentas}
-                        empresas={this.state.empresas}
-                        bancos={this.state.bancos}
-                      />} />
-
                 </React.Fragment>
               )}
         </div>

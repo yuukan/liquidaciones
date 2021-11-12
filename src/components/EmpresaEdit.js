@@ -173,7 +173,8 @@ const EmpresaEdit = (props) => {
             usuario_sql: '',
             dias_atraso_facturacion_ruta: '',
             dias_atraso_facturacion_gastos: '',
-            dia_efectivo_ajuste: ''
+            dia_efectivo_ajuste: '',
+            ruta_archivos_bancos: ''
         },
         onSubmit: values => {
             values.user_id = id;
@@ -258,6 +259,7 @@ const EmpresaEdit = (props) => {
                     formik.setFieldValue('dias_atraso_facturacion_ruta', resp.data.dias_atraso_facturacion_ruta, false);
                     formik.setFieldValue('dias_atraso_facturacion_gastos', resp.data.dias_atraso_facturacion_gastos, false);
                     formik.setFieldValue('dia_efectivo_ajuste', resp.data.dia_efectivo_ajuste, false);
+                    formik.setFieldValue('ruta_archivos_bancos', resp.data.ruta_archivos_bancos, false);
 
                     setremanente_nota_credito(resp.data.remanente_nota_credito === 1);
                     setmaneja_xml(resp.data.maneja_xml === 1);
@@ -350,7 +352,7 @@ const EmpresaEdit = (props) => {
                                 fullWidth
                                 id="servidor_sql"
                                 name="servidor_sql"
-                                label="Servidor SQL"
+                                label="Servidor SQL (Como esta en el License Manager)"
                                 type="text"
                                 value={servidor_sql}
                                 onChange={handleChange}
@@ -467,7 +469,7 @@ const EmpresaEdit = (props) => {
                                 id="dia_efectivo_ajuste"
                                 name="dia_efectivo_ajuste"
                                 label="Día efectivo del ajuste"
-                                type="text"
+                                type="number"
                                 value={formik.values.dia_efectivo_ajuste}
                                 onChange={formik.handleChange}
                                 error={formik.touched.dia_efectivo_ajuste && Boolean(formik.errors.dia_efectivo_ajuste)}
@@ -533,6 +535,18 @@ const EmpresaEdit = (props) => {
                                 label="¿Control número de Factura?"
                             />
                         </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <TextField
+                                fullWidth
+                                id="ruta_archivos_bancos"
+                                name="ruta_archivos_bancos"
+                                label="Ruta de archivos Bancos"
+                                type="text"
+                                value={formik.values.ruta_archivos_bancos}
+                                onChange={formik.handleChange}
+                                error={formik.touched.ruta_archivos_bancos && Boolean(formik.errors.ruta_archivos_bancos)}
+                            />
+                        </FormControl>
                     </div>
                     <div className="right">
                         <div className="section">
@@ -557,7 +571,7 @@ const EmpresaEdit = (props) => {
                                     fullWidth
                                     id="servidor_licencias"
                                     name="servidor_licencias"
-                                    label="Servidor de Licencias"
+                                    label="Servidor de Licencias (IP)"
                                     value={formik.values.servidor_licencias}
                                     onChange={formik.handleChange}
                                     error={formik.touched.servidor_licencias && Boolean(formik.errors.servidor_licencias)}
