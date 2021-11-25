@@ -48,6 +48,7 @@ const GastoEdit = (props) => {
     const [depreciacion, setDepreciacion] = useState(false);
     const [control_combustible, setCombustible] = useState(false);
     const [control_kilometraje, setKilometraje] = useState(false);
+    const [lleva_subgastos, setLleva] = useState(false);
     const [exento_sub, setExentoSub] = useState(false);
     const [tipo, setTipo] = useState('cantidad');
     const [empresa, setEmpresa] = useState(false);
@@ -77,6 +78,7 @@ const GastoEdit = (props) => {
                 values.depreciacion = depreciacion;
                 values.control_combustible = control_combustible ? 1 : 0;
                 values.control_kilometraje = control_kilometraje ? 1 : 0;
+                values.lleva_subgastos = lleva_subgastos ? 1 : 0;
                 values.exento_codigo = cuentas_contables_exento.value;
                 values.exento_nombre = cuentas_contables_exento.label;
                 values.afecto_codigo = cuentas_contables_afecto.value;
@@ -238,6 +240,7 @@ const GastoEdit = (props) => {
                     setDepreciacion(resp.data.depreciacion === 1);
                     setCombustible(resp.data.control_combustible === 1);
                     setKilometraje(resp.data.control_kilometraje === 1);
+                    setLleva(resp.data.lleva_subgastos === 1);
 
                     setContablesExento(
                         {
@@ -287,7 +290,7 @@ const GastoEdit = (props) => {
                             "label": resp.data.empresa_nombre
                         }
                     );
-                    
+
                     props.loadSAPEmpresa(resp.data.empresa_codigo);
 
                     setSub(resp.data.sub);
@@ -382,7 +385,7 @@ const GastoEdit = (props) => {
                                         inputProps={{ 'aria-label': 'secondary checkbox' }}
                                     />
                                 }
-                                label="Cointrol Comustible"
+                                label="Control Comustible"
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
@@ -398,6 +401,21 @@ const GastoEdit = (props) => {
                                     />
                                 }
                                 label="Control Kilometraje"
+                            />
+                        </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={lleva_subgastos}
+                                        color="primary"
+                                        onChange={() => setLleva(!lleva_subgastos)}
+                                        name="lleva_subgastos"
+                                        id="lleva_subgastos"
+                                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                                    />
+                                }
+                                label="Lleva Subgastos"
                             />
                         </FormControl>
                     </div>
@@ -515,131 +533,137 @@ const GastoEdit = (props) => {
                     </div>
                 </form>
 
-                <div className="full">
-                    <Grid container spacing={2}>
-                        <Grid item xs={3}>
-                            <FormControl className={classes.formControl}>
-                                <TextField
-                                    id="descripcion_sub"
-                                    name="descripcion_sub"
-                                    type="text"
-                                    label="Descripción Subgasto"
-                                    value={formik.values.descripcion_sub}
-                                    onChange={formik.handleChange}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2} className="fix-top">
-                            <FormControl className={classes.formControl}>
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={exento_sub}
-                                            color="primary"
-                                            onChange={() => setExentoSub(!exento_sub)}
-                                            name="exento_sub"
-                                            id="exento_sub"
-                                            inputProps={{ 'aria-label': 'secondary checkbox' }}
-                                        />
-                                    }
-                                    label="Exento"
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={3} className="fix-top">
-                            <FormControl component="fieldset">
-                                <RadioGroup
-                                    row
-                                    aria-label="Tipo"
-                                    name="tipo"
-                                    defaultValue="cantidad"
-                                    onChange={handleChangeTipo}
-                                >
-                                    <FormControlLabel value="cantidad" control={<Radio />} label="Cantidad" />
-                                    <FormControlLabel value="porcentaje" control={<Radio />} label="Porcentaje" />
-                                </RadioGroup>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2}>
-                            <FormControl className={classes.formControl}>
-                                <TextField
-                                    id="valor_sub"
-                                    name="valor_sub"
-                                    type="text"
-                                    label="Valor Subgasto"
-                                    value={formik.values.valor_sub}
-                                    onChange={formik.handleChange}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2} className="fix-top">
-                            <Button color="primary" variant="contained" fullWidth type="button" onClick={addSub}>
-                                Agregar
-                            </Button>
-                        </Grid>
-                    </Grid>
-                    <div className="table-container">
-                        <table className="detail-table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Descripcion
-                                    </th>
-                                    <th>
-                                        Exento
-                                    </th>
-                                    <th>
-                                        Tipo
-                                    </th>
-                                    <th>
-                                        Valor
-                                    </th>
-                                    <th>
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            {sub && sub.length > 0
-                                ?
-                                (
-                                    <tbody>
-                                        {
-                                            sub.map((key, idx) => (
-                                                <tr key={idx}>
-                                                    <td>
-                                                        {key.descripcion}
-                                                    </td>
-                                                    <td>
-                                                        {!key.exento ? "no" : "si"}
-                                                    </td>
-                                                    <td>
-                                                        {key.tipo}
-                                                    </td>
-                                                    <td>
-                                                        {key.valor}
-                                                    </td>
-                                                    <td>
-                                                        <Button
-                                                            color="secondary"
-                                                            variant="contained"
-                                                            fullWidth
-                                                            type="button"
-                                                            className="horizontal-btn-fix"
-                                                            onClick={() => removeSub(idx)}
-                                                        >
-                                                            <Delete />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        }
-                                    </tbody>
-                                )
-                                : ""}
-                        </table>
-                    </div>
-                </div>
+                {
+                    lleva_subgastos ?
+                        (
 
+
+                            <div className="full">
+                                <Grid container spacing={2}>
+                                    <Grid item xs={3}>
+                                        <FormControl className={classes.formControl}>
+                                            <TextField
+                                                id="descripcion_sub"
+                                                name="descripcion_sub"
+                                                type="text"
+                                                label="Descripción Subgasto"
+                                                value={formik.values.descripcion_sub}
+                                                onChange={formik.handleChange}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2} className="fix-top">
+                                        <FormControl className={classes.formControl}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        checked={exento_sub}
+                                                        color="primary"
+                                                        onChange={() => setExentoSub(!exento_sub)}
+                                                        name="exento_sub"
+                                                        id="exento_sub"
+                                                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                                                    />
+                                                }
+                                                label="Exento"
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={3} className="fix-top">
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                row
+                                                aria-label="Tipo"
+                                                name="tipo"
+                                                defaultValue="cantidad"
+                                                onChange={handleChangeTipo}
+                                            >
+                                                <FormControlLabel value="cantidad" control={<Radio />} label="Cantidad" />
+                                                <FormControlLabel value="porcentaje" control={<Radio />} label="Porcentaje" />
+                                            </RadioGroup>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                        <FormControl className={classes.formControl}>
+                                            <TextField
+                                                id="valor_sub"
+                                                name="valor_sub"
+                                                type="text"
+                                                label="Valor Subgasto"
+                                                value={formik.values.valor_sub}
+                                                onChange={formik.handleChange}
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2} className="fix-top">
+                                        <Button color="primary" variant="contained" fullWidth type="button" onClick={addSub}>
+                                            Agregar
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                                <div className="table-container">
+                                    <table className="detail-table">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Descripcion
+                                                </th>
+                                                <th>
+                                                    Exento
+                                                </th>
+                                                <th>
+                                                    Tipo
+                                                </th>
+                                                <th>
+                                                    Valor
+                                                </th>
+                                                <th>
+                                                    Acciones
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        {sub && sub.length > 0
+                                            ?
+                                            (
+                                                <tbody>
+                                                    {
+                                                        sub.map((key, idx) => (
+                                                            <tr key={idx}>
+                                                                <td>
+                                                                    {key.descripcion}
+                                                                </td>
+                                                                <td>
+                                                                    {!key.exento ? "no" : "si"}
+                                                                </td>
+                                                                <td>
+                                                                    {key.tipo}
+                                                                </td>
+                                                                <td>
+                                                                    {key.valor}
+                                                                </td>
+                                                                <td>
+                                                                    <Button
+                                                                        color="secondary"
+                                                                        variant="contained"
+                                                                        fullWidth
+                                                                        type="button"
+                                                                        className="horizontal-btn-fix"
+                                                                        onClick={() => removeSub(idx)}
+                                                                    >
+                                                                        <Delete />
+                                                                    </Button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    }
+                                                </tbody>
+                                            )
+                                            : ""}
+                                    </table>
+                                </div>
+                            </div>
+                        ) : ""
+                }
                 <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
                     Guardar
                 </Button>
