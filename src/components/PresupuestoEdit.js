@@ -149,7 +149,7 @@ const PresupuestoEdit = (props) => {
             !categoria_gasto ||
             !frecuencia || 
             formik.values.asignacion_cantidad === "" ||
-            formik.values.asignacion_medida === ""
+            (tipo_asignacion !== "dinero" && formik.values.asignacion_medida === "") 
         ) {
             swal("Error", "¡Debes llenar todos los datos!", "error");
         } else {
@@ -368,6 +368,7 @@ const PresupuestoEdit = (props) => {
                                     name="tipo_asignacion"
                                     defaultValue="dinero"
                                     onChange={handleChangeTipo}
+                                    value={tipo_asignacion}
                                 >
                                     <FormControlLabel value="dinero" control={<Radio />} label="Dinero" />
                                     <FormControlLabel value="unidad" control={<Radio />} label="Unidad" />
@@ -387,16 +388,21 @@ const PresupuestoEdit = (props) => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={2}>
-                            <FormControl className={classes.formControl}>
-                                <TextField
-                                    id="asignacion_medida"
-                                    name="asignacion_medida"
-                                    type="text"
-                                    label="Asignacion medida"
-                                    value={formik.values.asignacion_medida}
-                                    onChange={formik.handleChange}
-                                />
-                            </FormControl>
+                            {
+                                tipo_asignacion !== "dinero"  ?
+                                (
+                                    <FormControl className={classes.formControl}>
+                                    <TextField
+                                        id="asignacion_medida"
+                                        name="asignacion_medida"
+                                        type="text"
+                                        label="Asignacion medida"
+                                        value={formik.values.asignacion_medida}
+                                        onChange={formik.handleChange}
+                                    />
+                                </FormControl>
+                                ): ""
+                            }
                         </Grid>
                         <Grid item xs={2} className="fix-top">
                             <FormControl variant="outlined" className={classes.formControl}>
