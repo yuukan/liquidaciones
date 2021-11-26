@@ -184,6 +184,17 @@ header h6 span {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between; }
+  .user-container .full {
+    width: 100%;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    padding: 25px;
+    margin-bottom: 50px;
+    margin-top: 30px; }
+    .user-container .full h2 {
+      font-size: 20px;
+      margin-bottom: 25px;
+      color: #1d4b9a;
+      font-weight: bold; }
   .user-container .left {
     width: calc(40% - 10px);
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
@@ -272,18 +283,18 @@ label.manual {
 
 .main-container {
   padding: 27px 15px; }
+  .main-container .form-item {
+    width: 100%; }
+    .main-container .form-item.margin-fix {
+      margin-top: 16px; }
+    .main-container .form-item.margin-fix2 {
+      margin-top: 27px; }
+    .main-container .form-item.small {
+      width: 50%; }
   .main-container .landing-container {
     background: white;
     width: 100%;
     padding: 0; }
-    .main-container .landing-container .form-item {
-      width: 100%; }
-      .main-container .landing-container .form-item.margin-fix {
-        margin-top: 16px; }
-      .main-container .landing-container .form-item.margin-fix2 {
-        margin-top: 27px; }
-      .main-container .landing-container .form-item.small {
-        width: 50%; }
     .main-container .landing-container .comentarios {
       width: 100%;
       margin: 25px 0; }
@@ -338,7 +349,7 @@ label.manual {
     .cisterna .cisterna-circle .cont {
       width: 100%;
       position: relative;
-      border-right: 5px solid #5D616C; }
+      border-right: 5px solid #5d616c; }
       .cisterna .cisterna-circle .cont:first-of-type {
         border-bottom-left-radius: 40px;
         border-top-left-radius: 60px;

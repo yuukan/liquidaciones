@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import { Delete } from '@material-ui/icons/';
+import {
+    Delete,
+    MoneySharp
+} from '@material-ui/icons/';
+import { IconButton, Tooltip } from '@material-ui/core';
 
 class TableUsuariosEmpresas extends Component {
 
@@ -46,12 +50,23 @@ class TableUsuariosEmpresas extends Component {
                                                 {key.nombre_usuario_sap}
                                             </td>
                                             <td>
+                                                {
+                                                    this.props.usuario !== -1 ?
+                                                        (
+                                                            <Tooltip title="Presupuestos">
+                                                                <IconButton
+                                                                    aria-label="Presupuestos"
+                                                                    onClick={() => this.props.managePresupuestos(key.au_empresa_id, key.nombre_empresa)}
+                                                                >
+                                                                    <MoneySharp />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        ) : ""
+                                                }
                                                 <Button
                                                     color="secondary"
                                                     variant="contained"
-                                                    fullWidth
                                                     type="button"
-                                                    className="horizontal-btn-fix"
                                                     onClick={() => this.props.removeEmpresa(idx)}
                                                 >
                                                     <Delete />
@@ -62,7 +77,11 @@ class TableUsuariosEmpresas extends Component {
                                 }
                             </tbody>
                         )
-                        : ""}
+                        : 
+                        (
+                            <tbody></tbody>
+                        )
+                    }
                 </table>
             </div>
         );

@@ -12,6 +12,8 @@ import swal from 'sweetalert';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { Grid } from '@material-ui/core';
+import { Delete } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -32,10 +34,21 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const UserEdit = (props) => {
+    const [empresaP, setEmpresaP] = useState({ id: 0, nombre: "" });
+    const [presupuestos, setPresupuestos] = useState([]);
+    const [presupuestosP, setP] = useState(null);
+    const [proyectosP, setPro] = useState(null);
+    const [centros, setC] = useState(null);
+    const [presupuesto, setPresupuesto] = useState(null);
+    const [proyecto, setProyecto] = useState(null);
+    const [centro_c1, setCentroC1] = useState(null);
+    const [centro_c2, setCentroC2] = useState(null);
+    const [centro_c3, setCentroC3] = useState(null);
+    const [centro_c4, setCentroC4] = useState(null);
+    const [centro_c5, setCentroC5] = useState(null);
     const [empresas, setEmpresas] = useState([]);
     const [supervisor, setSupervisor] = useState(null);
     const [roles, setRoles] = useState(null);
-    const [presupuestos, setPresupuestos] = useState(null);
     const [id, setId] = useState(-1);
 
     const handleChangeSelect = (option, b) => {
@@ -45,8 +58,108 @@ const UserEdit = (props) => {
         if (b.name === "roles") {
             setRoles(option);
         }
-        if (b.name === "presupuestos") {
-            setPresupuestos(option);
+        if (b.name === "presupuesto") {
+            setPresupuesto(option);
+        }
+        if (b.name === "centro_c1") {
+            setCentroC1(option);
+        }
+        if (b.name === "centro_c2") {
+            setCentroC2(option);
+        }
+        if (b.name === "centro_c3") {
+            setCentroC3(option);
+        }
+        if (b.name === "centro_c4") {
+            setCentroC4(option);
+        }
+        if (b.name === "centro_c5") {
+            setCentroC5(option);
+        }
+        if (b.name === "proyecto") {
+            setProyecto(option);
+        }
+    }
+
+    const savePresupuesto = () => {
+        if (
+            presupuesto === null ||
+            proyecto === null ||
+            centro_c1 === null ||
+            centro_c2 === null ||
+            centro_c3 === null ||
+            centro_c4 === null ||
+            centro_c5 === null
+        ) {
+            swal("Error", "¡Debe de ingresar todos los campos del presupuesto!", "error");
+        } else {
+            let presups = [...presupuestos];
+            let pres = {
+                'presupuesto': presupuesto.value,
+                'presupuesto_label': presupuesto.label,
+                'proyecto': proyecto.value,
+                'proyecto_label': proyecto.label,
+                'centro_c1': centro_c1.value,
+                'centro_c1_label': centro_c1.label,
+                'centro_c2': centro_c2.value,
+                'centro_c2_label': centro_c2.label,
+                'centro_c3': centro_c3.value,
+                'centro_c3_label': centro_c3.label,
+                'centro_c4': centro_c4.value,
+                'centro_c4_label': centro_c4.label,
+                'centro_c5': centro_c5.value,
+                'centro_c5_label': centro_c5.label,
+            };
+            presups.push(pres);
+            setPresupuestos(presups);
+            setPresupuesto(null);
+            setProyecto(null);
+            setCentroC1(null);
+            setCentroC2(null);
+            setCentroC3(null);
+            setCentroC4(null);
+            setCentroC5(null);
+        }
+    }
+
+    const submitPresupuesto = () => {
+        let data = {
+            'usuario': id,
+            'empresa': empresaP.id,
+            'presupuestos': presupuestos
+        }
+        axios({
+            method: 'post',
+            url: props.url + 'users/save-presupuesto-empresa/',
+            data,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                swal("Éxito", resp.data.texto, "success");
+            })
+            .catch(function (err) {
+                console.log(err);
+                swal("Error", err.response.data.msg, "error");
+            });
+    }
+
+    const removePresupuesto = (idx) => {
+        if (idx > -1) {
+            swal({
+                title: "¿Esta seguro?",
+                text: "¡Esta operación no se puede revertir!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        let e = [...presupuestos];
+                        e.splice(idx, 1);
+                        setPresupuestos(e);
+                    }
+                });
         }
     }
 
@@ -64,7 +177,6 @@ const UserEdit = (props) => {
             values.empresas = empresas;
             values.supervisor = supervisor;
             values.roles = roles;
-            values.presupuestos = presupuestos;
             let data = JSON.stringify(values);
 
             if (
@@ -112,6 +224,75 @@ const UserEdit = (props) => {
         },
     });
 
+    const managePresupuestos = (idEmpresa, nombre) => {
+        setEmpresaP({ idEmpresa, nombre });
+
+        // Get Presupuestos
+        axios({
+            method: 'post',
+            url: props.url + 'get-presupuesto-empresa/',
+            data: {
+                empresa: idEmpresa,
+                usuario: id
+            },
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                setPresupuestos(resp.data);
+            })
+            .catch(function (err) {
+                console.log(err);
+                if (err.response)
+                    swal("Error", err.response.data.msg, "error");
+            });
+        // Get Proyectos
+        axios({
+            method: 'get',
+            url: props.url + 'sap/proyectos/' + idEmpresa,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                setPro(resp.data);
+            })
+            .catch(function (err) {
+                console.log(err);
+                if (err.response)
+                    swal("Error", err.response.data.msg, "error");
+            });
+        // Get presupuestos
+        axios({
+            method: 'get',
+            url: props.url + 'presupuestos-empresa/' + idEmpresa,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                setP(resp.data);
+            })
+            .catch(function (err) {
+                console.log(err);
+                if (err.response)
+                    swal("Error", err.response.data.msg, "error");
+            });
+        // Get Centro Costo
+        axios({
+            method: 'get',
+            url: props.url + 'sap/centros-costo/' + idEmpresa,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                setC(resp.data);
+            })
+            .catch(function (err) {
+                console.log(err);
+                if (err.response)
+                    swal("Error", err.response.data.msg, "error");
+            });
+    }
+
     useEffect(() => {
         if (typeof props.match.params.id !== "undefined") {
             setId(props.match.params.id);
@@ -133,7 +314,6 @@ const UserEdit = (props) => {
                     );
                     setRoles(resp.data.roles);
 
-                    setPresupuestos(resp.data.presupuestos);
                     // swal("Atención", resp.data.msg, "success");
                 })
                 .catch(function (err) {
@@ -243,23 +423,6 @@ const UserEdit = (props) => {
                                 />
                             </FormControl>
                         </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <FormControl variant="outlined" className="form-item">
-                                <label className="manual" htmlFor="roles">
-                                    Presupuestos
-                                </label>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={presupuestos}
-                                    name="presupuestos"
-                                    id="presupuestos"
-                                    isMulti
-                                    options={props.presupuestos}
-                                    placeholder="*Seleccione sus presupuestos"
-                                />
-                            </FormControl>
-                        </FormControl>
                     </form>
 
                 </div>
@@ -277,8 +440,205 @@ const UserEdit = (props) => {
                     <TableUsuariosEmpresas
                         data={empresas}
                         removeEmpresa={removeEmpresa}
+                        managePresupuestos={managePresupuestos}
+                        usuario={id}
                     />
                 </div>
+                {
+                    empresaP.id !== 0 ?
+                        (
+
+                            <div className="full">
+                                <div className="presupuestos">
+                                    <Typography variant="h4" component="h6" gutterBottom>
+                                        Presupuesto empresa {empresaP.nombre}
+                                    </Typography>
+                                    <div className="add-presupuestos">
+                                        <Grid container spacing={3}>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={presupuesto}
+                                                        name="presupuesto"
+                                                        id="presupuesto"
+                                                        options={presupuestosP ? presupuestosP : {}}
+                                                        placeholder="* Presupuesto"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={proyecto}
+                                                        name="proyecto"
+                                                        id="proyecto"
+                                                        options={proyectosP ? proyectosP : {}}
+                                                        placeholder="* Proyecto"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={centro_c1}
+                                                        name="centro_c1"
+                                                        id="centro_c1"
+                                                        options={centros && centros.length > 0 ? centros[0] : {}}
+                                                        placeholder="* Centro Costo 1"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={centro_c2}
+                                                        name="centro_c2"
+                                                        id="centro_c2"
+                                                        options={centros && centros.length > 1 ? centros[1] : {}}
+                                                        placeholder="* Centro Costo 2"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={centro_c3}
+                                                        name="centro_c3"
+                                                        id="centro_c3"
+                                                        options={centros && centros.length > 2 ? centros[2] : {}}
+                                                        placeholder="* Centro Costo 3"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={centro_c4}
+                                                        name="centro_c4"
+                                                        id="centro_c4"
+                                                        options={centros && centros.length > 3 ? centros[3] : {}}
+                                                        placeholder="* Centro Costo 4"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={6}>
+                                                <FormControl variant="outlined" className="form-item">
+                                                    <Select2
+                                                        isSearchable={true}
+                                                        onChange={handleChangeSelect}
+                                                        value={centro_c5}
+                                                        name="centro_c5"
+                                                        id="centro_c5"
+                                                        options={centros && centros.length > 4 ? centros[4] : {}}
+                                                        placeholder="* Centro Costo 5"
+                                                    />
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} lg={3} md={3} sm={12}>
+                                                <Button color="primary" variant="contained" fullWidth onClick={savePresupuesto}>
+                                                    Agregar
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    </div>
+                                    <div className="table-container">
+                                        <table className="detail-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Presupuesto
+                                                    </th>
+                                                    <th>
+                                                        Proyecto
+                                                    </th>
+                                                    <th>
+                                                        Centro Costo 1
+                                                    </th>
+                                                    <th>
+                                                        Centro Costo 2
+                                                    </th>
+                                                    <th>
+                                                        Centro Costo 3
+                                                    </th>
+                                                    <th>
+                                                        Centro Costo 4
+                                                    </th>
+                                                    <th>
+                                                        Centro Costo 5
+                                                    </th>
+                                                    <th>
+                                                        Acciones
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            {presupuestos && presupuestos.length > 0
+                                                ?
+                                                (
+                                                    <tbody>
+                                                        {
+                                                            presupuestos.map((key, idx) => (
+                                                                <tr key={idx}>
+                                                                    <td>
+                                                                        {key.presupuesto_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.proyecto_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.centro_c1_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.centro_c2_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.centro_c3_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.centro_c4_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        {key.centro_c5_label}
+                                                                    </td>
+                                                                    <td>
+                                                                        <Button
+                                                                            color="secondary"
+                                                                            variant="contained"
+                                                                            type="button"
+                                                                            onClick={() => removePresupuesto(idx)}
+                                                                        >
+                                                                            <Delete />
+                                                                        </Button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        }
+                                                    </tbody>
+                                                ) :
+                                                (
+                                                    <tbody></tbody>
+                                                )
+                                            }
+                                        </table>
+                                    </div>
+                                    <Button color="secondary" variant="contained" className="full-button" fullWidth type="button" onClick={submitPresupuesto}>
+                                        Guardar presupuesto
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : ""
+                }
                 <Button color="primary" variant="contained" className="full-button" fullWidth type="button" onClick={() => formik.submitForm()}>
                     Guardar Usuario
                 </Button>
