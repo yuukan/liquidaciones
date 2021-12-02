@@ -435,6 +435,8 @@ const UserEdit = (props) => {
                         ListadoEmpresas={props.ListadoEmpresas}
                         proveedoresSAP={props.proveedoresSAP}
                         usuariosSAP={props.usuariosSAP}
+                        loadSAP={props.loadSAP}
+                        cargandoSAP={props.cargandoSAP}
                     />
 
                     <TableUsuariosEmpresas

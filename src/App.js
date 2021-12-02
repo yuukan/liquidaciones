@@ -58,6 +58,7 @@ class App extends Component {
       cuentas: [],
       usuariosSAP: [],
       proveedoresSAP: [],
+      cargandoSAP: false,
       roles: [],
       grupos: [],
       cuentas_contables: [],
@@ -108,7 +109,7 @@ class App extends Component {
     this.loadEmpresas();
     this.loadGastos();
     this.loadGastosGrupos();
-    this.loadSAP();
+    // this.loadSAP();
     this.loadRoles();
     this.loadBancos();
     this.loadCuentas();
@@ -302,12 +303,13 @@ class App extends Component {
   }
 
   // Load sap info
-  loadSAP() {
+  loadSAP(empresa) {
+    this.setState({ cargandoSAP: true });
     let t = this;
     // Get usuarios de SAP
     axios({
       method: 'get',
-      url: url + 'sap/usuarios',
+      url: url + 'sap/usuarios/' + empresa,
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -315,12 +317,13 @@ class App extends Component {
         t.setState({ usuariosSAP: resp.data });
       })
       .catch(function (err) {
+        t.setState({ usuariosSAP: [] });
         console.log(err);
       });
     // Get usuarios de SAP
     axios({
       method: 'get',
-      url: url + 'sap/proveedores',
+      url: url + 'sap/proveedores/' + empresa,
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -328,8 +331,10 @@ class App extends Component {
         t.setState({ proveedoresSAP: resp.data });
       })
       .catch(function (err) {
+        t.setState({ proveedoresSAP: [] });
         console.log(err);
       });
+    this.setState({ cargandoSAP: false });
   }
 
   loadSAPEmpresa(empresa) {
@@ -338,10 +343,7 @@ class App extends Component {
     // Get cuentas contables de SAP
     axios({
       method: 'get',
-      url: url + 'sap/cuentas-contables',
-      data: {
-        empresa: empresa
-      },
+      url: url + 'sap/cuentas-contables/' + empresa,
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -355,10 +357,7 @@ class App extends Component {
     // Get impiuestos de SAP
     axios({
       method: 'get',
-      url: url + 'sap/impuestos',
-      data: {
-        empresa: empresa
-      },
+      url: url + 'sap/impuestos/' + empresa,
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -439,6 +438,8 @@ class App extends Component {
                         ListadoEmpresas={this.state.empresas}
                         usuariosSAP={this.state.usuariosSAP}
                         proveedoresSAP={this.state.proveedoresSAP}
+                        cargandoSAP={this.state.cargandoSAP}
+                        loadSAP={this.loadSAP}
                         users={this.state.users}
                         roles={this.state.roles}
                         presupuestos={this.state.presupuestos}
@@ -490,7 +491,7 @@ class App extends Component {
                         loadBancos={this.loadPresupuestos}
                       />} />
 
-                      <Route path="/edit-presupuesto/:id?"
+                  <Route path="/edit-presupuesto/:id?"
                     render={(props) =>
                       <PresupuestoEdit {...props}
                         url={url}

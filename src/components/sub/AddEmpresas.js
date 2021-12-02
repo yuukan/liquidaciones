@@ -44,6 +44,7 @@ const AddEmpresas = (props) => {
     const handleChangeSelect = (option, b) => {
         if (b.name === "empresa") {
             setEmpresa(option);
+            props.loadSAP(option.value);
         }
         if (b.name === "proveedor") {
             setProveedor(option);
@@ -56,7 +57,7 @@ const AddEmpresas = (props) => {
     return (
         <div className="add-empresa">
             <Typography variant="h4" component="h6" gutterBottom>
-                Agregar Empresa
+                Agregar Empresa {props.cargandoSAP ? (<div className="cargando">Cargando</div>) : "" }
             </Typography>
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
