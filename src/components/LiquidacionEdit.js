@@ -17,14 +17,15 @@ import MomentUtils from '@date-io/moment';
 import moment from "moment";
 import "moment/locale/es";
 import {
-    Delete
+    Delete,
+    Add
 } from '@material-ui/icons/';
 import Compressor from 'compressorjs';
 import {
     DatePicker,
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers'
-import { FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
 var parseString = require('xml2js').parseString;
 
 moment.locale("es");
@@ -60,6 +61,7 @@ const LiquidacionEdit = (props) => {
     const [empresa, setEmpresa] = useState(null);
     const [disablePresupuesto, setDisablePresupuesto] = useState(false);
 
+    const [gastos, setGastos] = useState(null);
     const [gasto2, setGasto2] = useState(null);
     const [subgastos, setSubGastos] = useState([]);
     const [subgasto, setSubgasto] = useState(null);
@@ -83,11 +85,54 @@ const LiquidacionEdit = (props) => {
     const [inicial, setInicial] = useState(0);
     const [final, setFinal] = useState(9999);
     const [cantidad, setCantidad] = useState(0.0);
+    const [open, setOpen] = useState(false);
+    const [nombreAdd, setNombreAdd] = useState("");
+    const [nitAdd, setNitAdd] = useState("");
     // Campos factura
     const [facturas, setFacturas] = useState([]);
 
 
     const classes = useStyles();
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+    const handleAgregar = () => {
+        if (nombreAdd === "" || nitAdd === "") {
+            swal("Error", "¡Debe de Ingresar el nombre y el identificador Fiscal!", "error");
+        } else {
+            axios({
+                method: 'post',
+                url: props.url + 'proveedor',
+                data: {
+                    nit: nitAdd,
+                    nombre: nombreAdd
+                },
+                responseType: "json",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(function (resp) {
+                    props.loadProveedoresApp();
+                    if (resp.data.res === -1) {
+                        swal("Error", "¡Ya exite un proveedor con ese número de identificación fiscal!", "error");
+                    } else {
+                        setProveedor({
+                            value: resp.data[0].id,
+                            label: nombreAdd + ' (' + nitAdd + ')',
+                            nombre: nombreAdd,
+                            nit: nitAdd
+                        });
+                        setNombreAdd("");
+                        setNitAdd("");
+                        setOpen(false);
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    swal("Error", err.response.data.msg, "error");
+                });
+        }
+    }
 
     const checkInicialMayor = () => {
         if (parseFloat(inicial) > parseFloat(final)) {
@@ -117,6 +162,12 @@ const LiquidacionEdit = (props) => {
         }
         if (event.target.name === "final") {
             setFinal(event.target.value);
+        }
+        if (event.target.name === "nombreAdd") {
+            setNombreAdd(event.target.value);
+        }
+        if (event.target.name === "nitAdd") {
+            setNitAdd(event.target.value);
         }
         if (event.target.name === "factura") {
             setFactura(event.target.files[0]);
@@ -236,7 +287,7 @@ const LiquidacionEdit = (props) => {
         if (gasto2.control_kilometraje === 1 && !checkInicialMayor()) {
             return;
         }
-        if (subgasto !== null && subgasto.tipo === 'cantidad' && cantidad <= 0) {
+        if (subgasto !== null && subgasto.exento === 1 && subgasto.tipo === 'cantidad' && cantidad <= 0) {
             a += "¡<strong>Cantidad</strong> incorrecta!<br><br>";
         }
         if (subgastos.length > 0 && subgasto === null) {
@@ -353,6 +404,7 @@ const LiquidacionEdit = (props) => {
                         .then(function (resp) {
                             props.loadLiquidaciones();
                             props.history.push(`/edit-liquidacion/${resp.data}`);
+                            window.location.reload();
                         })
                         .catch(function (err) {
                             console.log(err);
@@ -393,6 +445,19 @@ const LiquidacionEdit = (props) => {
             })
                 .then(function (resp) {
                     setEmpresa(resp.data);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
+            // Get the Gastos
+            axios({
+                method: 'get',
+                url: props.url + 'liquidacion-gastos/' + localStorage.getItem("lu_id") + '/' + option.value,
+                responseType: "json",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(function (resp) {
+                    setGastos(resp.data);
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -468,6 +533,19 @@ const LiquidacionEdit = (props) => {
                     })
                         .then(function (resp) {
                             setEmpresa(resp.data);
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                    // Get the Gastos
+                    axios({
+                        method: 'get',
+                        url: props.url + 'liquidacion-gastos/' + localStorage.getItem("lu_id") + '/' + resp.data.au_gasto_id,
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            setGastos(resp.data);
                         })
                         .catch(function (err) {
                             console.log(err);
@@ -779,7 +857,7 @@ const LiquidacionEdit = (props) => {
                                                 value={gasto2}
                                                 name="gasto2"
                                                 id="gasto2"
-                                                options={props.gastos}
+                                                options={gastos}
                                                 placeholder="*Categoría de Gasto"
                                             />
                                         </FormControl>
@@ -813,6 +891,20 @@ const LiquidacionEdit = (props) => {
                                                         <FormControl variant="outlined" className="form-item">
                                                             <label htmlFor="proveedor" className="manual">
                                                                 Seleccione proveedor
+                                                                {
+                                                                    (empresa && empresa[0].maneja_xml !== 1) || ignorarXML === 1 ?
+                                                                        (
+                                                                            <Button
+                                                                                variant="contained"
+                                                                                size="small"
+                                                                                color="primary"
+                                                                                onClick={() => setOpen(true)}
+                                                                                style={{ "float": "right" }}
+                                                                            >
+                                                                                <Add /> Nuevo
+                                                                            </Button>
+                                                                        ) : ""
+                                                                }
                                                             </label>
                                                             <Select2
                                                                 isSearchable={true}
@@ -863,7 +955,7 @@ const LiquidacionEdit = (props) => {
                                                     }
 
                                                     {
-                                                        subgasto !== null && subgasto.tipo === 'cantidad' ?
+                                                        subgasto !== null && subgasto.exento === 1 && subgasto.tipo === 'cantidad' ?
                                                             (
                                                                 <Grid item xs={4}>
                                                                     <label htmlFor="cantidad" className="manual">
@@ -1114,6 +1206,43 @@ const LiquidacionEdit = (props) => {
                     ) :
                     ""
             }
+
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">
+                    Agregar proveedor
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="nombre"
+                        name="nombreAdd"
+                        value={nombreAdd}
+                        label="Nombre"
+                        type="text"
+                        fullWidth
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="nit"
+                        name="nitAdd"
+                        value={nitAdd}
+                        label="Identificación Fiscal"
+                        type="text"
+                        fullWidth
+                        onChange={handleChange}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleAgregar} color="primary">
+                        Agregar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };
