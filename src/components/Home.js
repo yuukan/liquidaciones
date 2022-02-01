@@ -53,7 +53,7 @@ class Home extends Component {
             costo: 0,
             IDP: "",
             disabled: false,
-            tipo_pago: [{value:0,label:"Seleccione un cliente"}],
+            tipo_pago: [{ value: 0, label: "Seleccione un cliente" }],
             vendedor: null,
             entrada_mercancia: true,
             factura: true
@@ -84,7 +84,7 @@ class Home extends Component {
     }
     //############################################################
     handleChangeSelect(option, b) {
-        if(typeof option.target !=='undefined'){
+        if (typeof option.target !== 'undefined') {
             if (option.target.name === "entrada_mercancia") {
                 this.setState({ entrada_mercancia: option.target.checked });
             }
@@ -94,7 +94,7 @@ class Home extends Component {
         }
 
         if (b.name === "vendedor") {
-            if(this.props.vendedor){
+            if (this.props.vendedor) {
                 return;
             }
         }
@@ -112,26 +112,26 @@ class Home extends Component {
         if (b.name === "fleteAplicado") {
             // 
             let montoPorGalon = 0;
-            if(option.value!==1){
+            if (option.value !== 1) {
                 montoPorGalon = this.props.config.MontoPorGalon.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 });
             }
             this.setState(
-                { 
-                    transporte: null, 
-                    compartimiento: null, 
-                    detalle: [], 
-                    exclusivo: 0, 
+                {
+                    transporte: null,
+                    compartimiento: null,
+                    detalle: [],
+                    exclusivo: 0,
                     exclusivoid: 0,
                     montoPorGalon: parseFloat(montoPorGalon)
                 }
             );
         }
         if (b.name === "planta") {
-            this.props.load_products(option.value,this.state.fechaEntrega);
-            this.setState({product:"",detalle:[]});
+            this.props.load_products(option.value, this.state.fechaEntrega);
+            this.setState({ product: "", detalle: [] });
         }
         if (b.name === "producto") {
             var margen = parseFloat(option.Margen).toFixed(2);
@@ -139,21 +139,21 @@ class Home extends Component {
                 margen = 0;
             }
             var precio = parseFloat(option.precio);
-            if ( isNaN (precio) ){
+            if (isNaN(precio)) {
                 precio = 0;
             }
             var total = parseFloat(precio) + parseFloat(margen);
             this.setState({ precio: this.numFormat(total), costo: option.precio, no_oficial: option.no_oficial, IDP: option.IDP });
         }
         if (b.name === "cliente") {
-            this.setState({ tipo_pago: option.tipo_pago, tipoPago: {value:option.NumSAP, label:option.NumSAPLabel} });
+            this.setState({ tipo_pago: option.tipo_pago, tipoPago: { value: option.NumSAP, label: option.NumSAPLabel } });
         }
     }
 
     handleDateChange(fechaEntrega) {
         this.setState({ fechaEntrega });
-        this.props.load_products(this.state.planta.value,fechaEntrega);
-        this.setState({product:"",detalle:[]});
+        this.props.load_products(this.state.planta.value, fechaEntrega);
+        this.setState({ product: "", detalle: [] });
     }
 
     agregarDetalle() {
@@ -214,7 +214,7 @@ class Home extends Component {
         if (t.cliente !== null && t.tipoPago !== null && t.tipoPago !== null && t.direccion !== null && t.fleteAplicado !== 0 && t.planta !== null) {
             let transporte = 0;
             if (t.transporte !== null) transporte = t.transporte.id;
-            t_.setState({disabled:true});
+            t_.setState({ disabled: true });
             console.log(t);
             axios.post(this.props.url + "api/save-order", {
                 cliente: t.cliente.value,
@@ -242,7 +242,7 @@ class Home extends Component {
                     // t.setState({ clientes: response.data });
                     t_.props.load_orders();
                     t_.props.history.push("/order-list");
-                    t_.setState({disabled:false});
+                    t_.setState({ disabled: false });
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -252,14 +252,6 @@ class Home extends Component {
         }
     }
 
-    UNSAFE_componentWillMount(){
-        this.setState({ vendedor:this.props.vendedor });
-    }
-
-    UNSAFE_componentWillReceiveProps(nextProps){
-        if(!this.state.vendedor)
-            this.setState({ vendedor:nextProps.vendedor });    
-    }
 
     render() {
 
@@ -270,7 +262,7 @@ class Home extends Component {
         let trans = this.state.transporte;
         let compartimientos_select = [];
         if (trans) {
-            for (let i = trans.compartimientos.length-1; i >=0 ; i--) {
+            for (let i = trans.compartimientos.length - 1; i >= 0; i--) {
                 let full = "";
                 let filled = 0;
                 let product = "";
@@ -499,12 +491,12 @@ class Home extends Component {
                         <Grid item xs={12} sm={3} md={3} lg={3}>
                             <FormControlLabel
                                 control={
-                                <Switch
-                                    checked={this.state.entrada_mercancia}
-                                    onChange={this.handleChangeSelect}
-                                    name="entrada_mercancia"
-                                    color="primary"
-                                />
+                                    <Switch
+                                        checked={this.state.entrada_mercancia}
+                                        onChange={this.handleChangeSelect}
+                                        name="entrada_mercancia"
+                                        color="primary"
+                                    />
                                 }
                                 label="Entrada Mercancía Chevron"
                                 labelPlacement="top"
@@ -513,12 +505,12 @@ class Home extends Component {
                         <Grid item xs={12} sm={2} md={2} lg={2}>
                             <FormControlLabel
                                 control={
-                                <Switch
-                                    checked={this.state.factura}
-                                    onChange={this.handleChangeSelect}
-                                    name="factura"
-                                    color="primary"
-                                />
+                                    <Switch
+                                        checked={this.state.factura}
+                                        onChange={this.handleChangeSelect}
+                                        name="factura"
+                                        color="primary"
+                                    />
                                 }
                                 label="Generar Factura"
                                 labelPlacement="top"
@@ -657,11 +649,11 @@ class Home extends Component {
                         </Button>
                         {
                             this.state.disabled ?
-                            (
-                                <div className="progress">
-                                    <LinearProgress /> 
-                                </div>
-                            ): ""
+                                (
+                                    <div className="progress">
+                                        <LinearProgress />
+                                    </div>
+                                ) : ""
                         }
                     </Grid>
                 </Grid>

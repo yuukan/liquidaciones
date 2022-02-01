@@ -14,22 +14,35 @@ const AddEmpresas = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        if(
+        console.log(props.data);
+
+        let empresaExiste = 0;
+        if (empresa !== null)
+            for (let i = 0; i < props.data.length; i++) {
+                if (parseInt(props.data[i].au_empresa_id) === parseInt(empresa.value)) {
+                    empresaExiste = 1;
+                    break;
+                }
+            }
+
+        if (
             empresa === null ||
             proveedor === null ||
             usuario === null
-        ){
+        ) {
             swal("Error", "¡Debes de llenar todos los campos!", "error");
-        }else{
+        } else if (empresaExiste !== 0) {
+            swal("Error", "¡Ya existe esta empresa agregada para este usuario!", "error");
+        } else {
             let es = [...props.data];
 
             es.push({
-                'au_empresa_id' : empresa.value,
-                'nombre_empresa' : empresa.label,
-                'codigo_proveedor_sap' : proveedor.value,
-                'nombre_proveedor_sap' : proveedor.label,
-                'codigo_usuario_sap' : usuario.value,
-                'nombre_usuario_sap' : usuario.label
+                'au_empresa_id': empresa.value,
+                'nombre_empresa': empresa.label,
+                'codigo_proveedor_sap': proveedor.value,
+                'nombre_proveedor_sap': proveedor.label,
+                'codigo_usuario_sap': usuario.value,
+                'nombre_usuario_sap': usuario.label
             });
 
             props.setEmpresas(es);
@@ -45,6 +58,8 @@ const AddEmpresas = (props) => {
         if (b.name === "empresa") {
             setEmpresa(option);
             props.loadSAP(option.value);
+            setProveedor(null);
+            setUsuario(null);
         }
         if (b.name === "proveedor") {
             setProveedor(option);
@@ -57,7 +72,7 @@ const AddEmpresas = (props) => {
     return (
         <div className="add-empresa">
             <Typography variant="h4" component="h6" gutterBottom>
-                Agregar Empresa {props.cargandoSAP ? (<div className="cargando">Cargando</div>) : "" }
+                Agregar Empresa {props.cargandoSAP ? (<div className="cargando">Cargando</div>) : ""}
             </Typography>
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>

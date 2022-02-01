@@ -49,9 +49,12 @@ const GastoEdit = (props) => {
     const [control_combustible, setCombustible] = useState(false);
     const [control_kilometraje, setKilometraje] = useState(false);
     const [lleva_subgastos, setLleva] = useState(false);
+    const [ignorar_xml, setIgnorar] = useState(false);
     const [exento_sub, setExentoSub] = useState(false);
-    const [tipo, setTipo] = useState('cantidad');
+    const [tipo, setTipo] = useState('');
+    const [disableEmpresa, setDisableEmpresa] = useState(false);
     const [empresa, setEmpresa] = useState(false);
+    const [maneja_xml, setManeja] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
@@ -93,6 +96,8 @@ const GastoEdit = (props) => {
                 values.remanente_impuesto_nombre = codigo_impuesto_remanente.label;
                 values.empresa_codigo = empresa.value;
                 values.empresa_nombre = empresa.label;
+
+                values.ignorar_xml = ignorar_xml ? 1 : 0;
 
                 values.sub = sub;
 
@@ -167,10 +172,9 @@ const GastoEdit = (props) => {
         let es = [...sub];
 
         if (
-            formik.values.descripcion_sub === "" ||
-            formik.values.valor_sub === ""
+            formik.values.descripcion_sub === ""
         ) {
-            swal("Error", "¡Debes llenar todos los datos!", "error");
+            swal("Error", "¡Debes ingresar la descripción del sub gasto!", "error");
         } else {
             es.push({
                 'descripcion': formik.values.descripcion_sub,
@@ -182,7 +186,7 @@ const GastoEdit = (props) => {
 
             setSub(es);
 
-            setTipo('cantidad');
+            setTipo('');
             setExentoSub(false);
             formik.setFieldValue('descripcion_sub', '', false);
             formik.setFieldValue('valor_sub', '', false);
@@ -213,12 +217,30 @@ const GastoEdit = (props) => {
         }
         if (b.name === "empresa") {
             setEmpresa(option);
+            setManeja(option.maneja_xml === 1);
             props.loadSAPEmpresa(option.value);
+
+            // Reset
+            setContablesExento(false);
+            setImpuestoExento(false);
+            setContablesAfecto(false);
+            setImpuestoAfecto(false);
+            setContablesRemanente(false);
+            setImpuestoRemanente(false);
+            setDepreciacion(false);
+            setCombustible(false);
+            setKilometraje(false);
+            setLleva(false);
+            setIgnorar(false);
+            setExentoSub(false);
+            setTipo('');
+            setManeja(false);
         }
     }
 
     useEffect(() => {
         if (typeof props.match.params.id !== "undefined") {
+            setDisableEmpresa(true);
             setId(props.match.params.id);
             axios({
                 method: 'get',
@@ -241,6 +263,8 @@ const GastoEdit = (props) => {
                     setCombustible(resp.data.control_combustible === 1);
                     setKilometraje(resp.data.control_kilometraje === 1);
                     setLleva(resp.data.lleva_subgastos === 1);
+
+                    setIgnorar(resp.data.ignorar_xml === 1);
 
                     setContablesExento(
                         {
@@ -295,6 +319,14 @@ const GastoEdit = (props) => {
 
                     setSub(resp.data.sub);
 
+                    for (let i = 0; i < props.empresas.length; i++) {
+
+                        if (parseInt(props.empresas[i].value) === parseInt(resp.data.empresa_codigo)) {
+                            setManeja(props.empresas[i].maneja_xml === 1);
+                            break;
+                        }
+                    }
+
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -330,6 +362,7 @@ const GastoEdit = (props) => {
                                 name="empresa"
                                 id="empresa"
                                 options={props.empresas}
+                                isDisabled={disableEmpresa}
                                 placeholder="*Seleccione Empresa"
                             />
                         </FormControl>
@@ -385,7 +418,7 @@ const GastoEdit = (props) => {
                                         inputProps={{ 'aria-label': 'secondary checkbox' }}
                                     />
                                 }
-                                label="Control Comustible"
+                                label="Control Combustible"
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
@@ -418,6 +451,26 @@ const GastoEdit = (props) => {
                                 label="Lleva Subgastos"
                             />
                         </FormControl>
+                        {
+                            maneja_xml ?
+                                (
+                                    <FormControl className={classes.formControl}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={ignorar_xml}
+                                                    color="primary"
+                                                    onChange={() => setIgnorar(!ignorar_xml)}
+                                                    name="ignorar_xml"
+                                                    id="ignorar_xml"
+                                                    inputProps={{ 'aria-label': 'secondary checkbox' }}
+                                                />
+                                            }
+                                            label="Ignorar XML"
+                                        />
+                                    </FormControl>
+                                ) : ""
+                        }
                     </div>
                     <div className="right">
                         {
@@ -570,30 +623,41 @@ const GastoEdit = (props) => {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={3} className="fix-top">
-                                        <FormControl component="fieldset">
-                                            <RadioGroup
-                                                row
-                                                aria-label="Tipo"
-                                                name="tipo"
-                                                defaultValue="cantidad"
-                                                onChange={handleChangeTipo}
-                                            >
-                                                <FormControlLabel value="cantidad" control={<Radio />} label="Cantidad" />
-                                                <FormControlLabel value="porcentaje" control={<Radio />} label="Porcentaje" />
-                                            </RadioGroup>
-                                        </FormControl>
+                                        {
+                                            exento_sub ?
+                                                (
+                                                    <FormControl component="fieldset">
+                                                        <RadioGroup
+                                                            row
+                                                            aria-label="Tipo"
+                                                            name="tipo"
+                                                            defaultValue="cantidad"
+                                                            onChange={handleChangeTipo}
+                                                        >
+                                                            <FormControlLabel value="cantidad" control={<Radio />} label="Cantidad" />
+                                                            <FormControlLabel value="porcentaje" control={<Radio />} label="Porcentaje" />
+                                                        </RadioGroup>
+                                                    </FormControl>
+                                                ) : ""
+                                        }
                                     </Grid>
                                     <Grid item xs={2}>
-                                        <FormControl className={classes.formControl}>
-                                            <TextField
-                                                id="valor_sub"
-                                                name="valor_sub"
-                                                type="text"
-                                                label="Valor Subgasto"
-                                                value={formik.values.valor_sub}
-                                                onChange={formik.handleChange}
-                                            />
-                                        </FormControl>
+                                        {
+                                            exento_sub ?
+                                                (
+                                                    <FormControl className={classes.formControl}>
+                                                        <TextField
+                                                            id="valor_sub"
+                                                            name="valor_sub"
+                                                            type="text"
+                                                            label="Valor Subgasto"
+                                                            value={formik.values.valor_sub}
+                                                            onChange={formik.handleChange}
+                                                        />
+                                                    </FormControl>
+                                                ) : ""
+                                        }
+
                                     </Grid>
                                     <Grid item xs={2} className="fix-top">
                                         <Button color="primary" variant="contained" fullWidth type="button" onClick={addSub}>
@@ -658,7 +722,10 @@ const GastoEdit = (props) => {
                                                     }
                                                 </tbody>
                                             )
-                                            : ""}
+                                            : (
+                                                <tbody></tbody>
+                                            )
+                                        }
                                     </table>
                                 </div>
                             </div>

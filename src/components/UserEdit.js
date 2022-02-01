@@ -60,6 +60,12 @@ const UserEdit = (props) => {
         }
         if (b.name === "presupuesto") {
             setPresupuesto(option);
+            setProyecto(null);
+            setCentroC1(null);
+            setCentroC2(null);
+            setCentroC3(null);
+            setCentroC4(null);
+            setCentroC5(null);
         }
         if (b.name === "centro_c1") {
             setCentroC1(option);
@@ -83,32 +89,39 @@ const UserEdit = (props) => {
 
     const savePresupuesto = () => {
         if (
-            presupuesto === null ||
-            proyecto === null ||
-            centro_c1 === null ||
-            centro_c2 === null ||
-            centro_c3 === null ||
-            centro_c4 === null ||
-            centro_c5 === null
+            presupuesto === null
+            // presupuesto === null ||
+            // proyecto === null ||
+            // centro_c1 === null ||
+            // centro_c2 === null ||
+            // centro_c3 === null ||
+            // centro_c4 === null ||
+            // centro_c5 === null
         ) {
-            swal("Error", "¡Debe de ingresar todos los campos del presupuesto!", "error");
+            swal("Error", "¡Debe de seleccionar el presupuesto!", "error");
         } else {
             let presups = [...presupuestos];
+            for (let i = 0; i < presups.length; i++) {
+                if (presupuesto.value === presups[i].presupuesto) {
+                    swal("Error", "¡Este presupuesto ya fue agregado!", "error");
+                    return;
+                }
+            }
             let pres = {
                 'presupuesto': presupuesto.value,
                 'presupuesto_label': presupuesto.label,
-                'proyecto': proyecto.value,
-                'proyecto_label': proyecto.label,
-                'centro_c1': centro_c1.value,
-                'centro_c1_label': centro_c1.label,
-                'centro_c2': centro_c2.value,
-                'centro_c2_label': centro_c2.label,
-                'centro_c3': centro_c3.value,
-                'centro_c3_label': centro_c3.label,
-                'centro_c4': centro_c4.value,
-                'centro_c4_label': centro_c4.label,
-                'centro_c5': centro_c5.value,
-                'centro_c5_label': centro_c5.label,
+                'proyecto': proyecto ? proyecto.value : 0,
+                'proyecto_label': proyecto ? proyecto.label : "",
+                'centro_c1': centro_c1 ? centro_c1.value : 0,
+                'centro_c1_label': centro_c1 ? centro_c1.label : "",
+                'centro_c2': centro_c2 ? centro_c2.value : 0,
+                'centro_c2_label': centro_c2 ? centro_c2.label : "",
+                'centro_c3': centro_c3 ? centro_c3.value : 0,
+                'centro_c3_label': centro_c3 ? centro_c3.label : "",
+                'centro_c4': centro_c4 ? centro_c4.value : 0,
+                'centro_c4_label': centro_c4 ? centro_c4.label : "",
+                'centro_c5': centro_c5 ? centro_c5.value : 0,
+                'centro_c5_label': centro_c5 ? centro_c5.label : "",
             };
             presups.push(pres);
             setPresupuestos(presups);
@@ -479,7 +492,7 @@ const UserEdit = (props) => {
                                                         name="proyecto"
                                                         id="proyecto"
                                                         options={proyectosP ? proyectosP : {}}
-                                                        placeholder="* Proyecto"
+                                                        placeholder="Proyecto"
                                                     />
                                                 </FormControl>
                                             </Grid>
@@ -492,7 +505,7 @@ const UserEdit = (props) => {
                                                         name="centro_c1"
                                                         id="centro_c1"
                                                         options={centros && centros.length > 0 ? centros[0] : {}}
-                                                        placeholder="* Centro Costo 1"
+                                                        placeholder="Centro Costo 1"
                                                     />
                                                 </FormControl>
                                             </Grid>
@@ -505,7 +518,7 @@ const UserEdit = (props) => {
                                                         name="centro_c2"
                                                         id="centro_c2"
                                                         options={centros && centros.length > 1 ? centros[1] : {}}
-                                                        placeholder="* Centro Costo 2"
+                                                        placeholder="Centro Costo 2"
                                                     />
                                                 </FormControl>
                                             </Grid>
@@ -518,7 +531,7 @@ const UserEdit = (props) => {
                                                         name="centro_c3"
                                                         id="centro_c3"
                                                         options={centros && centros.length > 2 ? centros[2] : {}}
-                                                        placeholder="* Centro Costo 3"
+                                                        placeholder="Centro Costo 3"
                                                     />
                                                 </FormControl>
                                             </Grid>
@@ -531,7 +544,7 @@ const UserEdit = (props) => {
                                                         name="centro_c4"
                                                         id="centro_c4"
                                                         options={centros && centros.length > 3 ? centros[3] : {}}
-                                                        placeholder="* Centro Costo 4"
+                                                        placeholder="Centro Costo 4"
                                                     />
                                                 </FormControl>
                                             </Grid>
@@ -544,7 +557,7 @@ const UserEdit = (props) => {
                                                         name="centro_c5"
                                                         id="centro_c5"
                                                         options={centros && centros.length > 4 ? centros[4] : {}}
-                                                        placeholder="* Centro Costo 5"
+                                                        placeholder="Centro Costo 5"
                                                     />
                                                 </FormControl>
                                             </Grid>

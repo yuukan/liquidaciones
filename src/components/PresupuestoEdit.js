@@ -15,6 +15,7 @@ import { Delete } from '@material-ui/icons/';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Grid from '@material-ui/core/Grid';
+import { Switch } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -46,6 +47,8 @@ const PresupuestoEdit = (props) => {
     const [categoria_gasto, setCategoriaGasto] = useState(false);
     const [tipo_asignacion, setTipoAsignacion] = useState('dinero');
     const [frecuencia, setFrecuencia] = useState(false);
+    const [activo, setActivo] = useState(false);
+    const [disableEmpresa, setDisableEmpresa] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
@@ -67,13 +70,15 @@ const PresupuestoEdit = (props) => {
                 swal("Error", "¡Debes llenar todos los datos!", "error");
             } else {
 
-                
+
                 values.moneda_codigo = moneda.value;
                 values.moneda_nombre = moneda.label;
                 values.empresa_codigo = empresa.value;
                 values.empresa_nombre = empresa.label;
                 values.tipo_gasto_codigo = tipo_gasto.value;
                 values.tipo_gasto_nombre = tipo_gasto.label;
+
+                values.activo = activo ? 1 : 0;
 
                 values.sub = sub;
 
@@ -147,21 +152,21 @@ const PresupuestoEdit = (props) => {
 
         if (
             !categoria_gasto ||
-            !frecuencia || 
+            !frecuencia ||
             formik.values.asignacion_cantidad === "" ||
-            (tipo_asignacion !== "dinero" && formik.values.asignacion_medida === "") 
+            (tipo_asignacion !== "dinero" && formik.values.asignacion_medida === "")
         ) {
             swal("Error", "¡Debes llenar todos los datos!", "error");
         } else {
             es.push({
-                'categoria_gasto_codigo' : categoria_gasto.value,
-                'categoria_gasto_nombre' : categoria_gasto.label,
-                'tipo_asignacion' : tipo_asignacion,
-                'asignacion_cantidad' : formik.values.asignacion_cantidad,
-                'asignacion_medida' : formik.values.asignacion_medida,
-                'frecuencia_codigo' : frecuencia.value,
-                'frecuencia_nombre' : frecuencia.label,
-                'au_presupuesto_id' : id
+                'categoria_gasto_codigo': categoria_gasto.value,
+                'categoria_gasto_nombre': categoria_gasto.label,
+                'tipo_asignacion': tipo_asignacion,
+                'asignacion_cantidad': formik.values.asignacion_cantidad,
+                'asignacion_medida': formik.values.asignacion_medida,
+                'frecuencia_codigo': frecuencia.value,
+                'frecuencia_nombre': frecuencia.label,
+                'au_presupuesto_id': id
             });
 
             setSub(es);
@@ -177,7 +182,7 @@ const PresupuestoEdit = (props) => {
     const handleChangeSelect = (option, b) => {
         if (b.name === "empresa") {
             setEmpresa(option);
-            
+
             let monedas = [
                 {
                     value: option.moneda_local,
@@ -190,6 +195,13 @@ const PresupuestoEdit = (props) => {
             ];
 
             setMonedas(monedas);
+            setMoneda(false);
+            setTipoGasto(false);
+            setCategoriaGasto(false);
+            setFrecuencia(false);
+            setActivo(false);
+            formik.setFieldValue('monto_maximo_factura', '', false);
+            setSub([]);
         }
         if (b.name === "moneda") {
             setMoneda(option);
@@ -207,6 +219,7 @@ const PresupuestoEdit = (props) => {
 
     useEffect(() => {
         if (typeof props.match.params.id !== "undefined") {
+            setDisableEmpresa(true);
             setId(props.match.params.id);
             axios({
                 method: 'get',
@@ -217,6 +230,8 @@ const PresupuestoEdit = (props) => {
                 .then(function (resp) {
                     formik.setFieldValue('nombre', resp.data.nombre, false);
                     formik.setFieldValue('monto_maximo_factura', resp.data.monto_maximo_factura, false);
+
+                    setActivo(resp.data.activo === 1);
 
                     setEmpresa(
                         {
@@ -231,7 +246,7 @@ const PresupuestoEdit = (props) => {
                                 "value": resp.data.moneda_codigo,
                                 "label": resp.data.moneda_nombre
                             }
-                        ]   
+                        ]
                     );
 
                     setMoneda(
@@ -239,7 +254,7 @@ const PresupuestoEdit = (props) => {
                             "value": resp.data.moneda_codigo,
                             "label": resp.data.moneda_nombre
                         }
-                        
+
                     );
 
                     setTipoGasto(
@@ -247,7 +262,7 @@ const PresupuestoEdit = (props) => {
                             "value": resp.data.tipo_gasto_codigo,
                             "label": resp.data.tipo_gasto_nombre
                         }
-                        
+
                     );
 
                     setSub(resp.data.sub);
@@ -293,6 +308,7 @@ const PresupuestoEdit = (props) => {
                             </label>
                             <Select2
                                 isSearchable={true}
+                                isDisabled={disableEmpresa}
                                 onChange={handleChangeSelect}
                                 value={empresa}
                                 name="empresa"
@@ -342,6 +358,21 @@ const PresupuestoEdit = (props) => {
                                 placeholder="*Seleccione tipo gasto"
                             />
                         </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={activo}
+                                        color="primary"
+                                        onChange={() => setActivo(!activo)}
+                                        name="activo"
+                                        id="activo"
+                                        inputProps={{ 'aria-label': 'secondary checkbox' }}
+                                    />
+                                }
+                                label="Activo"
+                            />
+                        </FormControl>
                     </div>
                 </form>
 
@@ -389,19 +420,19 @@ const PresupuestoEdit = (props) => {
                         </Grid>
                         <Grid item xs={2}>
                             {
-                                tipo_asignacion !== "dinero"  ?
-                                (
-                                    <FormControl className={classes.formControl}>
-                                    <TextField
-                                        id="asignacion_medida"
-                                        name="asignacion_medida"
-                                        type="text"
-                                        label="Asignacion medida"
-                                        value={formik.values.asignacion_medida}
-                                        onChange={formik.handleChange}
-                                    />
-                                </FormControl>
-                                ): ""
+                                tipo_asignacion !== "dinero" ?
+                                    (
+                                        <FormControl className={classes.formControl}>
+                                            <TextField
+                                                id="asignacion_medida"
+                                                name="asignacion_medida"
+                                                type="text"
+                                                label="Asignacion medida"
+                                                value={formik.values.asignacion_medida}
+                                                onChange={formik.handleChange}
+                                            />
+                                        </FormControl>
+                                    ) : ""
                             }
                         </Grid>
                         <Grid item xs={2} className="fix-top">
@@ -427,22 +458,22 @@ const PresupuestoEdit = (props) => {
                         <table className="detail-table">
                             <thead>
                                 <tr>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Categoría
                                     </th>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Tipo Asignación
                                     </th>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Cantidad
                                     </th>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Medida
                                     </th>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Frecuencia
                                     </th>
-                                    <th style={{width:'16.66%'}}>
+                                    <th style={{ width: '16.66%' }}>
                                         Acciones
                                     </th>
                                 </tr>
@@ -458,7 +489,7 @@ const PresupuestoEdit = (props) => {
                                                         {key.categoria_gasto_nombre}
                                                     </td>
                                                     <td>
-                                                        {key.tipo_asignacion }
+                                                        {key.tipo_asignacion}
                                                     </td>
                                                     <td>
                                                         {key.asignacion_cantidad}

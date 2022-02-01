@@ -16,7 +16,8 @@ import {
     VerifiedUserSharp,
     Business,
     MoneyOff,
-    Money
+    Money,
+    MoneySharp
 } from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import swal from 'sweetalert';
@@ -120,12 +121,20 @@ class Header extends Component {
                                     <ListItemText primary={`Gastos`} />
                                 </ListItem>
                             </Link>
-                            <Link className="link" to="/presupuestos" onClick={() => this.changeIndex(3)}>
-                                <ListItem button selected={this.state.selectedIndex === 3}>
+                            <Link className="link" to="/presupuestos" onClick={() => this.changeIndex(4)}>
+                                <ListItem button selected={this.state.selectedIndex === 4}>
                                     <ListItemIcon>
                                         <Money />
                                     </ListItemIcon>
                                     <ListItemText primary={`Presupuestos`} />
+                                </ListItem>
+                            </Link>
+                            <Link className="link" to="/liquidaciones" onClick={() => this.changeIndex(5)}>
+                                <ListItem button selected={this.state.selectedIndex === 5}>
+                                    <ListItemIcon>
+                                        <MoneySharp />
+                                    </ListItemIcon>
+                                    <ListItemText primary={`Liquidaciones`} />
                                 </ListItem>
                             </Link>
                         </List>

@@ -8,10 +8,10 @@ import Usuarios from './components/Usuarios';
 import UserEdit from './components/UserEdit';
 import Empresas from './components/Empresas';
 import EmpresaEdit from './components/EmpresaEdit';
-import Bancos from './components/Bancos';
-import BancoEdit from './components/BancoEdit';
-import Cuentas from './components/Cuentas';
-import CuentaEdit from './components/CuentaEdit';
+// import Bancos from './components/Bancos';
+// import BancoEdit from './components/BancoEdit';
+// import Cuentas from './components/Cuentas';
+// import CuentaEdit from './components/CuentaEdit';
 import Gastos from './components/Gastos';
 import axios from 'axios';
 import GastoEdit from './components/GastoEdit';
@@ -23,6 +23,8 @@ import './css/App.css';
 // Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faBars, faPrint, faEnvelope, faTrash, faSignIn } from '@fortawesome/pro-solid-svg-icons';
+import Liquidaciones from './components/Liquidaciones';
+import LiquidacionEdit from './components/LiquidacionEdit';
 library.add(faBars, faPrint, faEnvelope, faTrash, faSignIn);
 
 let url = window._url;
@@ -39,6 +41,7 @@ class App extends Component {
     this.loadGastos = this.loadGastos.bind(this);
     this.loadSAP = this.loadSAP.bind(this);
     this.loadRoles = this.loadRoles.bind(this);
+    this.loadProveedoresApp = this.loadProveedoresApp.bind(this);
     this.loadBancos = this.loadBancos.bind(this);
     this.loadCuentas = this.loadCuentas.bind(this);
     this.loadGastosGrupos = this.loadGastosGrupos.bind(this);
@@ -48,6 +51,7 @@ class App extends Component {
     this.loadCategoriaGasto = this.loadCategoriaGasto.bind(this);
     this.loadFrecuenciaGasto = this.loadFrecuenciaGasto.bind(this);
     this.loadPresupuestos = this.loadPresupuestos.bind(this);
+    this.loadLiquidaciones = this.loadLiquidaciones.bind(this);
 
     this.state = {
       logged: false,
@@ -58,12 +62,15 @@ class App extends Component {
       cuentas: [],
       usuariosSAP: [],
       proveedoresSAP: [],
+      proveedoresApp: [],
       cargandoSAP: false,
       roles: [],
       grupos: [],
       cuentas_contables: [],
       impuestos: [],
       presupuestos: [],
+      presupuestosActivos: [],
+      liquidaciones: [],
       loading: false,
       tipo_gastos: [],
       categoria_gastos: [],
@@ -86,7 +93,13 @@ class App extends Component {
       grupos: [],
       cuentas_contables: [],
       impuestos: [],
-      presupuestos: []
+      presupuestos: [],
+      presupuestosActivos: [],
+      liquidaciones: [],
+      loading: false,
+      tipo_gastos: [],
+      categoria_gastos: [],
+      frecuencia_gastos: [],
     })
   }
 
@@ -111,9 +124,11 @@ class App extends Component {
     this.loadGastosGrupos();
     // this.loadSAP();
     this.loadRoles();
+    this.loadProveedoresApp();
     this.loadBancos();
     this.loadCuentas();
     this.loadPresupuestos();
+    this.loadLiquidaciones();
     this.loadTipoGasto();
     this.loadCategoriaGasto();
     this.loadFrecuenciaGasto();
@@ -228,6 +243,39 @@ class App extends Component {
     })
       .then(function (resp) {
         t.setState({ presupuestos: resp.data });
+
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+
+    axios({
+      method: 'get',
+      url: url + 'presupuestos-usuario/' + localStorage.getItem("lu_id"),
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        let presupuestosActivos = resp.data.filter((key) => key.activo === 1);
+        t.setState({ presupuestosActivos: presupuestosActivos });
+
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+
+  // Load liquidaciones list
+  loadLiquidaciones() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'liquidaciones',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ liquidaciones: resp.data });
       })
       .catch(function (err) {
         console.log(err);
@@ -245,6 +293,22 @@ class App extends Component {
     })
       .then(function (resp) {
         t.setState({ roles: resp.data });
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }
+  // Load proveedores app list
+  loadProveedoresApp() {
+    let t = this;
+    axios({
+      method: 'get',
+      url: url + 'proveedores',
+      responseType: "json",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(function (resp) {
+        t.setState({ proveedoresApp: resp.data });
       })
       .catch(function (err) {
         console.log(err);
@@ -502,6 +566,29 @@ class App extends Component {
                         categoria_gastos={this.state.categoria_gastos}
                         frecuencia_gastos={this.state.frecuencia_gastos}
                       />} />
+
+                  <Route path="/liquidaciones"
+                    render={(props) =>
+                      <Liquidaciones {...props}
+                        url={url}
+                        data={this.state.liquidaciones}
+                        loadBancos={this.loadLiquidaciones}
+                      />} />
+
+                  <Route path="/edit-liquidacion/:id?"
+                    render={(props) =>
+                      <LiquidacionEdit {...props}
+                        url={url}
+                        loadLiquidaciones={this.loadLiquidaciones}
+                        liquidaciones={this.state.liquidaciones}
+                        loading={this.state.loading}
+                        presupuestos={this.state.presupuestosActivos}
+                        proveedoresApp={this.state.proveedoresApp}
+                        loadProveedoresApp={this.loadProveedoresApp}
+                        gastos={this.state.gastos}
+                      />} />
+
+
                 </React.Fragment>
               )}
         </div>

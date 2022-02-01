@@ -479,21 +479,6 @@ const EmpresaEdit = (props) => {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={remanente_nota_credito}
-                                        color="primary"
-                                        onChange={() => setremanente_nota_credito(!remanente_nota_credito)}
-                                        name="remanente_nota_credito"
-                                        id="remanente_nota_credito"
-                                        inputProps={{ 'aria-label': 'secondary checkbox' }}
-                                    />
-                                }
-                                label="Remanente nota de crédito"
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <FormControlLabel
-                                control={
-                                    <Switch
                                         checked={maneja_xml}
                                         color="primary"
                                         onChange={() => setmaneja_xml(!maneja_xml)}

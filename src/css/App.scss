@@ -1,8 +1,34 @@
-@import "scss/reset"; 
-@import "scss/landing"; 
+@import "scss/reset";
+@import "scss/landing";
 @import "scss/header";
 @import "scss/lists";
 @import "scss/usuarios";
 @import "scss/empresas";
 
 @import "scss/home";
+
+.centertext {
+    label {
+        left: 50%;
+        transform: translate(-50%, 0) scale(0.75);
+    }
+    input {
+        text-align: center;
+    }
+}
+.file-link {
+    float: left;
+    width: 100%;
+    margin-top: 15px;
+    font-weight: bold;
+    color: $blue;
+}
+.swal-content {
+    div {
+        font-weight: 200;
+        strong {
+            color: $red;
+            font-weight: 400;
+        }
+    }
+}
