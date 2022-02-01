@@ -158,24 +158,35 @@ const PresupuestoEdit = (props) => {
         ) {
             swal("Error", "¡Debes llenar todos los datos!", "error");
         } else {
-            es.push({
-                'categoria_gasto_codigo': categoria_gasto.value,
-                'categoria_gasto_nombre': categoria_gasto.label,
-                'tipo_asignacion': tipo_asignacion,
-                'asignacion_cantidad': formik.values.asignacion_cantidad,
-                'asignacion_medida': formik.values.asignacion_medida,
-                'frecuencia_codigo': frecuencia.value,
-                'frecuencia_nombre': frecuencia.label,
-                'au_presupuesto_id': id
-            });
+            let exists = 0;
+            for (let i = 0; i < es.length; i++) {
+                if (es[i].categoria_gasto_codigo === categoria_gasto.value) {
+                    exists = 1;
+                    break;
+                }
+            }
+            if (exists === 1) {
+                swal("Error", "¡Ya existe este sub gasto agregado al presupuesto!", "error");
+            } else {
+                es.push({
+                    'categoria_gasto_codigo': categoria_gasto.value,
+                    'categoria_gasto_nombre': categoria_gasto.label,
+                    'tipo_asignacion': tipo_asignacion,
+                    'asignacion_cantidad': formik.values.asignacion_cantidad,
+                    'asignacion_medida': formik.values.asignacion_medida,
+                    'frecuencia_codigo': frecuencia.value,
+                    'frecuencia_nombre': frecuencia.label,
+                    'au_presupuesto_id': id
+                });
 
-            setSub(es);
+                setSub(es);
 
-            formik.setFieldValue('asignacion_cantidad', '', false);
-            formik.setFieldValue('asignacion_medida', '', false);
-            setTipoAsignacion('dinero');
-            setCategoriaGasto(false);
-            setFrecuencia(false);
+                formik.setFieldValue('asignacion_cantidad', '', false);
+                formik.setFieldValue('asignacion_medida', '', false);
+                setTipoAsignacion('dinero');
+                setCategoriaGasto(false);
+                setFrecuencia(false);
+            }
         }
     }
 
@@ -387,7 +398,7 @@ const PresupuestoEdit = (props) => {
                                     name="categoria_gasto"
                                     id="categoria_gasto"
                                     options={props.categoria_gastos}
-                                    placeholder="*Categoría gasto"
+                                    placeholder="*Gasto"
                                 />
                             </FormControl>
                         </Grid>
@@ -412,7 +423,7 @@ const PresupuestoEdit = (props) => {
                                     id="asignacion_cantidad"
                                     name="asignacion_cantidad"
                                     type="number"
-                                    label="Asignacion Cantidad"
+                                    label="* Asignacion Cantidad"
                                     value={formik.values.asignacion_cantidad}
                                     onChange={formik.handleChange}
                                 />

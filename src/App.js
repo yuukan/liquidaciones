@@ -563,7 +563,7 @@ class App extends Component {
                         empresas={this.state.empresas}
                         loading={this.state.loading}
                         tipo_gastos={this.state.tipo_gastos}
-                        categoria_gastos={this.state.categoria_gastos}
+                        categoria_gastos={this.state.gastos}
                         frecuencia_gastos={this.state.frecuencia_gastos}
                       />} />
 
