@@ -6,6 +6,7 @@ import { Edit, Delete } from '@material-ui/icons/';
 import swal from 'sweetalert';
 import axios from 'axios';
 import tableIcons from './sub/tableIcons';
+import Cookies from 'js-cookie';
 
 class Usuarios extends Component {
 
@@ -56,6 +57,7 @@ class Usuarios extends Component {
                                     rowData => ({
                                         icon: Delete,
                                         tooltip: 'Eliminar Usuario',
+                                        hidden: rowData.value === Cookies.get('lu_id'),
                                         onClick: (event, rowData) => {
                                             let t = this;
                                             swal({

@@ -16,6 +16,7 @@ import { Delete } from '@material-ui/icons/';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Grid from '@material-ui/core/Grid';
+import { LinearProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -51,10 +52,11 @@ const GastoEdit = (props) => {
     const [lleva_subgastos, setLleva] = useState(false);
     const [ignorar_xml, setIgnorar] = useState(false);
     const [exento_sub, setExentoSub] = useState(false);
-    const [tipo, setTipo] = useState('');
+    const [tipo, setTipo] = useState('cantidad');
     const [disableEmpresa, setDisableEmpresa] = useState(false);
     const [empresa, setEmpresa] = useState(false);
     const [maneja_xml, setManeja] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
@@ -103,6 +105,7 @@ const GastoEdit = (props) => {
 
                 let data = JSON.stringify(values);
 
+                setLoading(true);
                 if (id === -1) {
                     axios({
                         method: 'post',
@@ -186,7 +189,7 @@ const GastoEdit = (props) => {
 
             setSub(es);
 
-            setTipo('');
+            setTipo('cantidad');
             setExentoSub(false);
             formik.setFieldValue('descripcion_sub', '', false);
             formik.setFieldValue('valor_sub', '', false);
@@ -700,7 +703,7 @@ const GastoEdit = (props) => {
                                                                     {!key.exento ? "no" : "si"}
                                                                 </td>
                                                                 <td>
-                                                                    {key.tipo}
+                                                                    {key.tipo === '' ? 'cantidad' : key.tipo}
                                                                 </td>
                                                                 <td>
                                                                     {key.valor}
@@ -731,9 +734,23 @@ const GastoEdit = (props) => {
                             </div>
                         ) : ""
                 }
-                <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    className="full-button"
+                    fullWidth
+                    type="text"
+                    onClick={() => formik.submitForm()}
+                    disabled={loading}
+                >
                     Guardar
                 </Button>
+                {
+                    loading ?
+                        (
+                            <LinearProgress color="secondary" style={{ width: "100%", marginTop: "10px" }} />
+                        ) : ""
+                }
             </div>
         </div>
     );

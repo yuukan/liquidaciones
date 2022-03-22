@@ -10,6 +10,7 @@ import Select2 from 'react-select';
 import TextField from '@material-ui/core/TextField';
 import axios from 'axios';
 import moment from 'moment';
+import Cookies from 'js-cookie';
 
 import {
     MuiPickersUtilsProvider,
@@ -175,7 +176,7 @@ class Asignar extends Component {
             id: this.props.match.params.id,
             montoPorGalon: t.montoPorGalon,
             montoPorGalonOriginal: t.montoPorGalonOriginal,
-            user: window.localStorage.getItem('tp_uid')
+            user: Cookies.get('lu_id')
         })
             .then(function () {
                 // t.setState({ clientes: response.data });
@@ -227,32 +228,32 @@ class Asignar extends Component {
     //     }
     // }
 
-    componentDidMount(){
+    componentDidMount() {
         let t = this;
-        axios.post(t.props.url + "api/get-order",{id:t.props.match.params.id})
-        .then(function (response) {
-            let order = response.data[0];
-            let id = t.props.match.params.id;
+        axios.post(t.props.url + "api/get-order", { id: t.props.match.params.id })
+            .then(function (response) {
+                let order = response.data[0];
+                let id = t.props.match.params.id;
 
-            let d = moment(order.fecha_carga + " " + order.HoraCarga);
-            d = d.toDate();
+                let d = moment(order.fecha_carga + " " + order.HoraCarga);
+                d = d.toDate();
 
-            let tra = t.props.fletes.findIndex(x => parseInt(x.id) === parseInt(order.idFlete));
-            tra = t.props.fletes[tra];
+                let tra = t.props.fletes.findIndex(x => parseInt(x.id) === parseInt(order.idFlete));
+                tra = t.props.fletes[tra];
 
-            let pla = t.props.plants.findIndex(x => parseInt(x.value) === parseInt(order.planta));
-            pla = t.props.plants[pla];
+                let pla = t.props.plants.findIndex(x => parseInt(x.value) === parseInt(order.planta));
+                pla = t.props.plants[pla];
 
-            let montoPorGalon = parseFloat(order.FleteXGalon).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                let montoPorGalon = parseFloat(order.FleteXGalon).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+                t.setState({ order: order, fechaEntrega: d, id, fechaEntregaOriginal: d, transporte: tra, transporte_original: tra, planta: pla, planta_original: pla, montoPorGalon, montoPorGalonOriginal: montoPorGalon });
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-
-            t.setState({ order: order,fechaEntrega: d, id, fechaEntregaOriginal: d, transporte: tra, transporte_original: tra, planta: pla, planta_original: pla,  montoPorGalon, montoPorGalonOriginal: montoPorGalon });
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
     }
 
     render() {
@@ -260,21 +261,21 @@ class Asignar extends Component {
         let order = this.state.order;
         let flete = null;
         // if (this.props.orders) {
-        if(order){
+        if (order) {
             // order = this.props.orders.findIndex(x => x.id === this.props.match.params.id);
             // order = this.props.orders[order];
             // if (typeof order !== "undefined") {
-                flete = this.props.fletes.findIndex((x) => {
-                    return parseInt(x.id) === parseInt(order.idFlete)
-                });
-                flete = this.props.fletes[flete];
+            flete = this.props.fletes.findIndex((x) => {
+                return parseInt(x.id) === parseInt(order.idFlete)
+            });
+            flete = this.props.fletes[flete];
             // }
         }
 
         let conts = [];
 
         if (order && order.flete && flete) {
-            for (let i = flete.compartimientos.length - 1; i >=0 ; i--) {
+            for (let i = flete.compartimientos.length - 1; i >= 0; i--) {
 
                 // let filled = 0;
                 let product = "";
@@ -596,10 +597,10 @@ class Asignar extends Component {
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={12} lg={12} className="mobile">
                                             &nbsp;
-                                    </Grid>
+                                        </Grid>
                                         <Grid item xs={12} sm={12} md={12} lg={12} className="separator">
                                             &nbsp;
-                                    </Grid>
+                                        </Grid>
                                     </React.Fragment>
                                 )
                             })
@@ -610,9 +611,9 @@ class Asignar extends Component {
                         </Grid>
                         <Grid item xs={6} sm={6} md={2} lg={2} className="tot goRight">
                             Q {tot.toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })}
                         </Grid>
 
                     </Grid>

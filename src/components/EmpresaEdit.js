@@ -12,6 +12,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import Select2 from 'react-select';
+import { LinearProgress } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -81,6 +82,7 @@ const EmpresaEdit = (props) => {
     const [ajuste_fin_mes, setajuste_fin_mes] = useState(false);
     const [control_numero_factura, setcontrol_numero_factura] = useState(false);
     const [bancos, setBancos] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const [usuario_sql, set_usuario_sql] = useState("");
     const [base_sql, set_base_sql] = useState("");
@@ -133,6 +135,7 @@ const EmpresaEdit = (props) => {
                 contrasena_sql,
                 servidor_sql,
             };
+            setLoading(true);
             axios({
                 method: 'post',
                 url: props.url + 'validate-empresa-sql',
@@ -146,13 +149,17 @@ const EmpresaEdit = (props) => {
                         setEmpresa(d.info[0]);
                         setImpuestos(d.impuestos);
                         setBancos(JSON.stringify(d.bancos));
+                        setValorImpuesto(null);
+                        swal("Éxito", "¡Datos SQL validos!", "success");
                     } else {
-                        swal("Error", "¡Data SQL no válida!", "error");
+                        swal("Error", "¡Datos SQL no válidos!", "error");
                     }
+                    setLoading(false);
                 })
                 .catch(function (err) {
                     console.log(err);
                     swal("Error", err.response.data.msg, "error");
+                    setLoading(false);
                 });
         } else {
             swal("Atención", "¡Por favor ingrese toda la información!", "warning");
@@ -177,66 +184,73 @@ const EmpresaEdit = (props) => {
             ruta_archivos_bancos: ''
         },
         onSubmit: values => {
-            values.user_id = id;
-            values.remanente_nota_credito = remanente_nota_credito ? 1 : 0;
-            values.maneja_xml = maneja_xml ? 1 : 0;
-            values.ajuste_fin_mes = ajuste_fin_mes ? 1 : 0;
-            values.control_numero_factura = control_numero_factura ? 1 : 0;
-
-            values.nombre = empresa.CompnyName;
-            values.moneda_local = empresa.MainCurncy;
-            values.moneda_extranjera = empresa.SysCurrncy;
-            values.no_identificacion_fiscal = empresa.TaxIdNum;
-
-            values.usuario_sql = usuario_sql;
-            values.base_sql = base_sql;
-            values.contrasena_sql = contrasena_sql;
-            values.servidor_sql = servidor_sql;
-
-            values.valor_impuesto = valor_impuesto ? valor_impuesto.value : 0;
-            values.label_impuesto = valor_impuesto ? valor_impuesto.label : 0;
-
-            values.sap_db_type = sap_db_type ? sap_db_type.value : 0;
-            values.sap_db_type_label = sap_db_type ? sap_db_type.label : 0;
-
-            values.bancos = bancos;
-
-            let data = JSON.stringify(values);
-
-            if (id === -1) {
-                axios({
-                    method: 'post',
-                    url: props.url + 'empresa',
-                    data,
-                    responseType: "json",
-                    headers: { "Content-Type": "application/json" }
-                })
-                    .then(function (resp) {
-                        swal("Éxito", resp.data.msg, "success");
-                        props.loadEmpresas();
-                        props.history.push(`/empresas`);
-                    })
-                    .catch(function (err) {
-                        swal("Error", err.response.data, "error");
-                    });
+            if (valor_impuesto === null) {
+                swal("Error", "Debes de llenar el valor del impuesto", "error");
             } else {
-                axios({
-                    method: 'put',
-                    url: props.url + 'empresa/' + id,
-                    data,
-                    responseType: "json",
-                    headers: { "Content-Type": "application/json" }
-                })
-                    .then(function (resp) {
-                        swal("Éxito", resp.data.msg, "success");
-                        props.loadEmpresas();
-                        props.history.push(`/empresas`);
-                    })
-                    .catch(function (err) {
-                        swal("Error", err.response.data, "error");
-                    });
-            }
+                values.user_id = id;
+                values.remanente_nota_credito = remanente_nota_credito ? 1 : 0;
+                values.maneja_xml = maneja_xml ? 1 : 0;
+                values.ajuste_fin_mes = ajuste_fin_mes ? 1 : 0;
+                values.control_numero_factura = control_numero_factura ? 1 : 0;
 
+                values.nombre = empresa.CompnyName;
+                values.moneda_local = empresa.MainCurncy;
+                values.moneda_extranjera = empresa.SysCurrncy;
+                values.no_identificacion_fiscal = empresa.TaxIdNum;
+
+                values.usuario_sql = usuario_sql;
+                values.base_sql = base_sql;
+                values.contrasena_sql = contrasena_sql;
+                values.servidor_sql = servidor_sql;
+
+                values.valor_impuesto = valor_impuesto ? valor_impuesto.value : 0;
+                values.label_impuesto = valor_impuesto ? valor_impuesto.label : 0;
+
+                values.sap_db_type = sap_db_type ? sap_db_type.value : 0;
+                values.sap_db_type_label = sap_db_type ? sap_db_type.label : 0;
+
+                values.bancos = bancos;
+
+                let data = JSON.stringify(values);
+                setLoading(true);
+                if (id === -1) {
+                    axios({
+                        method: 'post',
+                        url: props.url + 'empresa',
+                        data,
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            swal("Éxito", resp.data.msg, "success");
+                            setLoading(false);
+                            props.loadEmpresas();
+                            props.history.push(`/empresas`);
+                        })
+                        .catch(function (err) {
+                            swal("Error", err.response.data, "error");
+                            setLoading(false);
+                        });
+                } else {
+                    axios({
+                        method: 'put',
+                        url: props.url + 'empresa/' + id,
+                        data,
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            swal("Éxito", resp.data.msg, "success");
+                            setLoading(false);
+                            props.loadEmpresas();
+                            props.history.push(`/empresas`);
+                        })
+                        .catch(function (err) {
+                            swal("Error", err.response.data, "error");
+                            setLoading(false);
+                        });
+                }
+            }
         },
     });
 
@@ -317,11 +331,11 @@ const EmpresaEdit = (props) => {
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
-                                id="usuario_sql"
-                                name="usuario_sql"
-                                label="Usuario SQL"
+                                id="servidor_sql"
+                                name="servidor_sql"
+                                label="Servidor SQL (Como esta en el License Manager)"
                                 type="text"
-                                value={usuario_sql}
+                                value={servidor_sql}
                                 onChange={handleChange}
                             />
                         </FormControl>
@@ -339,22 +353,22 @@ const EmpresaEdit = (props) => {
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
-                                id="contrasena_sql"
-                                name="contrasena_sql"
-                                label="Contraseña SQL"
+                                id="usuario_sql"
+                                name="usuario_sql"
+                                label="Usuario SQL"
                                 type="text"
-                                value={contrasena_sql}
+                                value={usuario_sql}
                                 onChange={handleChange}
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <TextField
                                 fullWidth
-                                id="servidor_sql"
-                                name="servidor_sql"
-                                label="Servidor SQL (Como esta en el License Manager)"
-                                type="text"
-                                value={servidor_sql}
+                                id="contrasena_sql"
+                                name="contrasena_sql"
+                                label="Contraseña SQL"
+                                type="password"
+                                value={contrasena_sql}
                                 onChange={handleChange}
                             />
                         </FormControl>
@@ -363,9 +377,17 @@ const EmpresaEdit = (props) => {
                             variant="contained"
                             size="large"
                             onClick={validateSQL}
+                            style={{ marginBottom: "10px" }}
+                            disabled={loading}
                         >
                             Validar Datos
                         </Button>
+                        {
+                            loading ?
+                                (
+                                    <LinearProgress color="secondary" />
+                                ) : ""
+                        }
                     </div>
                 </div>
                 <form onSubmit={formik.handleSubmit}>
@@ -444,35 +466,11 @@ const EmpresaEdit = (props) => {
                                 fullWidth
                                 id="dias_atraso_facturacion_ruta"
                                 name="dias_atraso_facturacion_ruta"
-                                label="Dias de atraso facturación ruta"
+                                label="Dias de atraso factura en liquidación"
                                 type="number"
                                 value={formik.values.dias_atraso_facturacion_ruta}
                                 onChange={formik.handleChange}
                                 error={formik.touched.dias_atraso_facturacion_ruta && Boolean(formik.errors.dias_atraso_facturacion_ruta)}
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                fullWidth
-                                id="dias_atraso_facturacion_gastos"
-                                name="dias_atraso_facturacion_gastos"
-                                label="Dias de atraso facturación gastos"
-                                type="number"
-                                value={formik.values.dias_atraso_facturacion_gastos}
-                                onChange={formik.handleChange}
-                                error={formik.touched.dias_atraso_facturacion_gastos && Boolean(formik.errors.dias_atraso_facturacion_gastos)}
-                            />
-                        </FormControl>
-                        <FormControl className={classes.formControl}>
-                            <TextField
-                                fullWidth
-                                id="dia_efectivo_ajuste"
-                                name="dia_efectivo_ajuste"
-                                label="Día efectivo del ajuste"
-                                type="number"
-                                value={formik.values.dia_efectivo_ajuste}
-                                onChange={formik.handleChange}
-                                error={formik.touched.dia_efectivo_ajuste && Boolean(formik.errors.dia_efectivo_ajuste)}
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
@@ -505,6 +503,23 @@ const EmpresaEdit = (props) => {
                                 label="¿Ajuste de fin de mes?"
                             />
                         </FormControl>
+                        {
+                            ajuste_fin_mes ?
+                                (
+                                    <FormControl className={classes.formControl}>
+                                        <TextField
+                                            fullWidth
+                                            id="dia_efectivo_ajuste"
+                                            name="dia_efectivo_ajuste"
+                                            label="A partir de que día"
+                                            type="number"
+                                            value={formik.values.dia_efectivo_ajuste}
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.dia_efectivo_ajuste && Boolean(formik.errors.dia_efectivo_ajuste)}
+                                        />
+                                    </FormControl>
+                                ) : ""
+                        }
                         <FormControl className={classes.formControl}>
                             <FormControlLabel
                                 control={
@@ -517,7 +532,7 @@ const EmpresaEdit = (props) => {
                                         inputProps={{ 'aria-label': 'secondary checkbox' }}
                                     />
                                 }
-                                label="¿Control número de Factura?"
+                                label="¿Obligar número de factura?"
                             />
                         </FormControl>
                         <FormControl className={classes.formControl}>
@@ -580,7 +595,7 @@ const EmpresaEdit = (props) => {
                                     id="contrasena_sap"
                                     name="contrasena_sap"
                                     label="Contraseña SAP"
-                                    type="text"
+                                    type="password"
                                     value={formik.values.contrasena_sap}
                                     onChange={formik.handleChange}
                                     error={formik.touched.contrasena_sap && Boolean(formik.errors.contrasena_sap)}
@@ -604,9 +619,23 @@ const EmpresaEdit = (props) => {
                     </div>
                 </form>
 
-                <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    className="full-button"
+                    fullWidth
+                    type="text"
+                    onClick={() => formik.submitForm()}
+                    disabled={loading}
+                >
                     Guardar
                 </Button>
+                {
+                    loading ?
+                        (
+                            <LinearProgress color="secondary" />
+                        ) : ""
+                }
             </div>
         </div>
     );

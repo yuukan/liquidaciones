@@ -15,7 +15,7 @@ import { Delete } from '@material-ui/icons/';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Grid from '@material-ui/core/Grid';
-import { Switch } from '@material-ui/core';
+import { LinearProgress, Switch } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -49,6 +49,7 @@ const PresupuestoEdit = (props) => {
     const [frecuencia, setFrecuencia] = useState(false);
     const [activo, setActivo] = useState(false);
     const [disableEmpresa, setDisableEmpresa] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const classes = useStyles();
     // Pass the useFormik() hook initial form values and a submit function that will
@@ -84,6 +85,7 @@ const PresupuestoEdit = (props) => {
 
                 let data = JSON.stringify(values);
 
+                setLoading(true);
                 if (id === -1) {
                     axios({
                         method: 'post',
@@ -95,7 +97,9 @@ const PresupuestoEdit = (props) => {
                         .then(function (resp) {
                             swal("Éxito", resp.data.msg, "success");
                             props.loadPresupuestos();
-                            props.history.push(`/presupuestos`);
+                            props.history.push(`/edit-presupuesto/${resp.data.id}`);
+                            window.location.reload();
+                            // props.history.push(`/presupuestos`);
                         })
                         .catch(function (err) {
                             console.log(err);
@@ -276,7 +280,9 @@ const PresupuestoEdit = (props) => {
 
                     );
 
-                    setSub(resp.data.sub);
+                    if (typeof resp.data.sub !== "undefined") {
+                        setSub(resp.data.sub);
+                    }
 
                 })
                 .catch(function (err) {
@@ -287,6 +293,11 @@ const PresupuestoEdit = (props) => {
         }
     }, [])
 
+    let listado_gastos = props.categoria_gastos.filter(
+        (x) => {
+            return parseInt(x.empresa_codigo) === parseInt(empresa.value);
+        }
+    );
 
     return (
         <div className="main-container">
@@ -387,155 +398,179 @@ const PresupuestoEdit = (props) => {
                     </div>
                 </form>
 
-                <div className="full">
-                    <Grid container spacing={2}>
-                        <Grid item xs={2} className="fix-top">
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={categoria_gasto}
-                                    name="categoria_gasto"
-                                    id="categoria_gasto"
-                                    options={props.categoria_gastos}
-                                    placeholder="*Gasto"
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2} className="fix-top">
-                            <FormControl component="fieldset">
-                                <RadioGroup
-                                    row
-                                    aria-label="Tipo"
-                                    name="tipo_asignacion"
-                                    defaultValue="dinero"
-                                    onChange={handleChangeTipo}
-                                    value={tipo_asignacion}
-                                >
-                                    <FormControlLabel value="dinero" control={<Radio />} label="Dinero" />
-                                    <FormControlLabel value="unidad" control={<Radio />} label="Unidad" />
-                                </RadioGroup>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2}>
-                            <FormControl className={classes.formControl}>
-                                <TextField
-                                    id="asignacion_cantidad"
-                                    name="asignacion_cantidad"
-                                    type="number"
-                                    label="* Asignacion Cantidad"
-                                    value={formik.values.asignacion_cantidad}
-                                    onChange={formik.handleChange}
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2}>
-                            {
-                                tipo_asignacion !== "dinero" ?
-                                    (
+                {
+                    id !== -1 ?
+                        (
+                            <div className="full">
+                                <Grid container spacing={2}>
+                                    <Grid item xs={2} className="fix-top">
+                                        <FormControl variant="outlined" className={classes.formControl}>
+                                            <Select2
+                                                isSearchable={true}
+                                                onChange={handleChangeSelect}
+                                                value={categoria_gasto}
+                                                name="categoria_gasto"
+                                                id="categoria_gasto"
+                                                options={listado_gastos}
+                                                placeholder="*Gasto"
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2} className="fix-top">
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                row
+                                                aria-label="Tipo"
+                                                name="tipo_asignacion"
+                                                defaultValue="dinero"
+                                                onChange={handleChangeTipo}
+                                                value={tipo_asignacion}
+                                            >
+                                                <FormControlLabel value="dinero" control={<Radio />} label="Dinero" />
+                                                <FormControlLabel value="unidad" control={<Radio />} label="Unidad" />
+                                            </RadioGroup>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2}>
                                         <FormControl className={classes.formControl}>
                                             <TextField
-                                                id="asignacion_medida"
-                                                name="asignacion_medida"
-                                                type="text"
-                                                label="Asignacion medida"
-                                                value={formik.values.asignacion_medida}
+                                                id="asignacion_cantidad"
+                                                name="asignacion_cantidad"
+                                                type="number"
+                                                label="* Asignacion Cantidad"
+                                                value={formik.values.asignacion_cantidad}
                                                 onChange={formik.handleChange}
                                             />
                                         </FormControl>
-                                    ) : ""
-                            }
-                        </Grid>
-                        <Grid item xs={2} className="fix-top">
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <Select2
-                                    isSearchable={true}
-                                    onChange={handleChangeSelect}
-                                    value={frecuencia}
-                                    name="frecuencia"
-                                    id="frecuencia"
-                                    options={props.frecuencia_gastos}
-                                    placeholder="*Frecuencia"
-                                />
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={2} className="fix-top">
-                            <Button color="primary" variant="contained" fullWidth type="button" onClick={addSub}>
-                                Agregar
-                            </Button>
-                        </Grid>
-                    </Grid>
-                    <div className="table-container">
-                        <table className="detail-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ width: '16.66%' }}>
-                                        Categoría
-                                    </th>
-                                    <th style={{ width: '16.66%' }}>
-                                        Tipo Asignación
-                                    </th>
-                                    <th style={{ width: '16.66%' }}>
-                                        Cantidad
-                                    </th>
-                                    <th style={{ width: '16.66%' }}>
-                                        Medida
-                                    </th>
-                                    <th style={{ width: '16.66%' }}>
-                                        Frecuencia
-                                    </th>
-                                    <th style={{ width: '16.66%' }}>
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            {sub && sub.length > 0
-                                ?
-                                (
-                                    <tbody>
+                                    </Grid>
+                                    <Grid item xs={2}>
                                         {
-                                            sub.map((key, idx) => (
-                                                <tr key={idx}>
-                                                    <td>
-                                                        {key.categoria_gasto_nombre}
-                                                    </td>
-                                                    <td>
-                                                        {key.tipo_asignacion}
-                                                    </td>
-                                                    <td>
-                                                        {key.asignacion_cantidad}
-                                                    </td>
-                                                    <td>
-                                                        {key.asignacion_medida}
-                                                    </td>
-                                                    <td>
-                                                        {key.frecuencia_nombre}
-                                                    </td>
-                                                    <td>
-                                                        <Button
-                                                            color="secondary"
-                                                            variant="contained"
-                                                            fullWidth
-                                                            type="button"
-                                                            className="horizontal-btn-fix"
-                                                            onClick={() => removeSub(idx)}
-                                                        >
-                                                            <Delete />
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                            tipo_asignacion !== "dinero" ?
+                                                (
+                                                    <FormControl className={classes.formControl}>
+                                                        <TextField
+                                                            id="asignacion_medida"
+                                                            name="asignacion_medida"
+                                                            type="text"
+                                                            label="Asignacion medida"
+                                                            value={formik.values.asignacion_medida}
+                                                            onChange={formik.handleChange}
+                                                        />
+                                                    </FormControl>
+                                                ) : ""
                                         }
-                                    </tbody>
-                                )
-                                : ""}
-                        </table>
-                    </div>
-                </div>
+                                    </Grid>
+                                    <Grid item xs={2} className="fix-top">
+                                        <FormControl variant="outlined" className={classes.formControl}>
+                                            <Select2
+                                                isSearchable={true}
+                                                onChange={handleChangeSelect}
+                                                value={frecuencia}
+                                                name="frecuencia"
+                                                id="frecuencia"
+                                                options={props.frecuencia_gastos}
+                                                placeholder="*Frecuencia"
+                                            />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={2} className="fix-top">
+                                        <Button color="primary" variant="contained" fullWidth type="button" onClick={addSub}>
+                                            Agregar
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                                <div className="table-container">
+                                    <table className="detail-table">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Categoría
+                                                </th>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Tipo Asignación
+                                                </th>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Cantidad
+                                                </th>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Medida
+                                                </th>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Frecuencia
+                                                </th>
+                                                <th style={{ width: '16.66%' }}>
+                                                    Acciones
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        {sub && sub.length > 0
+                                            ?
+                                            (
+                                                <tbody>
+                                                    {
+                                                        sub.map((key, idx) => (
+                                                            <tr key={idx}>
+                                                                <td>
+                                                                    {key.categoria_gasto_nombre}
+                                                                </td>
+                                                                <td>
+                                                                    {key.tipo_asignacion}
+                                                                </td>
+                                                                <td>
+                                                                    {key.asignacion_cantidad}
+                                                                </td>
+                                                                <td>
+                                                                    {key.asignacion_medida}
+                                                                </td>
+                                                                <td>
+                                                                    {key.frecuencia_nombre}
+                                                                </td>
+                                                                <td>
+                                                                    <Button
+                                                                        color="secondary"
+                                                                        variant="contained"
+                                                                        fullWidth
+                                                                        type="button"
+                                                                        className="horizontal-btn-fix"
+                                                                        onClick={() => removeSub(idx)}
+                                                                    >
+                                                                        <Delete />
+                                                                    </Button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    }
+                                                </tbody>
+                                            )
+                                            :
+                                            (
+                                                <tbody></tbody>
+                                            )
+                                        }
+                                    </table>
+                                </div>
+                            </div>
+                        )
+                        : ""
+                }
 
-                <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    className="full-button"
+                    fullWidth
+                    type="text"
+                    onClick={() => formik.submitForm()}
+                    disabled={loading}
+                >
                     Guardar
                 </Button>
+                {
+                    loading ?
+                        (
+                            <LinearProgress color="secondary" style={{ width: "100%", marginTop: "10px" }} />
+                        ) : ""
+                }
             </div>
         </div>
     );

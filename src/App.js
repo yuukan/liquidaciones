@@ -17,6 +17,8 @@ import axios from 'axios';
 import GastoEdit from './components/GastoEdit';
 import Presupuestos from './components/Presupuestos';
 import PresupuestoEdit from './components/PresupuestoEdit';
+import Cookies from 'js-cookie'
+import ScrollToTop from "./components/scrollToTop";
 // We import the css
 import './css/App.css';
 
@@ -110,7 +112,7 @@ class App extends Component {
 
   componentDidMount() {
     // We set the logged in
-    let id = localStorage.getItem("lu_id");
+    let id = Cookies.get('lu_id');
     if (id) {
       this.setState({ logged: true });
       this.loadAll();
@@ -251,7 +253,7 @@ class App extends Component {
 
     axios({
       method: 'get',
-      url: url + 'presupuestos-usuario/' + localStorage.getItem("lu_id"),
+      url: url + 'presupuestos-usuario/' + Cookies.get('lu_id'),
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
@@ -441,6 +443,7 @@ class App extends Component {
     return (
       <Router>
         <div id="main">
+          <ScrollToTop />
           <Header
             isLoggedIn={this.state.logged}
             changeLogged={this.changeLogged}

@@ -14,18 +14,30 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ImageIcon from '@material-ui/icons/Image';
 import DescriptionIcon from '@material-ui/icons/Description';
 import MomentUtils from '@date-io/moment';
+import Cookies from 'js-cookie';
+import {
+    endOfWeek,
+    format,
+    parseISO,
+    startOfWeek,
+    subDays,
+    startOfMonth,
+    endOfMonth
+} from 'date-fns';
 import moment from "moment";
 import "moment/locale/es";
 import {
     Delete,
-    Add
+    Edit,
+    Add,
+    Visibility
 } from '@material-ui/icons/';
 import Compressor from 'compressorjs';
 import {
     DatePicker,
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers'
-import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, LinearProgress, Radio, RadioGroup } from '@material-ui/core';
 var parseString = require('xml2js').parseString;
 
 moment.locale("es");
@@ -48,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const LiquidacionEdit = (props) => {
+    const [refresh, setRefresh] = useState(0);
     const [id, setId] = useState(-1);
     const [presupuesto, setPresupuesto] = useState(false);
     const [fechaInicio, setFechaInicio] = useState(new Date());
@@ -56,11 +69,16 @@ const LiquidacionEdit = (props) => {
     const [noAplica, setNoAplica] = useState(0);
     const [reembolso, setReembolso] = useState(0);
     const [comentarios, setComentarios] = useState("");
+    const [comentarios2, setComentarios2] = useState("");
     const [rechazoSupervisor, setRechazoSupervisor] = useState('');
     const [rechazoConta, setRechazoConta] = useState('');
+    const [resultados_subida_sap, setResultados_subida_sap] = useState('');
     const [empresa, setEmpresa] = useState(null);
     const [disablePresupuesto, setDisablePresupuesto] = useState(false);
+    const [estado, setEstado] = useState(0);
+    const [nombreUsuario, setNombreUsuario] = useState('');
 
+    const [edit, setEdit] = useState(null);
     const [gastos, setGastos] = useState(null);
     const [gasto2, setGasto2] = useState(null);
     const [subgastos, setSubGastos] = useState([]);
@@ -90,7 +108,8 @@ const LiquidacionEdit = (props) => {
     const [nitAdd, setNitAdd] = useState("");
     // Campos factura
     const [facturas, setFacturas] = useState([]);
-
+    const [tipo_proveedor, setTipoProveedor] = useState("PJ");
+    const [loading, setLoading] = useState(true);
 
     const classes = useStyles();
 
@@ -98,15 +117,17 @@ const LiquidacionEdit = (props) => {
         setOpen(false);
     }
     const handleAgregar = () => {
-        if (nombreAdd === "" || nitAdd === "") {
-            swal("Error", "¡Debe de Ingresar el nombre y el identificador Fiscal!", "error");
+        if (nombreAdd === "" || nitAdd === "" || tipo_proveedor === "") {
+            swal("Error", "¡Todos los campos son requeridos!", "error");
         } else {
+            setLoading(true);
             axios({
                 method: 'post',
                 url: props.url + 'proveedor',
                 data: {
                     nit: nitAdd,
-                    nombre: nombreAdd
+                    nombre: nombreAdd,
+                    tipo_proveedor: tipo_proveedor
                 },
                 responseType: "json",
                 headers: { "Content-Type": "application/json" }
@@ -126,6 +147,7 @@ const LiquidacionEdit = (props) => {
                         setNitAdd("");
                         setOpen(false);
                     }
+                    setLoading(false);
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -147,6 +169,22 @@ const LiquidacionEdit = (props) => {
         }
         return true;
     }
+
+    const makeblob = (dataURL) => {
+        const BASE64_MARKER = ';base64,';
+        const parts = dataURL.split(BASE64_MARKER);
+        const contentType = parts[0].split(':')[1];
+        const raw = window.atob(parts[1]);
+        const rawLength = raw.length;
+        const uInt8Array = new Uint8Array(rawLength);
+
+        for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+
+        return new Blob([uInt8Array], { type: contentType });
+    }
+
     const handleChange = event => {
         if (event.target.name === "cantidad") {
             setCantidad(event.target.value);
@@ -170,25 +208,36 @@ const LiquidacionEdit = (props) => {
             setNitAdd(event.target.value);
         }
         if (event.target.name === "factura") {
-            setFactura(event.target.files[0]);
-            // setFacturaURL(URL.createObjectURL(event.target.files[0]));
-            // setFacturaContent(event.target.files[0]);
-            const image = event.target.files[0];
-            new Compressor(image, {
-                quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
-                maxWidth: 500,
-                success: (compressedResult) => {
-                    // Seteamos el URL de link de la comprimida
-                    setFacturaURL(URL.createObjectURL(compressedResult));
-                    var reader = new FileReader();
-                    reader.readAsDataURL(compressedResult);
-                    reader.onloadend = function () {
-                        var base64data = reader.result;
-                        setFacturaContent(base64data);
-                    }
 
-                },
-            });
+            if (event.target.files.length > 0) {
+                setFactura(event.target.files[0]);
+                if (event.target.files[0].name.split(".")[1] !== "pdf") {
+                    const image = event.target.files[0];
+                    new Compressor(image, {
+                        quality: 0.6, // 0.6 can also be used, but its not recommended to go below.
+                        maxWidth: 500,
+                        success: (compressedResult) => {
+                            // Seteamos el URL de link de la comprimida
+                            setFacturaURL(URL.createObjectURL(compressedResult));
+                            var reader = new FileReader();
+                            reader.readAsDataURL(compressedResult);
+                            reader.onloadend = function () {
+                                var base64data = reader.result;
+                                setFacturaContent(base64data);
+                            }
+
+                        },
+                    });
+                } else {
+                    setFacturaURL(URL.createObjectURL(event.target.files[0]));
+                    var reader = new FileReader();
+                    reader.addEventListener('load', function (e) {
+                        let content = btoa(unescape(encodeURIComponent(e.target.result)));
+                        setFacturaContent(content);
+                    });
+                    reader.readAsBinaryString(event.target.files[0]);
+                }
+            }
         }
         if (event.target.name === "xml") {
             if (event.target.files.length > 0) {
@@ -221,6 +270,7 @@ const LiquidacionEdit = (props) => {
                             }
                             if (existe === 0) {
                                 console.log(emisor.Rfc, emisor.Nombre);
+                                setLoading(true);
                                 axios({
                                     method: 'post',
                                     url: props.url + 'proveedor',
@@ -239,10 +289,12 @@ const LiquidacionEdit = (props) => {
                                             nombre: emisor.Nombre,
                                             nit: emisor.Rfc
                                         });
+                                        setLoading(false);
                                     })
                                     .catch(function (err) {
                                         console.log(err);
                                         swal("Error", err.response.data.msg, "error");
+                                        setLoading(false);
                                     });
                             } else {
                                 for (let i = 0; i < props.proveedoresApp.length; i++) {
@@ -273,8 +325,14 @@ const LiquidacionEdit = (props) => {
         if (event.target.name === "comentarios") {
             setComentarios(event.target.value);
         }
+        if (event.target.name === "comentarios2") {
+            setComentarios2(event.target.value);
+        }
         if (event.target.name === "moneda") {
             setMoneda(event.target.value);
+        }
+        if (event.target.name === "tipo_proveedor") {
+            setTipoProveedor(event.target.value);
         }
         if (event.target.name === "serie") {
             setSerie(event.target.value);
@@ -283,6 +341,35 @@ const LiquidacionEdit = (props) => {
 
     // Función para agregar factura a la tabla
     const agregarFactura = () => {
+
+        // let f = new Date(fecha);
+        let ffactura;
+
+        if (typeof fecha === "string" && fecha.includes("T")) {
+            ffactura = new Date(fecha);
+        } else {
+            ffactura = new Date(fecha + " 12:00:00");
+        }
+        let fini = subDays(new Date(fechaInicio), empresa[0].dias_atraso_facturacion_ruta);
+
+        let start = startOfWeek(ffactura, { weekStartsOn: 1 });
+        let end = endOfWeek(ffactura, { weekStartsOn: 1 });
+
+        if (gasto2.frecuencia_codigo === "1") {
+            start = startOfMonth(ffactura);
+            end = endOfMonth(ffactura);
+        }
+
+        if (ffactura < fini) {
+            let content = document.createElement('div');
+            content.innerHTML = "¡La <strong>fecha de la factura</strong> no es válida para este período!";
+            swal({
+                title: 'Error',
+                content: content,
+                icon: "error",
+            });
+            return false;
+        }
         let a = '';
         if (gasto2.control_kilometraje === 1 && !checkInicialMayor()) {
             return;
@@ -328,8 +415,20 @@ const LiquidacionEdit = (props) => {
         if (a === "") {
             let temp = [...facturas];
 
-            let f = new Date(fecha);
-            f = f.getDate() + '/' + ("0" + (f.getMonth() + 1)).slice(-2) + "/" + f.getFullYear();
+            // ffactura
+            // let f = fecha.split("-");
+            // f = f[2] + "/" + f[1] + "/" + f[0];
+
+            // let ini = new Date(start + "12:00");
+            // ini = ini.getFullYear() + '-' + ("0" + (ini.getMonth() + 1)).slice(-2) + "-" + ini.getDate();
+            // let fin = new Date(end + "12:00");
+            // fin = fin.getFullYear() + '-' + ("0" + (fin.getMonth() + 1)).slice(-2) + "-" + fin.getDate();
+
+            let exento = subgasto !== null ?
+                subgasto.tipo === 'cantidad' ? parseFloat(subgasto.valor)
+                    : parseFloat(total) * parseFloat(subgasto.valor) / 100
+                : 0;
+
             let t = [
                 gasto2.value,
                 gasto2.label,
@@ -337,11 +436,11 @@ const LiquidacionEdit = (props) => {
                 subgasto !== null ? subgasto.label : "",
                 proveedor.value,
                 proveedor.label,
-                f,//Fecha
+                ffactura.toLocaleString().split(",")[0],//Fecha
                 total,
                 moneda,
                 serie,
-                numero,
+                numero, //10
                 uuid,
                 formaPago,
                 metodoPago,
@@ -351,13 +450,44 @@ const LiquidacionEdit = (props) => {
                 cantidad,
                 facturaContent,
                 xmlContent,
+                comentarios2, //20
+                gasto2.frecuencia_codigo,
+                start.toLocaleString().split(",")[0],
+                end.toLocaleString().split(",")[0],
+                gasto2.au_presupuesto_id,//24
+                gasto2.linea, //25
+                gasto2.tipo, //26
+                gasto2.presupuesto_monto, //27
+                subgasto !== null ? subgasto.exento : 0, //28
+                exento, //29
+                parseFloat(total) - exento, //30
+                Cookies.get('lu_id') //31
             ];
-            temp.push(t);
-            setFacturas(temp);
-            // Reset form
-            setGasto2(null);
-            let tot = parseFloat(totalFacturado) + parseFloat(total);
-            setTotalFacturado(tot);
+
+            let id_factura = -1;
+            if (edit !== null) {
+                id_factura = temp[edit][22];
+            }
+
+            setLoading(true);
+            axios({
+                method: 'post',
+                url: props.url + 'calculo-factura/' + id + "/" + id_factura,
+                data: t,
+                responseType: "json",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(function (resp) {
+                    setRefresh(refresh + 1);
+                    // // Reset form
+                    setGasto2(null);
+                    setComentarios2("");
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    swal("Error", err.response.data.msg, "error");
+                });
+
         } else {
             let content = document.createElement('div');
             content.innerHTML = a;
@@ -389,11 +519,12 @@ const LiquidacionEdit = (props) => {
                 values.fecha_inicio = fechaInicio;
                 values.fecha_fin = fechaFin;
                 values.comentario = comentarios;
-                values.au_usuario_id = localStorage.getItem("lu_id");
+                values.au_usuario_id = Cookies.get('lu_id');
 
                 let data = JSON.stringify(values);
 
                 if (id === -1) {
+                    setLoading(true);
                     axios({
                         method: 'post',
                         url: props.url + 'liquidacion',
@@ -405,12 +536,15 @@ const LiquidacionEdit = (props) => {
                             props.loadLiquidaciones();
                             props.history.push(`/edit-liquidacion/${resp.data}`);
                             window.location.reload();
+                            setLoading(false);
                         })
                         .catch(function (err) {
                             console.log(err);
                             swal("Error", err.response.data.msg, "error");
+                            setLoading(false);
                         });
                 } else {
+                    setLoading(true);
                     axios({
                         method: 'put',
                         url: props.url + 'liquidacion/' + id,
@@ -421,11 +555,12 @@ const LiquidacionEdit = (props) => {
                         .then(function (resp) {
                             swal("Éxito", resp.data.msg, "success");
                             props.loadLiquidaciones();
-                            props.history.push(`/liquidaciones`);
+                            setLoading(false);
                         })
                         .catch(function (err) {
                             console.log(err);
                             swal("Error", err.response.data.msg, "error");
+                            setLoading(false);
                         });
                 }
             }
@@ -452,7 +587,7 @@ const LiquidacionEdit = (props) => {
             // Get the Gastos
             axios({
                 method: 'get',
-                url: props.url + 'liquidacion-gastos/' + localStorage.getItem("lu_id") + '/' + option.value,
+                url: props.url + 'liquidacion-gastos/' + Cookies.get('lu_id') + '/' + option.value,
                 responseType: "json",
                 headers: { "Content-Type": "application/json" }
             })
@@ -466,6 +601,7 @@ const LiquidacionEdit = (props) => {
         if (b.name === "gasto2") {
             setGasto2(option);
             setIgnorarXML(option.ignorar_xml);
+            setLoading(true);
             axios({
                 method: 'get',
                 url: props.url + 'sub-gastos/' + option.value,
@@ -474,9 +610,11 @@ const LiquidacionEdit = (props) => {
             })
                 .then(function (resp) {
                     setSubGastos(resp.data);
+                    setLoading(false);
                 })
                 .catch(function (err) {
                     console.log(err);
+                    setLoading(false);
                 });
             setSubgasto(null);
             setProveedor(null);
@@ -505,12 +643,22 @@ const LiquidacionEdit = (props) => {
         if (b.name === "proveedor") {
             setProveedor(option);
         }
+
+    }
+
+    const sumTotales = (facturas) => {
+        let ret = 0;
+        for (let i = 0; i < facturas.length; i++) {
+            ret += parseFloat(facturas[i][7]);
+        }
+        return ret;
     }
 
     useEffect(() => {
         if (typeof props.match.params.id !== "undefined") {
             setDisablePresupuesto(true);
             setId(props.match.params.id);
+            setLoading(true);
             axios({
                 method: 'get',
                 url: props.url + 'liquidacion/' + props.match.params.id,
@@ -518,12 +666,28 @@ const LiquidacionEdit = (props) => {
                 headers: { "Content-Type": "application/json" }
             })
                 .then(function (resp) {
+                    setFacturas(resp.data.facturas);
+
+                    setRechazoSupervisor(resp.data.rechazo_supervisor);
+                    setRechazoConta(resp.data.rechazo_contabilidad);
+                    setResultados_subida_sap(resp.data.resultados_subida_sap);
+
+                    setTotalFacturado(sumTotales(resp.data.facturas));
+
+                    const fi = format(parseISO(resp.data.fecha_inicio.split('T')[0]), 'MM/dd/yyyy');
+                    setFechaInicio(fi);
+
+                    const ff = format(parseISO(resp.data.fecha_fin.split('T')[0]), 'MM/dd/yyyy');
+                    setFechaFin(ff);
+
                     setPresupuesto(
                         {
                             "value": resp.data.au_gasto_id,
                             "label": resp.data.au_gasto_label
                         }
                     );
+                    setEstado(resp.data.au_estado_liquidacion_id);
+                    setNombreUsuario(resp.data.nombre);
                     // Get the empresa to get the currency
                     axios({
                         method: 'get',
@@ -540,7 +704,7 @@ const LiquidacionEdit = (props) => {
                     // Get the Gastos
                     axios({
                         method: 'get',
-                        url: props.url + 'liquidacion-gastos/' + localStorage.getItem("lu_id") + '/' + resp.data.au_gasto_id,
+                        url: props.url + 'liquidacion-gastos/' + Cookies.get('lu_id') + '/' + resp.data.au_gasto_id,
                         responseType: "json",
                         headers: { "Content-Type": "application/json" }
                     })
@@ -552,15 +716,225 @@ const LiquidacionEdit = (props) => {
                         });
 
                     setComentarios(resp.data.comentario);
-
+                    setLoading(false);
                 })
                 .catch(function (err) {
                     console.log(err);
+                    setLoading(false);
                     if (err.response)
                         swal("Error", err.response.data.msg, "error");
                 });
         }
-    }, []);
+    }, [refresh]);
+
+    const enviarAprobacionContabilidad = () => {
+        setLoading(true);
+        axios({
+            method: 'post',
+            url: props.url + 'liquidacion-enviar-aprobacion-contador/' + id,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                swal("Éxito", "¡Liquidación enviada para aprobación!", "success");
+                props.loadLiquidaciones();
+                props.history.push(`/liquidaciones`);
+                setLoading(false);
+            })
+            .catch(function (err) {
+                console.log(err);
+                setLoading(false);
+            });
+    }
+
+    const enviarRechazoSupervisor = () => {
+        swal({
+            text: 'Ingrese la razón del rechazo.',
+            content: "input",
+            button: {
+                text: "Rechazar"
+            },
+        })
+            .then(razon => {
+                if (razon) {
+                    let data = {
+                        'razon': razon,
+                        'id': id
+                    }
+                    setLoading(true);
+                    axios({
+                        method: 'post',
+                        url: props.url + 'liquidacion-enviar-rechazo-supervisor/',
+                        data,
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            swal("Éxito", "¡Se ha rechazado la liquidación!", "success");
+                            props.loadLiquidaciones();
+                            props.history.push(`/liquidaciones`);
+                            setLoading(false);
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                            setLoading(false);
+                        });
+                } else {
+                    swal("¡Atención!", "Debes de ingresar la razón del rechazo.", "error");
+                }
+            });
+    }
+
+    const subirSap = () => {
+        setLoading(true);
+        axios({
+            method: 'post',
+            url: props.url + 'liquidacion-subir-sap/' + id,
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                swal("Éxito", "¡Se ha subido la liquidación a SAP!", "success");
+                props.loadLiquidaciones();
+                props.history.push(`/liquidaciones`);
+                setLoading(false);
+            })
+            .catch(function (err) {
+                console.log(err);
+                setLoading(false);
+            });
+    }
+
+    const enviarRechazoContabilidad = () => {
+        swal({
+            text: 'Ingrese la razón del rechazo.',
+            content: "input",
+            button: {
+                text: "Rechazar"
+            },
+        })
+            .then(razon => {
+                if (razon) {
+                    let data = {
+                        'razon': razon,
+                        'id': id
+                    }
+                    setLoading(true);
+                    axios({
+                        method: 'post',
+                        url: props.url + 'liquidacion-enviar-rechazo-contabilidad/',
+                        data,
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            swal("Éxito", "¡Se ha rechazado la liquidación!", "success");
+                            props.loadLiquidaciones();
+                            props.history.push(`/liquidaciones`);
+                            setLoading(false);
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                            setLoading(false);
+                        });
+                } else {
+                    swal("¡Atención!", "Debes de ingresar la razón del rechazo.", "error");
+                }
+            });
+    }
+    const enviarAprobacion = () => {
+        if (id !== -1) {
+            setLoading(true);
+            axios({
+                method: 'post',
+                url: props.url + 'liquidacion-enviar-aprobacion-supervisor/' + id,
+                responseType: "json",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(function (resp) {
+                    swal("Éxito", "¡Liquidación enviada para aprobación!", "success");
+                    props.loadLiquidaciones();
+                    props.history.push(`/liquidaciones`);
+                    setLoading(false);
+                })
+                .catch(function (err) {
+                    console.log(err);
+                    setLoading(false);
+                });
+        } else {
+            swal("Error", "¡Debes de guardar primero la liquidación!", "error");
+        }
+    }
+
+    const nuevaFactura = () => {
+        setGasto2(null);
+        setComentarios2("");
+    }
+
+    const editFactura = (idx) => {
+        setEdit(idx);
+        let t = facturas[idx];
+        for (let i = 0; i < gastos.length; i++) {
+            if (parseInt(gastos[i].value) === parseInt(t[0])) {
+                setGasto2(gastos[i]);
+                break;
+            }
+        }
+        setLoading(true);
+        axios({
+            method: 'get',
+            url: props.url + 'sub-gastos/' + parseInt(t[0]),
+            responseType: "json",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(function (resp) {
+                setSubGastos(resp.data);
+
+                for (let i = 0; i < resp.data.length; i++) {
+                    if (parseInt(resp.data[i].value) === parseInt(t[2])) {
+                        setSubgasto(resp.data[i]);
+                        break;
+                    }
+                }
+                setLoading(false);
+            })
+            .catch(function (err) {
+                console.log(err);
+                setLoading(false);
+            });
+
+        setProveedor({ value: parseInt(t[4]), label: t[5] });
+        let f = t[6].split("/");
+        setFecha(f[2] + "-" + f[1] + "-" + f[0]);
+        setTotal(t[7]);
+        setMoneda(t[8]);
+        setSerie(t[9]);
+        setNumero(t[10]);
+        setUUID(t[11]);
+        setFormaPago(t[12]);
+        setMetodoPago(t[13]);
+        setCfdi(t[14]);
+        setInicial(t[15]);
+        setFinal(t[16]);
+        setCantidad(t[17]);
+        setFacturaContent(t[18]);
+
+        // Set Factura url
+        fetch(t[18])
+            .then(res => res.blob())
+            .then(
+                (res) => setFacturaURL(URL.createObjectURL(res))
+            );
+
+        setXMLContent(t[19]);
+        // Set XML URL
+        let blob = new Blob([t[19]], { type: 'text/xml' });
+        let url = URL.createObjectURL(blob);
+        setXMLURL(url);
+        setComentarios2(t[21]);
+
+
+    }
 
     const removeFactura = (idx) => {
         if (idx > -1) {
@@ -573,9 +947,27 @@ const LiquidacionEdit = (props) => {
             })
                 .then((willDelete) => {
                     if (willDelete) {
-                        let e = [...facturas];
-                        e.splice(idx, 1);
-                        setFacturas(e);
+                        let temp = [...facturas];
+                        let id_factura = temp[idx][22];
+                        setLoading(true);
+                        axios({
+                            method: 'post',
+                            url: props.url + 'liquidacion-delete-factura/' + id_factura,
+                            responseType: "json",
+                            headers: { "Content-Type": "application/json" }
+                        })
+                            .then(function (resp) {
+                                setRefresh(refresh + 1);
+                                // // Reset form
+                                setGasto2(null);
+                                setComentarios2("");
+                                setLoading(false);
+                            })
+                            .catch(function (err) {
+                                console.log(err);
+                                swal("Error", err.response.data.msg, "error");
+                                setLoading(false);
+                            });
                     }
                 });
         }
@@ -595,7 +987,18 @@ const LiquidacionEdit = (props) => {
             <div className="empresa-container">
                 <form onSubmit={formik.handleSubmit}>
                     <div className="full">
-                        <h2>Datos Liquidación usuario: {localStorage.getItem("lu_n")}</h2>
+                        <h2>
+                            {
+                                estado === "0" || estado === "2" || estado === "4"
+                                    ? "Datos Liquidación usuario: "
+                                    : estado === "1" ?
+                                        "Aprobacion (Supervisor) Liquidación usuario: "
+                                        : estado === "3" ?
+                                            "Aprobacion (Contabilidad) Liquidación usuario: "
+                                            : ""
+                            }
+                            {nombreUsuario}
+                        </h2>
                         <Grid container spacing={3}>
                             <Grid item xs={4}>
                                 <FormControl variant="outlined" className="form-item">
@@ -626,6 +1029,7 @@ const LiquidacionEdit = (props) => {
                                             maxDate={fechaFin}
                                             format="DD/MM/yyyy"
                                             maxDateMessage={`La fecha no puede ser mayor a la fecha Final`}
+                                            disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
@@ -642,6 +1046,7 @@ const LiquidacionEdit = (props) => {
                                             minDate={fechaInicio}
                                             minDateMessage={`La fecha no puede ser menor a la fecha Inicial`}
                                             format="DD/MM/yyyy"
+                                            disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
@@ -695,11 +1100,12 @@ const LiquidacionEdit = (props) => {
                                         value={comentarios}
                                         onChange={handleChange}
                                         multiline
+                                        disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                     />
                                 </FormControl>
                             </Grid>
                             {
-                                rechazoSupervisor !== '' ?
+                                rechazoSupervisor !== '' && rechazoSupervisor !== null ?
                                     (
                                         <Grid item xs={4}>
                                             <FormControl className={classes.formControl}>
@@ -711,6 +1117,7 @@ const LiquidacionEdit = (props) => {
                                                     type="text"
                                                     multiline
                                                     disabled={true}
+                                                    error
                                                 />
                                             </FormControl>
                                         </Grid>
@@ -718,7 +1125,7 @@ const LiquidacionEdit = (props) => {
                             }
 
                             {
-                                rechazoConta !== '' ?
+                                rechazoConta !== '' && rechazoConta !== null ?
                                     (
                                         <Grid item xs={4}>
                                             <FormControl className={classes.formControl}>
@@ -730,8 +1137,19 @@ const LiquidacionEdit = (props) => {
                                                     type="text"
                                                     multiline
                                                     disabled={true}
+                                                    error
                                                 />
                                             </FormControl>
+                                        </Grid>
+                                    ) : ""
+                            }
+                            {
+                                resultados_subida_sap !== '' && resultados_subida_sap !== null ?
+                                    (
+                                        <Grid item xs={4}>
+                                            <div
+                                                dangerouslySetInnerHTML={{ __html: resultados_subida_sap }}
+                                            />
                                         </Grid>
                                     ) : ""
                             }
@@ -740,24 +1158,152 @@ const LiquidacionEdit = (props) => {
                     </div>
                 </form>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                        <Button color="secondary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
-                            Guardar
-                        </Button>
-                    </Grid>
-                    {
-                        id !== -1 ?
-                            (
+                {
+                    estado === "0" || estado === "2" || estado === "4" ?
+                        (
+                            <Grid container spacing={3}>
                                 <Grid item xs={6}>
-                                    <Button color="primary" variant="contained" className="full-button" fullWidth type="text" onClick={() => formik.submitForm()}>
-                                        Enviar a Aprobación
+                                    <Button
+                                        color="secondary"
+                                        variant="contained"
+                                        className="full-button"
+                                        fullWidth
+                                        type="text"
+                                        isDisable={loading}
+                                        onClick={() => formik.submitForm()}
+                                    >
+                                        Guardar
                                     </Button>
+                                    {
+                                        loading ?
+                                            (
+                                                <LinearProgress color="secondary" />
+                                            ) : ""
+                                    }
                                 </Grid>
+                                {
+                                    id !== -1 ?
+                                        (
+                                            <Grid item xs={6}>
+                                                <Button
+                                                    color="primary"
+                                                    variant="contained"
+                                                    className="full-button"
+                                                    fullWidth
+                                                    type="text"
+                                                    onClick={enviarAprobacion}
+                                                    isDisable={loading}
+                                                >
+                                                    Enviar a Aprobación
+                                                </Button>
+                                                {
+                                                    loading ?
+                                                        (
+                                                            <LinearProgress color="secondary" />
+                                                        ) : ""
+                                                }
+                                            </Grid>
 
-                            ) : ""
-                    }
-                </Grid>
+                                        ) : ""
+                                }
+                            </Grid>
+                        ) : ""
+                }
+                {
+                    estado === "1" ?
+                        (
+                            <Grid container spacing={3}>
+                                <Grid item xs={6}>
+                                    <Button
+                                        color="primary"
+                                        variant="contained"
+                                        className="full-button"
+                                        fullWidth
+                                        type="text"
+                                        onClick={enviarAprobacionContabilidad}
+                                        isDisable={loading}
+                                    >
+                                        Aprobar
+                                    </Button>
+                                    {
+                                        loading ?
+                                            (
+                                                <LinearProgress color="secondary" />
+                                            ) : ""
+                                    }
+                                </Grid>
+                                {
+                                    <Grid item xs={6}>
+                                        <Button
+                                            color="secondary"
+                                            variant="contained"
+                                            className="full-button"
+                                            fullWidth
+                                            type="text"
+                                            onClick={enviarRechazoSupervisor}
+                                            isDisable={loading}
+                                        >
+                                            Rechazar
+                                        </Button>
+                                        {
+                                            loading ?
+                                                (
+                                                    <LinearProgress color="secondary" />
+                                                ) : ""
+                                        }
+                                    </Grid>
+                                }
+                            </Grid>
+                        ) : ""
+                }
+                {
+                    estado === "3" ?
+                        (
+                            <Grid container spacing={3}>
+                                <Grid item xs={6}>
+                                    <Button
+                                        color="primary"
+                                        variant="contained"
+                                        className="full-button"
+                                        fullWidth
+                                        type="text"
+                                        onClick={subirSap}
+                                        isDisabled={loading}
+                                    >
+                                        Aprobar y Subir a SAP
+                                    </Button>
+                                    {
+                                        loading ?
+                                            (
+                                                <LinearProgress color="secondary" />
+                                            ) : ""
+                                    }
+                                </Grid>
+                                {
+                                    <Grid item xs={6}>
+                                        <Button
+                                            color="secondary"
+                                            variant="contained"
+                                            className="full-button"
+                                            fullWidth
+                                            type="text"
+                                            onClick={enviarRechazoContabilidad}
+                                            isDisabled={loading}
+                                        >
+                                            Rechazar
+                                        </Button>
+                                        {
+                                            loading ?
+                                                (
+                                                    <LinearProgress color="secondary" />
+                                                ) : ""
+                                        }
+                                    </Grid>
+                                }
+                            </Grid>
+                        ) : ""
+                }
+
             </div>
             {
                 id !== -1 ?
@@ -766,75 +1312,125 @@ const LiquidacionEdit = (props) => {
                             <div className="full">
                                 <Typography variant="h4" component="h6" gutterBottom>
                                     Facturas
+                                    <Button
+                                        color="primary"
+                                        className="full-button"
+                                        onClick={nuevaFactura}
+                                        style={{ float: "right" }}
+                                    >
+                                        Nueva Factura
+                                    </Button>
                                 </Typography>
                                 <div className="table-container">
-                                    <table className="detail-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Gasto</th>
-                                                <th>Sub Gasto</th>
-                                                <th>Proveedor</th>
-                                                <th>Fecha</th>
-                                                <th>Total</th>
-                                                <th>Moneda</th>
-                                                <th>Serie</th>
-                                                <th>Número</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        {
-                                            facturas && facturas.length > 0
-                                                ?
-                                                (
-                                                    <tbody>
-                                                        {
-                                                            facturas.map((key, idx) => (
-                                                                <tr key={idx}>
-                                                                    <td>
-                                                                        {key[1]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[3]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[5]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[6]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[7]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[8]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[9]}
-                                                                    </td>
-                                                                    <td>
-                                                                        {key[10]}
-                                                                    </td>
-                                                                    <td>
-                                                                        <Button
-                                                                            color="secondary"
-                                                                            variant="contained"
-                                                                            type="button"
-                                                                            onClick={() => removeFactura(idx)}
-                                                                        >
-                                                                            <Delete />
-                                                                        </Button>
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        }
-                                                    </tbody>
-                                                )
-                                                :
-                                                (
-                                                    <tbody></tbody>
-                                                )
-                                        }
-                                    </table>
+                                    {
+                                        loading ?
+                                            (
+                                                <img src="./images/loading.gif" alt="" />
+                                            ) :
+                                            (
+                                                <table className="detail-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Número</th>
+                                                            <th>Gasto</th>
+                                                            <th>Proveedor</th>
+                                                            <th>Fecha</th>
+                                                            <th>Moneda</th>
+                                                            <th>Total</th>
+                                                            <th>Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {
+                                                        facturas && facturas.length > 0
+                                                            ?
+                                                            (
+                                                                <tbody>
+                                                                    {
+                                                                        facturas.map((key, idx) => (
+                                                                            <tr key={idx}>
+                                                                                <td>
+                                                                                    {key[22]}
+                                                                                </td>
+                                                                                <td>
+                                                                                    <a href={URL.createObjectURL(makeblob(key[18]))} target="_blank" rel="noreferrer">
+                                                                                        {
+                                                                                            key[9] !== "" ? key[9] + " - " : ""
+                                                                                        }
+                                                                                        {key[10]}
+                                                                                    </a>
+                                                                                </td>
+                                                                                <td>
+                                                                                    {key[1]}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {key[5]}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {key[6]}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {key[8]}
+                                                                                </td>
+                                                                                <td>
+                                                                                    {
+                                                                                        key[7].toLocaleString('en-US', {
+                                                                                            minimumFractionDigits: 2,
+                                                                                            maximumFractionDigits: 2
+                                                                                        })
+                                                                                    }
+                                                                                </td>
+                                                                                <td>
+                                                                                    {
+                                                                                        estado === "0" || estado === "2" || estado === "4" ?
+                                                                                            (
+                                                                                                <React.Fragment>
+                                                                                                    <Button
+                                                                                                        color="primary"
+                                                                                                        variant="contained"
+                                                                                                        type="button"
+                                                                                                        onClick={() => editFactura(idx)}
+                                                                                                        style={{ marginRight: "10px" }}
+                                                                                                    >
+                                                                                                        <Edit />
+                                                                                                    </Button>
+                                                                                                    <Button
+                                                                                                        color="secondary"
+                                                                                                        variant="contained"
+                                                                                                        type="button"
+                                                                                                        onClick={() => removeFactura(idx)}
+                                                                                                    >
+                                                                                                        <Delete />
+                                                                                                    </Button>
+                                                                                                </React.Fragment>
+                                                                                            ) :
+                                                                                            (
+                                                                                                <Button
+                                                                                                    color="primary"
+                                                                                                    variant="contained"
+                                                                                                    type="button"
+                                                                                                    onClick={() => editFactura(idx)}
+                                                                                                    style={{ marginRight: "10px" }}
+                                                                                                >
+                                                                                                    <Visibility />
+                                                                                                </Button>
+                                                                                            )
+                                                                                    }
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        ))
+                                                                    }
+                                                                </tbody>
+                                                            )
+                                                            :
+                                                            (
+                                                                <tbody></tbody>
+                                                            )
+                                                    }
+                                                </table>
+                                            )
+                                    }
                                 </div>
 
                                 <br />
@@ -843,13 +1439,13 @@ const LiquidacionEdit = (props) => {
                                 <hr />
                                 <br />
                                 <Typography variant="h4" component="h6" gutterBottom>
-                                    Agregar Factura
+                                    Factura
                                 </Typography>
                                 <Grid container spacing={3}>
                                     <Grid item xs={4}>
                                         <FormControl variant="outlined" className="form-item">
                                             <label htmlFor="gasto" className="manual">
-                                                Seleccione categoría de gasto
+                                                Seleccione el gasto
                                             </label>
                                             <Select2
                                                 isSearchable={true}
@@ -858,7 +1454,8 @@ const LiquidacionEdit = (props) => {
                                                 name="gasto2"
                                                 id="gasto2"
                                                 options={gastos}
-                                                placeholder="*Categoría de Gasto"
+                                                placeholder="* Gasto"
+                                                isDisabled={!(estado === "0" || estado === "2" || estado === "4")}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -882,6 +1479,7 @@ const LiquidacionEdit = (props) => {
                                                                             id="subgasto"
                                                                             options={subgastos}
                                                                             placeholder="Subcategoría de Gasto"
+                                                                            isDisabled={!(estado === "0" || estado === "2" || estado === "4")}
                                                                         />
                                                                     </FormControl>
                                                                 ) : ""
@@ -1130,8 +1728,11 @@ const LiquidacionEdit = (props) => {
                                                                 id="comentarios2"
                                                                 name="comentarios2"
                                                                 label="Comentarios"
+                                                                value={comentarios2}
+                                                                onChange={handleChange}
                                                                 type="text"
                                                                 multiline
+                                                                disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                                             />
                                                         </FormControl>
                                                     </Grid>
@@ -1148,6 +1749,7 @@ const LiquidacionEdit = (props) => {
                                                                 hidden
                                                                 onChange={handleChange}
                                                                 accept="application/pdf,image/*"
+                                                                disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                                             />
                                                         </Button>
                                                         {
@@ -1173,6 +1775,7 @@ const LiquidacionEdit = (props) => {
                                                                             hidden
                                                                             onChange={handleChange}
                                                                             accept=".xml"
+                                                                            disabled={!(estado === "0" || estado === "2" || estado === "4")}
                                                                         />
                                                                     </Button>
                                                                 ) : ""
@@ -1184,18 +1787,23 @@ const LiquidacionEdit = (props) => {
                                                                 ) : ""
                                                         }
                                                     </Grid>
-                                                    <Grid item xs={12}>
-                                                        <Button
-                                                            color="secondary"
-                                                            variant="contained"
-                                                            className="full-button"
-                                                            fullWidth
-                                                            type="text"
-                                                            onClick={agregarFactura}
-                                                        >
-                                                            Agregar Factura
-                                                        </Button>
-                                                    </Grid>
+                                                    {
+                                                        estado === "0" || estado === "2" || estado === "4" ?
+                                                            (
+                                                                <Grid item xs={12}>
+                                                                    <Button
+                                                                        color="secondary"
+                                                                        variant="contained"
+                                                                        className="full-button"
+                                                                        fullWidth
+                                                                        type="text"
+                                                                        onClick={agregarFactura}
+                                                                    >
+                                                                        Guardar Factura
+                                                                    </Button>
+                                                                </Grid>
+                                                            ) : ""
+                                                    }
                                                 </React.Fragment>
                                             ) : ""
                                     }
@@ -1233,6 +1841,26 @@ const LiquidacionEdit = (props) => {
                         fullWidth
                         onChange={handleChange}
                     />
+                    <FormControl component="fieldset" style={{ marginTop: "15px" }}>
+                        <FormLabel component="legend">* Tipo Proveedor</FormLabel>
+                        <RadioGroup
+                            aria-label="tipo_proveedor"
+                            name="tipo_proveedor"
+                            value={tipo_proveedor}
+                            onChange={handleChange}
+                        >
+                            <FormControlLabel
+                                value="PC"
+                                control={<Radio />}
+                                label="Pequeño Contribuyente"
+                            />
+                            <FormControlLabel
+                                value="PJ"
+                                control={<Radio />}
+                                label="Persona Jurídica"
+                            />
+                        </RadioGroup>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">

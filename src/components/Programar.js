@@ -21,7 +21,7 @@ import Remove from '@material-ui/icons/Remove';
 import SaveAlt from '@material-ui/icons/SaveAlt';
 import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
-import {CheckBoxTwoTone, Gavel} from '@material-ui/icons';
+import { CheckBoxTwoTone, Gavel } from '@material-ui/icons';
 
 const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -49,7 +49,7 @@ class Programar extends Component {
         super(props);
         this.state = {
             columns: [
-                { title: 'ID', field: 'id', type: 'numeric',defaultSort: 'desc' },
+                { title: 'ID', field: 'id', type: 'numeric', defaultSort: 'desc' },
                 { title: 'Vendedor', field: 'nombre_vendedor' },
                 { title: 'Fecha Carga', field: 'FechaCarga' },
                 { title: 'Hora Carga', field: 'HoraCarga' },
@@ -58,8 +58,8 @@ class Programar extends Component {
                 { title: 'Status', field: 'status' },
                 { title: 'Planta', field: 'NombrePlanta' },
                 { title: 'Tipo Pago', field: 'tipo_pago' },
-                { title: 'Costo Total', field: 'costo',render: rowData => "Q "+this.numFormat(parseFloat(rowData.costo)) },
-                { title: 'Venta Total', field: 'venta',render: rowData => "Q "+this.numFormat(parseFloat(rowData.venta)) },
+                { title: 'Costo Total', field: 'costo', render: rowData => "Q " + this.numFormat(parseFloat(rowData.costo)) },
+                { title: 'Venta Total', field: 'venta', render: rowData => "Q " + this.numFormat(parseFloat(rowData.venta)) },
                 { title: 'Código Transporte', field: 'NumeroUnidad' },
                 { title: 'Detalle', field: 'detalle', render: rowData => <div dangerouslySetInnerHTML={{ __html: rowData.detalle }} /> },
             ]
@@ -85,7 +85,7 @@ class Programar extends Component {
             orders = orders.filter(
                 (key) =>
                     // key.Programado!=="1"
-                    key.sid !== "5" && key.sid !== "6" && ( !v || v===0 || ( v>0 && parseInt(key.vendedor)===v ) )
+                    key.sid !== "5" && key.sid !== "6" && (!v || v === 0 || (v > 0 && parseInt(key.vendedor) === v))
             );
 
         return (
@@ -104,10 +104,10 @@ class Programar extends Component {
                                 options={{
                                     pageSize: 20,
                                     rowStyle: rowData => {
-                                        if(rowData.Programado !== null) {
-                                            return {color: '#3f51b5'}; 
+                                        if (rowData.Programado !== null) {
+                                            return { color: '#3f51b5' };
                                         }
-                                        
+
                                         // return {};
                                     }
                                 }}
@@ -133,7 +133,7 @@ class Programar extends Component {
                                         onClick: (event, rowData) => {
 
                                             let text = "¿Desea marcar como programada?";
-                                            if(rowData.Programado!==null){
+                                            if (rowData.Programado !== null) {
                                                 text = "Esta orden ya fue marcada como programada, ¿desea volverlo a hacer?";
                                             }
 
@@ -147,7 +147,7 @@ class Programar extends Component {
                                                     let t_ = this;
                                                     axios.post(this.props.url + "api/mark-programmed", {
                                                         id: rowData.id,
-                                                        user: window.localStorage.getItem('tp_uid'),
+                                                        user: Cookies.get('lu_id'),
                                                         comentario: subir
                                                     })
                                                         .then(function (response) {

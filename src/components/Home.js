@@ -236,7 +236,7 @@ class Home extends Component {
                 nombre_vendedor: t.vendedor.label,
                 entrada_mercancia: t.entrada_mercancia ? 1 : 0,
                 factura: t.factura ? 1 : 0,
-                user: window.localStorage.getItem('tp_uid')
+                user: Cookies.get('lu_id')
             })
                 .then(function (response) {
                     // t.setState({ clientes: response.data });

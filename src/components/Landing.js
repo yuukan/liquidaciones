@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router'
 import axios from 'axios';
 import swal from 'sweetalert';
+import Cookies from 'js-cookie';
 
 class Landing extends Component {
 
@@ -34,8 +35,9 @@ class Landing extends Component {
             headers: { "Content-Type": "application/json" }
         })
             .then(function (resp) {
-                localStorage.setItem("lu_id", resp.data.id);
-                localStorage.setItem("lu_n", resp.data.nombre);
+                Cookies.set('lu_id', resp.data.id, { expires: 1 });
+                Cookies.set('lu_n', resp.data.nombre, { expires: 1 });
+                Cookies.set('lu_rol', resp.data.rol, { expires: 1 });
                 this_.props.changeLogged(true);
                 this_.props.loadAll();
                 // this_.props.setUserPermissions(resp.data.permissions.split(","));

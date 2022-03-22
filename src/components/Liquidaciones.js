@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import Typography from '@material-ui/core/Typography';
 import MaterialTable from 'material-table';
 import { Link } from "react-router-dom";
-import { Edit, Delete } from '@material-ui/icons/';
+import {
+    Edit,
+    Delete,
+    Check
+} from '@material-ui/icons/';
 import swal from 'sweetalert';
 import axios from 'axios';
 import tableIcons from './sub/tableIcons';
@@ -49,6 +53,15 @@ class Liquidaciones extends Component {
                                     rowData => ({
                                         icon: Edit,
                                         tooltip: 'Editar Liquidación',
+                                        hidden: !(rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4"),
+                                        onClick: (event, rowData) => {
+                                            this.props.history.push("/edit-liquidacion/" + rowData.value);
+                                        },
+                                    }),
+                                    rowData => ({
+                                        icon: Check,
+                                        tooltip: 'Aprobar Liquidación',
+                                        hidden: (rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4"),
                                         onClick: (event, rowData) => {
                                             this.props.history.push("/edit-liquidacion/" + rowData.value);
                                         },

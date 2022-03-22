@@ -42,7 +42,7 @@ class Creditos extends Component {
         this.aprobarPedido = this.aprobarPedido.bind(this);
         this.delete = this.delete.bind(this);
         this.state = {
-            order:null,
+            order: null,
             cliente: null,
             direccion: null,
             transporte: null,
@@ -194,7 +194,7 @@ class Creditos extends Component {
         axios.post(this.props.url + "api/approve-order", {
             comentario: t.comentario,
             id: this.props.match.params.id,
-            user: window.localStorage.getItem('tp_uid'),
+            user: Cookies.get('lu_id'),
             tipoPago: this.state.tipoPago.value,
             tipoPagoOriginal: this.state.tipoPagoOriginal.value,
             tipoPago_label: this.state.tipoPago.label,
@@ -218,7 +218,7 @@ class Creditos extends Component {
     //         order = nextProps.orders[order];
 
     //         let tra = nextProps.fletes.findIndex(x => parseInt(x.id) === parseInt(order.idFlete));
-            
+
     //         tra = nextProps.fletes[tra];
 
     //         let pla = nextProps.plants.findIndex(x => parseInt(x.value) === parseInt(order.planta));
@@ -248,46 +248,46 @@ class Creditos extends Component {
     //         this.setState({ fechaEntrega: new Date(order.FechaCarga + " " + order.HoraCarga), id });
     //     }
     // }
-    
-    componentDidMount(){
+
+    componentDidMount() {
         let t = this;
-        axios.post(t.props.url + "api/get-order",{id:t.props.match.params.id})
-        .then(function (response) {
-            let order = response.data[0];
+        axios.post(t.props.url + "api/get-order", { id: t.props.match.params.id })
+            .then(function (response) {
+                let order = response.data[0];
 
-            let tra = t.props.fletes.findIndex(x => parseInt(x.id) === parseInt(order.idFlete));
-            
-            tra = t.props.fletes[tra];
+                let tra = t.props.fletes.findIndex(x => parseInt(x.id) === parseInt(order.idFlete));
 
-            let pla = t.props.plants.findIndex(x => parseInt(x.value) === parseInt(order.planta));
-            pla = t.props.plants[pla];
+                tra = t.props.fletes[tra];
+
+                let pla = t.props.plants.findIndex(x => parseInt(x.value) === parseInt(order.planta));
+                pla = t.props.plants[pla];
 
 
-            let tipoPago = {
-                label: order.NumSAPLabel,
-                value: order.id_tp
-            };
+                let tipoPago = {
+                    label: order.NumSAPLabel,
+                    value: order.id_tp
+                };
 
-            let d = moment(order.fecha_carga + " " + order.HoraCarga);
-            d = d.toDate();
+                let d = moment(order.fecha_carga + " " + order.HoraCarga);
+                d = d.toDate();
 
-            t.setState(
-                { 
-                    order: order,
-                    fechaEntrega: d, 
-                    id:t.props.match.params.id,
-                    transporte: tra, 
-                    planta: pla, 
-                    planta_original: pla, 
-                    tipoPago: tipoPago, 
-                    tipoPagoOriginal: tipoPago,
-                    contra_boleta: order.contra_boleta
-                }
-            );
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+                t.setState(
+                    {
+                        order: order,
+                        fechaEntrega: d,
+                        id: t.props.match.params.id,
+                        transporte: tra,
+                        planta: pla,
+                        planta_original: pla,
+                        tipoPago: tipoPago,
+                        tipoPagoOriginal: tipoPago,
+                        contra_boleta: order.contra_boleta
+                    }
+                );
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     render() {
@@ -314,7 +314,7 @@ class Creditos extends Component {
         let conts = [];
 
         if (order && order.flete && flete) {
-            for (let i = flete.compartimientos.length - 1; i >=0 ; i--) {
+            for (let i = flete.compartimientos.length - 1; i >= 0; i--) {
 
                 // let filled = 0;
                 let product = "";
@@ -516,8 +516,8 @@ class Creditos extends Component {
                                     />
                                 </FormControl>
                             ) : (
-                                    order ? order.tipo_pago : ""
-                                )
+                                order ? order.tipo_pago : ""
+                            )
                             }
                         </Grid>
                         <Grid item xs={12} sm={6} md={3} lg={3}>
@@ -564,7 +564,7 @@ class Creditos extends Component {
                                 <label className="label">
                                     Entrada Mercancía
                                 </label>
-                                {order ? order.generar_entrada_mercancia==="1" ? "Si" :"No" : ""}
+                                {order ? order.generar_entrada_mercancia === "1" ? "Si" : "No" : ""}
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={2} md={2} lg={2}>
@@ -572,7 +572,7 @@ class Creditos extends Component {
                                 <label className="label">
                                     Generar Factura
                                 </label>
-                                {order ? order.generar_factura==="1" ? "Si" :"No" : ""}
+                                {order ? order.generar_factura === "1" ? "Si" : "No" : ""}
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} sm={5} md={5} lg={5}>
@@ -598,10 +598,10 @@ class Creditos extends Component {
                                         <Grid item xs={12} sm={12} md={12} lg={12}>
                                             <div className="credit-digits">
                                                 Balance
-                                        Q {parseFloat(credit_detail[0].Balance).toLocaleString('en-US', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}
+                                                Q {parseFloat(credit_detail[0].Balance).toLocaleString('en-US', {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                })}
                                             </div>
                                         </Grid>
                                     </div>
@@ -714,21 +714,21 @@ class Creditos extends Component {
                         </Grid>
                         {
                             !vendedor ?
-                            (
-                                <React.Fragment>
-                                    <Grid item xs={12} sm={6} md={1} lg={1} className="th goRight">
-                                        <strong>Costo + IVA + IDP</strong>
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={1} lg={1} className="th goRight">
-                                        <strong>Subtotal Costo</strong>
-                                    </Grid>
-                                </React.Fragment>
-                            ) : 
-                            (
-                                <Grid item xs={12} sm={12} md={2} lg={2} className="th goRight"></Grid>
-                            )
+                                (
+                                    <React.Fragment>
+                                        <Grid item xs={12} sm={6} md={1} lg={1} className="th goRight">
+                                            <strong>Costo + IVA + IDP</strong>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={1} lg={1} className="th goRight">
+                                            <strong>Subtotal Costo</strong>
+                                        </Grid>
+                                    </React.Fragment>
+                                ) :
+                                (
+                                    <Grid item xs={12} sm={12} md={2} lg={2} className="th goRight"></Grid>
+                                )
                         }
-                        
+
                         {order && order.Compartimientos.length > 0
                             ? order.Compartimientos.map((key, idx) => {
                                 let sub = key.Precio * key.cantidad;
@@ -793,21 +793,21 @@ class Creditos extends Component {
                                         </Grid>
                                         {
                                             !vendedor ?
-                                            (
-                                                <React.Fragment>
-                                                    <Grid item xs={6} sm={6} md={1} lg={1} className={`ch goRight ${noMargin}`}>
-                                                        <strong>Costo + IVA + IDP</strong>
-                                                        Q {this.numFormat(costo)}
-                                                    </Grid>
-                                                    <Grid item xs={6} sm={6} md={1} lg={1} className="ch goRight">
-                                                        <strong>Subtotal Costo</strong>
-                                                        Q {this.numFormat(subCosto)}
-                                                    </Grid>
-                                                </React.Fragment>
-                                            ) : 
-                                            (
-                                                <Grid item xs={12} sm={12} md={2} lg={2} className="ch goRight"></Grid>
-                                            )
+                                                (
+                                                    <React.Fragment>
+                                                        <Grid item xs={6} sm={6} md={1} lg={1} className={`ch goRight ${noMargin}`}>
+                                                            <strong>Costo + IVA + IDP</strong>
+                                                            Q {this.numFormat(costo)}
+                                                        </Grid>
+                                                        <Grid item xs={6} sm={6} md={1} lg={1} className="ch goRight">
+                                                            <strong>Subtotal Costo</strong>
+                                                            Q {this.numFormat(subCosto)}
+                                                        </Grid>
+                                                    </React.Fragment>
+                                                ) :
+                                                (
+                                                    <Grid item xs={12} sm={12} md={2} lg={2} className="ch goRight"></Grid>
+                                                )
                                         }
                                         <Grid item xs={6} sm={6} md={12} lg={12} className="mobile">
                                             &nbsp;
@@ -868,25 +868,25 @@ class Creditos extends Component {
                         </Grid>
                         {
                             !vendedor ?
-                            (
-                                <React.Fragment>
-                                    <Grid item xs={6} sm={6} md={1} lg={1} className="tot hideMobile goRight">
-                                        <strong>
-                                            Total
-                                        </strong>
-                                    </Grid>
-                                    <Grid item xs={6} sm={6} md={1} lg={1} className="tot tot_mob goRight">
-                                        <strong>Subtotal Costo</strong>
-                                        Q {subtot.toLocaleString('en-US', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        })}
-                                    </Grid>
-                                </React.Fragment>
-                            ) : 
-                            (
-                                <Grid item xs={12} sm={12} md={2} lg={2} className="tot tot_mob goRight"></Grid>
-                            )
+                                (
+                                    <React.Fragment>
+                                        <Grid item xs={6} sm={6} md={1} lg={1} className="tot hideMobile goRight">
+                                            <strong>
+                                                Total
+                                            </strong>
+                                        </Grid>
+                                        <Grid item xs={6} sm={6} md={1} lg={1} className="tot tot_mob goRight">
+                                            <strong>Subtotal Costo</strong>
+                                            Q {subtot.toLocaleString('en-US', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}
+                                        </Grid>
+                                    </React.Fragment>
+                                ) :
+                                (
+                                    <Grid item xs={12} sm={12} md={2} lg={2} className="tot tot_mob goRight"></Grid>
+                                )
                         }
                     </Grid>
                 </div>
@@ -936,22 +936,22 @@ class Creditos extends Component {
                         <Grid container spacing={2} justify="flex-end" className="padding-top-separation">
                             <Grid item xs={12} sm={12} md={12} lg={12}>
                                 {
-                                    this.state.contra_boleta !=="2" ?
-                                    (
-                                        <React.Fragment>
-                                            <Button variant="contained" color="secondary" className="pull-right" onClick={()=> this.aprobarPedido(2)}>
-                                                Necesita Boleta depósito
-                                            </Button>
-                                            <Button variant="contained" color="primary" className="pull-right fix-right" onClick={()=> this.aprobarPedido(1)}>
+                                    this.state.contra_boleta !== "2" ?
+                                        (
+                                            <React.Fragment>
+                                                <Button variant="contained" color="secondary" className="pull-right" onClick={() => this.aprobarPedido(2)}>
+                                                    Necesita Boleta depósito
+                                                </Button>
+                                                <Button variant="contained" color="primary" className="pull-right fix-right" onClick={() => this.aprobarPedido(1)}>
+                                                    Aprobar
+                                                </Button>
+                                            </React.Fragment>
+                                        ) :
+                                        (
+                                            <Button variant="contained" color="primary" className="pull-right fix-right" onClick={() => this.aprobarPedido(1)}>
                                                 Aprobar
                                             </Button>
-                                        </React.Fragment>
-                                    ):
-                                    (
-                                        <Button variant="contained" color="primary" className="pull-right fix-right" onClick={()=> this.aprobarPedido(1)}>
-                                            Aprobar
-                                        </Button>
-                                    )
+                                        )
                                 }
                             </Grid>
                         </Grid>

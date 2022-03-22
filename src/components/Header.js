@@ -21,6 +21,7 @@ import {
 } from '@material-ui/icons';
 import Button from '@material-ui/core/Button';
 import swal from 'sweetalert';
+import Cookies from 'js-cookie';
 
 
 class Header extends Component {
@@ -56,11 +57,10 @@ class Header extends Component {
         }).then((salir) => {
             if (salir !== null) {
                 this.props.changeLogged(false);
-                localStorage.removeItem("tp_uid");
-                localStorage.removeItem("tp_uid_per");
-                localStorage.removeItem("tp_vendedor");
+                Cookies.remove('lu_id');
+                Cookies.remove('lu_n');
                 this.props.clearState();
-                window.location.href = "/";
+                window.location.href = window.location.origin + window.location.pathname;
             }
         });
     }
@@ -68,6 +68,10 @@ class Header extends Component {
 
     render() {
         let cl = "";
+        let rol = Cookies.get('lu_rol');
+        if (typeof rol !== "undefined") {
+            rol = rol.toLowerCase();
+        }
         // We check if the user is logged in
         if (this.props.isLoggedIn) {
             return (
@@ -97,38 +101,45 @@ class Header extends Component {
                         </div>
                         <Divider />
                         <List>
-                            <Link className="link" to="/usuarios" onClick={() => this.changeIndex(1)}>
-                                <ListItem button selected={this.state.selectedIndex === 1}>
-                                    <ListItemIcon>
-                                        <VerifiedUserSharp />
-                                    </ListItemIcon>
-                                    <ListItemText primary={`Usuarios`} />
-                                </ListItem>
-                            </Link>
-                            <Link className="link" to="/empresas" onClick={() => this.changeIndex(2)}>
-                                <ListItem button selected={this.state.selectedIndex === 2}>
-                                    <ListItemIcon>
-                                        <Business />
-                                    </ListItemIcon>
-                                    <ListItemText primary={`Empresas`} />
-                                </ListItem>
-                            </Link>
-                            <Link className="link" to="/gastos" onClick={() => this.changeIndex(3)}>
-                                <ListItem button selected={this.state.selectedIndex === 3}>
-                                    <ListItemIcon>
-                                        <MoneyOff />
-                                    </ListItemIcon>
-                                    <ListItemText primary={`Gastos`} />
-                                </ListItem>
-                            </Link>
-                            <Link className="link" to="/presupuestos" onClick={() => this.changeIndex(4)}>
-                                <ListItem button selected={this.state.selectedIndex === 4}>
-                                    <ListItemIcon>
-                                        <Money />
-                                    </ListItemIcon>
-                                    <ListItemText primary={`Presupuestos`} />
-                                </ListItem>
-                            </Link>
+                            {
+                                rol === "administrador" ?
+                                    (
+                                        <React.Fragment>
+                                            <Link className="link" to="/empresas" onClick={() => this.changeIndex(2)}>
+                                                <ListItem button selected={this.state.selectedIndex === 2}>
+                                                    <ListItemIcon>
+                                                        <Business />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={`Empresas`} />
+                                                </ListItem>
+                                            </Link>
+                                            <Link className="link" to="/usuarios" onClick={() => this.changeIndex(1)}>
+                                                <ListItem button selected={this.state.selectedIndex === 1}>
+                                                    <ListItemIcon>
+                                                        <VerifiedUserSharp />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={`Usuarios`} />
+                                                </ListItem>
+                                            </Link>
+                                            <Link className="link" to="/gastos" onClick={() => this.changeIndex(3)}>
+                                                <ListItem button selected={this.state.selectedIndex === 3}>
+                                                    <ListItemIcon>
+                                                        <MoneyOff />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={`Gastos`} />
+                                                </ListItem>
+                                            </Link>
+                                            <Link className="link" to="/presupuestos" onClick={() => this.changeIndex(4)}>
+                                                <ListItem button selected={this.state.selectedIndex === 4}>
+                                                    <ListItemIcon>
+                                                        <Money />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={`Presupuestos`} />
+                                                </ListItem>
+                                            </Link>
+                                        </React.Fragment>
+                                    ) : ""
+                            }
                             <Link className="link" to="/liquidaciones" onClick={() => this.changeIndex(5)}>
                                 <ListItem button selected={this.state.selectedIndex === 5}>
                                     <ListItemIcon>

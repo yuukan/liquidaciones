@@ -12,7 +12,7 @@ import swal from 'sweetalert';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { Grid } from '@material-ui/core';
+import { Grid, LinearProgress } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
@@ -50,6 +50,7 @@ const UserEdit = (props) => {
     const [supervisor, setSupervisor] = useState(null);
     const [roles, setRoles] = useState(null);
     const [id, setId] = useState(-1);
+    const [loading, setLoading] = useState(false);
 
     const handleChangeSelect = (option, b) => {
         if (b.name === "supervisor") {
@@ -138,9 +139,10 @@ const UserEdit = (props) => {
     const submitPresupuesto = () => {
         let data = {
             'usuario': id,
-            'empresa': empresaP.id,
+            'empresa': empresaP.idEmpresa,
             'presupuestos': presupuestos
         }
+        setLoading(true);
         axios({
             method: 'post',
             url: props.url + 'users/save-presupuesto-empresa/',
@@ -150,10 +152,12 @@ const UserEdit = (props) => {
         })
             .then(function (resp) {
                 swal("Éxito", resp.data.texto, "success");
+                setLoading(false);
             })
             .catch(function (err) {
                 console.log(err);
                 swal("Error", err.response.data.msg, "error");
+                setLoading(false);
             });
     }
 
@@ -189,7 +193,11 @@ const UserEdit = (props) => {
             values.user_id = id;
             values.empresas = empresas;
             values.supervisor = supervisor;
-            values.roles = roles;
+            if (roles.length > 0) {
+                values.roles = roles;
+            } else {
+                values.roles = [roles];
+            }
             let data = JSON.stringify(values);
 
             if (
@@ -199,6 +207,7 @@ const UserEdit = (props) => {
                 swal("Error", "¡Debe de ingresar la contraseña!", "error");
             }
 
+            setLoading(true);
             if (id === -1) {
                 axios({
                     method: 'post',
@@ -215,6 +224,7 @@ const UserEdit = (props) => {
                     .catch(function (err) {
                         console.log(err);
                         swal("Error", err.response.data.msg, "error");
+                        setLoading(false);
                     });
             } else {
                 axios({
@@ -232,6 +242,7 @@ const UserEdit = (props) => {
                     .catch(function (err) {
                         console.log(err);
                         swal("Error", err.response.data.msg, "error");
+                        setLoading(false);
                     });
             }
         },
@@ -422,7 +433,7 @@ const UserEdit = (props) => {
                         <FormControl className={classes.formControl}>
                             <FormControl variant="outlined" className="form-item">
                                 <label className="manual" htmlFor="roles">
-                                    Roles
+                                    Rol
                                 </label>
                                 <Select2
                                     isSearchable={true}
@@ -430,7 +441,6 @@ const UserEdit = (props) => {
                                     value={roles}
                                     name="roles"
                                     id="roles"
-                                    isMulti
                                     options={props.roles}
                                     placeholder="*Seleccione sus roles"
                                 />
@@ -562,9 +572,21 @@ const UserEdit = (props) => {
                                                 </FormControl>
                                             </Grid>
                                             <Grid item xs={12} lg={3} md={3} sm={12}>
-                                                <Button color="primary" variant="contained" fullWidth onClick={savePresupuesto}>
+                                                <Button
+                                                    color="primary"
+                                                    variant="contained"
+                                                    fullWidth
+                                                    onClick={savePresupuesto}
+                                                    disabled={loading}
+                                                >
                                                     Agregar
                                                 </Button>
+                                                {
+                                                    loading ?
+                                                        (
+                                                            <LinearProgress color="secondary" />
+                                                        ) : ""
+                                                }
                                             </Grid>
                                         </Grid>
                                     </div>
@@ -647,16 +669,44 @@ const UserEdit = (props) => {
                                             }
                                         </table>
                                     </div>
-                                    <Button color="secondary" variant="contained" className="full-button" fullWidth type="button" onClick={submitPresupuesto}>
+                                    <Button
+                                        color="secondary"
+                                        variant="contained"
+                                        className="full-button"
+                                        fullWidth
+                                        type="button"
+                                        onClick={submitPresupuesto}
+                                        disabled={loading}
+                                    >
                                         Guardar presupuesto
                                     </Button>
+                                    {
+                                        loading ?
+                                            (
+                                                <LinearProgress color="secondary" />
+                                            ) : ""
+                                    }
                                 </div>
                             </div>
                         ) : ""
                 }
-                <Button color="primary" variant="contained" className="full-button" fullWidth type="button" onClick={() => formik.submitForm()}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    className="full-button"
+                    fullWidth
+                    type="button"
+                    onClick={() => formik.submitForm()}
+                    disabled={loading}
+                >
                     Guardar Usuario
                 </Button>
+                {
+                    loading ?
+                        (
+                            <LinearProgress color="secondary" style={{ width: "100%", marginTop: "10px" }} />
+                        ) : ""
+                }
             </div>
         </div>
     );

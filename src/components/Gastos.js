@@ -14,7 +14,8 @@ class Gastos extends Component {
         this.state = {
             columns: [
                 { title: 'ID', field: 'value' },
-                { title: 'Nombre', field: 'label' }
+                { title: 'Nombre', field: 'label' },
+                { title: 'Empresa', field: 'empresa_nombre' }
             ]
         };
     }

@@ -44,10 +44,10 @@ class TableUsuariosEmpresas extends Component {
                                                 {key.nombre_empresa}
                                             </td>
                                             <td>
-                                                {key.nombre_proveedor_sap}
+                                                {key.codigo_proveedor_sap} - {key.nombre_proveedor_sap}
                                             </td>
                                             <td>
-                                                {key.nombre_usuario_sap}
+                                                {key.codigo_usuario_sap} - {key.nombre_usuario_sap}
                                             </td>
                                             <td>
                                                 {
@@ -77,7 +77,7 @@ class TableUsuariosEmpresas extends Component {
                                 }
                             </tbody>
                         )
-                        : 
+                        :
                         (
                             <tbody></tbody>
                         )
