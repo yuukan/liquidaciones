@@ -231,11 +231,13 @@ const LiquidacionEdit = (props) => {
                 } else {
                     setFacturaURL(URL.createObjectURL(event.target.files[0]));
                     var reader = new FileReader();
+                    reader.readAsDataURL(event.target.files[0]);
                     reader.addEventListener('load', function (e) {
-                        let content = btoa(unescape(encodeURIComponent(e.target.result)));
-                        setFacturaContent(content);
+                        let json = JSON.stringify({ dataURL: reader.result });
+                        let fileURL = JSON.parse(json).dataURL;
+
+                        setFacturaContent(fileURL);
                     });
-                    reader.readAsBinaryString(event.target.files[0]);
                 }
             }
         }
@@ -245,7 +247,7 @@ const LiquidacionEdit = (props) => {
                 setXMLURL(URL.createObjectURL(event.target.files[0]));
 
                 // Read file contents
-                var reader = new FileReader();
+                reader = new FileReader();
                 reader.addEventListener('load', function (e) {
                     let xmlContent = e.target.result;
                     setXMLContent(xmlContent);
@@ -269,7 +271,6 @@ const LiquidacionEdit = (props) => {
                                 }
                             }
                             if (existe === 0) {
-                                console.log(emisor.Rfc, emisor.Nombre);
                                 setLoading(true);
                                 axios({
                                     method: 'post',
@@ -1169,7 +1170,7 @@ const LiquidacionEdit = (props) => {
                                         className="full-button"
                                         fullWidth
                                         type="text"
-                                        isDisable={loading}
+                                        disable={loading}
                                         onClick={() => formik.submitForm()}
                                     >
                                         Guardar
@@ -1192,7 +1193,7 @@ const LiquidacionEdit = (props) => {
                                                     fullWidth
                                                     type="text"
                                                     onClick={enviarAprobacion}
-                                                    isDisable={loading}
+                                                    disabled={loading}
                                                 >
                                                     Enviar a Aprobación
                                                 </Button>
@@ -1221,7 +1222,7 @@ const LiquidacionEdit = (props) => {
                                         fullWidth
                                         type="text"
                                         onClick={enviarAprobacionContabilidad}
-                                        isDisable={loading}
+                                        disable={loading}
                                     >
                                         Aprobar
                                     </Button>
@@ -1241,7 +1242,7 @@ const LiquidacionEdit = (props) => {
                                             fullWidth
                                             type="text"
                                             onClick={enviarRechazoSupervisor}
-                                            isDisable={loading}
+                                            disable={loading}
                                         >
                                             Rechazar
                                         </Button>
@@ -1268,7 +1269,7 @@ const LiquidacionEdit = (props) => {
                                         fullWidth
                                         type="text"
                                         onClick={subirSap}
-                                        isDisabled={loading}
+                                        disabled={loading}
                                     >
                                         Aprobar y Subir a SAP
                                     </Button>
@@ -1288,7 +1289,7 @@ const LiquidacionEdit = (props) => {
                                             fullWidth
                                             type="text"
                                             onClick={enviarRechazoContabilidad}
-                                            isDisabled={loading}
+                                            disabled={loading}
                                         >
                                             Rechazar
                                         </Button>
@@ -1347,44 +1348,67 @@ const LiquidacionEdit = (props) => {
                                                             (
                                                                 <tbody>
                                                                     {
-                                                                        facturas.map((key, idx) => (
-                                                                            <tr key={idx}>
-                                                                                <td>
-                                                                                    {key[22]}
-                                                                                </td>
-                                                                                <td>
-                                                                                    <a href={URL.createObjectURL(makeblob(key[18]))} target="_blank" rel="noreferrer">
+                                                                        facturas.map((key, idx) => {
+                                                                            let fe = key[6].split("-");
+                                                                            fe = fe[1] + "/" + fe[0] + "/" + fe[2];
+                                                                            return (
+                                                                                <tr key={idx}>
+                                                                                    <td>
+                                                                                        {key[22]}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <a href={URL.createObjectURL(makeblob(key[18]))} target="_blank" rel="noreferrer">
+                                                                                            {
+                                                                                                key[9] !== "" ? key[9] + " - " : ""
+                                                                                            }
+                                                                                            {key[10]}
+                                                                                        </a>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {key[1]}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {key[5]}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {fe}
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {key[8]}
+                                                                                    </td>
+                                                                                    <td>
                                                                                         {
-                                                                                            key[9] !== "" ? key[9] + " - " : ""
+                                                                                            key[7].toLocaleString('en-US', {
+                                                                                                minimumFractionDigits: 2,
+                                                                                                maximumFractionDigits: 2
+                                                                                            })
                                                                                         }
-                                                                                        {key[10]}
-                                                                                    </a>
-                                                                                </td>
-                                                                                <td>
-                                                                                    {key[1]}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {key[5]}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {key[6]}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {key[8]}
-                                                                                </td>
-                                                                                <td>
-                                                                                    {
-                                                                                        key[7].toLocaleString('en-US', {
-                                                                                            minimumFractionDigits: 2,
-                                                                                            maximumFractionDigits: 2
-                                                                                        })
-                                                                                    }
-                                                                                </td>
-                                                                                <td>
-                                                                                    {
-                                                                                        estado === "0" || estado === "2" || estado === "4" ?
-                                                                                            (
-                                                                                                <React.Fragment>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {
+                                                                                            estado === "0" || estado === "2" || estado === "4" ?
+                                                                                                (
+                                                                                                    <React.Fragment>
+                                                                                                        <Button
+                                                                                                            color="primary"
+                                                                                                            variant="contained"
+                                                                                                            type="button"
+                                                                                                            onClick={() => editFactura(idx)}
+                                                                                                            style={{ marginRight: "10px" }}
+                                                                                                        >
+                                                                                                            <Edit />
+                                                                                                        </Button>
+                                                                                                        <Button
+                                                                                                            color="secondary"
+                                                                                                            variant="contained"
+                                                                                                            type="button"
+                                                                                                            onClick={() => removeFactura(idx)}
+                                                                                                        >
+                                                                                                            <Delete />
+                                                                                                        </Button>
+                                                                                                    </React.Fragment>
+                                                                                                ) :
+                                                                                                (
                                                                                                     <Button
                                                                                                         color="primary"
                                                                                                         variant="contained"
@@ -1392,34 +1416,15 @@ const LiquidacionEdit = (props) => {
                                                                                                         onClick={() => editFactura(idx)}
                                                                                                         style={{ marginRight: "10px" }}
                                                                                                     >
-                                                                                                        <Edit />
+                                                                                                        <Visibility />
                                                                                                     </Button>
-                                                                                                    <Button
-                                                                                                        color="secondary"
-                                                                                                        variant="contained"
-                                                                                                        type="button"
-                                                                                                        onClick={() => removeFactura(idx)}
-                                                                                                    >
-                                                                                                        <Delete />
-                                                                                                    </Button>
-                                                                                                </React.Fragment>
-                                                                                            ) :
-                                                                                            (
-                                                                                                <Button
-                                                                                                    color="primary"
-                                                                                                    variant="contained"
-                                                                                                    type="button"
-                                                                                                    onClick={() => editFactura(idx)}
-                                                                                                    style={{ marginRight: "10px" }}
-                                                                                                >
-                                                                                                    <Visibility />
-                                                                                                </Button>
-                                                                                            )
-                                                                                    }
+                                                                                                )
+                                                                                        }
 
-                                                                                </td>
-                                                                            </tr>
-                                                                        ))
+                                                                                    </td>
+                                                                                </tr>
+                                                                            )
+                                                                        })
                                                                     }
                                                                 </tbody>
                                                             )
@@ -1871,7 +1876,7 @@ const LiquidacionEdit = (props) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </div >
     );
 };
 export default LiquidacionEdit;

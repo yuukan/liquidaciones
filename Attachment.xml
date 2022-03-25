@@ -1,0 +1,15 @@
+<BOM>
+    <BO>
+        <AdmInfo>
+            <Object>oAttachments2</Object>
+        </AdmInfo>
+        <Attachments2 />
+        <Attachments2_Lines>
+            <row>
+                <SourcePath>/Users/yuukan/Desktop/</SourcePath>
+                <FileName>Buena</FileName>
+                <FileExtension>xml</FileExtension>
+            </row>
+        </Attachments2_Lines>
+    </BO>
+</BOM>
