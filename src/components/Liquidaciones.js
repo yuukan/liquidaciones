@@ -18,8 +18,34 @@ class Liquidaciones extends Component {
         this.state = {
             columns: [
                 { title: 'ID', field: 'value' },
+                { title: 'Usuario', field: 'usuario' },
                 { title: 'Fecha Inicio', field: 'label' },
-                { title: 'Fecha Fin', field: 'fecha_fin' }
+                { title: 'Fecha Fin', field: 'fecha_fin' },
+                {
+
+                    title: 'Total Facturado',
+                    field: 'total_facturado',
+                    render: rowData => parseFloat(rowData.total_facturado).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                },
+                {
+                    title: 'No Aplica',
+                    field: 'no_aplica',
+                    render: rowData => parseFloat(rowData.no_aplica).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                },
+                {
+                    title: 'Reembolso',
+                    field: 'reembolso',
+                    render: rowData => parseFloat(rowData.reembolso).toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                },
             ]
         };
     }
@@ -45,7 +71,7 @@ class Liquidaciones extends Component {
                                 icons={tableIcons}
                                 columns={this.state.columns}
                                 data={data}
-                                title="Horario Asignado"
+                                title="Liquidaciones"
                                 options={{
                                     pageSize: 20
                                 }}

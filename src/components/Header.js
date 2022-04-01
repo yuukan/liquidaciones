@@ -32,7 +32,7 @@ class Header extends Component {
         this.changeIndex = this.changeIndex.bind(this);
         this.logOut = this.logOut.bind(this);
         this.state = {
-            selectedIndex: 1,
+            selectedIndex: 5,
             openDrawer: false
         };
     }
@@ -80,12 +80,24 @@ class Header extends Component {
                         <Toolbar className={`toolbar ${cl}`}>
                             <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.handleDrawerOpen}>
                                 <MenuIcon />
+                                <span
+                                    style={
+                                        {
+                                            "fontSize": "14px",
+                                            "marginLeft": "10px"
+                                        }
+                                    }
+                                >
+                                    {Cookies.get('lu_n')}
+                                </span>
                             </IconButton>
                             <Typography variant="h6">
                                 <img src="images/logo.png" alt="" />
                             </Typography>
 
-                            <Button color="inherit" onClick={this.logOut}>Salir</Button>
+                            <Button color="inherit" onClick={this.logOut}>
+                                Salir
+                            </Button>
                         </Toolbar>
                     </AppBar>
                     <Drawer

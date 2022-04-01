@@ -53,7 +53,7 @@ class Landing extends Component {
         return (
             <div className="landing">
                 {
-                    this.props.logged ? (<Redirect to="/main" />) : ""
+                    this.props.logged ? (<Redirect to="/liquidaciones" />) : ""
                 }
                 <div className="splash">
                     <img src="images/logo.png" alt="Logo" />

@@ -29,7 +29,6 @@ import "moment/locale/es";
 import {
     Delete,
     Edit,
-    Add,
     Visibility
 } from '@material-ui/icons/';
 import Compressor from 'compressorjs';
@@ -109,7 +108,7 @@ const LiquidacionEdit = (props) => {
     // Campos factura
     const [facturas, setFacturas] = useState([]);
     const [tipo_proveedor, setTipoProveedor] = useState("PJ");
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const classes = useStyles();
 
@@ -345,8 +344,9 @@ const LiquidacionEdit = (props) => {
 
         // let f = new Date(fecha);
         let ffactura;
-
-        if (typeof fecha === "string" && fecha.includes("T")) {
+        if (typeof fecha === "object") {
+            ffactura = fecha;
+        } else if (typeof fecha === "string" && fecha.includes("T")) {
             ffactura = new Date(fecha);
         } else {
             ffactura = new Date(fecha + " 12:00:00");
@@ -521,6 +521,9 @@ const LiquidacionEdit = (props) => {
                 values.fecha_fin = fechaFin;
                 values.comentario = comentarios;
                 values.au_usuario_id = Cookies.get('lu_id');
+                values.total_facturado = totalFacturado;
+                values.no_aplica = noAplica;
+                values.reembolso = reembolso;
 
                 let data = JSON.stringify(values);
 
@@ -648,11 +651,18 @@ const LiquidacionEdit = (props) => {
     }
 
     const sumTotales = (facturas) => {
-        let ret = 0;
+        let totalFacturado = 0;
+        let noAplica = 0;
+        let reembolso = 0;
         for (let i = 0; i < facturas.length; i++) {
-            ret += parseFloat(facturas[i][7]);
+            totalFacturado += parseFloat(facturas[i][7]);
+            reembolso += parseFloat(facturas[i][23]);
+            noAplica += parseFloat(facturas[i][24]);
         }
-        return ret;
+        setTotalFacturado(totalFacturado);
+        setNoAplica(noAplica);
+        setReembolso(reembolso);
+        // return ret;
     }
 
     useEffect(() => {
@@ -673,7 +683,7 @@ const LiquidacionEdit = (props) => {
                     setRechazoConta(resp.data.rechazo_contabilidad);
                     setResultados_subida_sap(resp.data.resultados_subida_sap);
 
-                    setTotalFacturado(sumTotales(resp.data.facturas));
+                    sumTotales(resp.data.facturas);
 
                     const fi = format(parseISO(resp.data.fecha_inicio.split('T')[0]), 'MM/dd/yyyy');
                     setFechaInicio(fi);
@@ -1030,7 +1040,7 @@ const LiquidacionEdit = (props) => {
                                             maxDate={fechaFin}
                                             format="DD/MM/yyyy"
                                             maxDateMessage={`La fecha no puede ser mayor a la fecha Final`}
-                                            disabled={!(estado === "0" || estado === "2" || estado === "4")}
+                                            disabled={!(estado === "0" || estado === "2" || estado === "4" || id === -1)}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
@@ -1047,7 +1057,7 @@ const LiquidacionEdit = (props) => {
                                             minDate={fechaInicio}
                                             minDateMessage={`La fecha no puede ser menor a la fecha Inicial`}
                                             format="DD/MM/yyyy"
-                                            disabled={!(estado === "0" || estado === "2" || estado === "4")}
+                                            disabled={!(estado === "0" || estado === "2" || estado === "4" || id === -1)}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
@@ -1160,7 +1170,7 @@ const LiquidacionEdit = (props) => {
                 </form>
 
                 {
-                    estado === "0" || estado === "2" || estado === "4" ?
+                    estado === "0" || estado === "2" || estado === "4" || id === -1 ?
                         (
                             <Grid container spacing={3}>
                                 <Grid item xs={6}>
@@ -1313,14 +1323,20 @@ const LiquidacionEdit = (props) => {
                             <div className="full">
                                 <Typography variant="h4" component="h6" gutterBottom>
                                     Facturas
-                                    <Button
-                                        color="primary"
-                                        className="full-button"
-                                        onClick={nuevaFactura}
-                                        style={{ float: "right" }}
-                                    >
-                                        Nueva Factura
-                                    </Button>
+                                    {
+                                        gasto2 !== null ?
+                                            (
+                                                <Button
+                                                    color="primary"
+                                                    className="full-button"
+                                                    onClick={nuevaFactura}
+                                                    style={{ float: "right" }}
+                                                >
+                                                    Nueva Factura
+                                                </Button>
+                                            ) : ""
+                                    }
+
                                 </Typography>
                                 <div className="table-container">
                                     {
@@ -1497,15 +1513,18 @@ const LiquidacionEdit = (props) => {
                                                                 {
                                                                     (empresa && empresa[0].maneja_xml !== 1) || ignorarXML === 1 ?
                                                                         (
-                                                                            <Button
-                                                                                variant="contained"
-                                                                                size="small"
-                                                                                color="primary"
+                                                                            <span
                                                                                 onClick={() => setOpen(true)}
-                                                                                style={{ "float": "right" }}
+                                                                                style={
+                                                                                    {
+                                                                                        "float": "right",
+                                                                                        "color": "#3f51b5",
+                                                                                        "cursor": "pointer"
+                                                                                    }
+                                                                                }
                                                                             >
-                                                                                <Add /> Nuevo
-                                                                            </Button>
+                                                                                Nuevo
+                                                                            </span>
                                                                         ) : ""
                                                                 }
                                                             </label>
