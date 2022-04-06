@@ -345,7 +345,11 @@ const LiquidacionEdit = (props) => {
         // let f = new Date(fecha);
         let ffactura;
         if (typeof fecha === "object") {
-            ffactura = fecha;
+            if (fecha instanceof moment) {
+                ffactura = new Date(fecha);
+            } else {
+                ffactura = fecha;
+            }
         } else if (typeof fecha === "string" && fecha.includes("T")) {
             ffactura = new Date(fecha);
         } else {
@@ -888,6 +892,22 @@ const LiquidacionEdit = (props) => {
         for (let i = 0; i < gastos.length; i++) {
             if (parseInt(gastos[i].value) === parseInt(t[0])) {
                 setGasto2(gastos[i]);
+                setIgnorarXML(gastos[i].ignorar_xml);
+                setLoading(true);
+                axios({
+                    method: 'get',
+                    url: props.url + 'sub-gastos/' + gastos[i].value,
+                    responseType: "json",
+                    headers: { "Content-Type": "application/json" }
+                })
+                    .then(function (resp) {
+                        setSubGastos(resp.data);
+                        setLoading(false);
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        setLoading(false);
+                    });
                 break;
             }
         }
@@ -916,6 +936,9 @@ const LiquidacionEdit = (props) => {
 
         setProveedor({ value: parseInt(t[4]), label: t[5] });
         let f = t[6].split("/");
+        if (f.length === 1) {
+            f = t[6].split("-");
+        }
         setFecha(f[2] + "-" + f[1] + "-" + f[0]);
         setTotal(t[7]);
         setMoneda(t[8]);
@@ -943,8 +966,6 @@ const LiquidacionEdit = (props) => {
         let url = URL.createObjectURL(blob);
         setXMLURL(url);
         setComentarios2(t[21]);
-
-
     }
 
     const removeFactura = (idx) => {

@@ -18,6 +18,7 @@ class Liquidaciones extends Component {
         this.state = {
             columns: [
                 { title: 'ID', field: 'value' },
+                { title: 'Estado', field: 'estado' },
                 { title: 'Usuario', field: 'usuario' },
                 { title: 'Fecha Inicio', field: 'label' },
                 { title: 'Fecha Fin', field: 'fecha_fin' },
@@ -71,7 +72,7 @@ class Liquidaciones extends Component {
                                 icons={tableIcons}
                                 columns={this.state.columns}
                                 data={data}
-                                title="Liquidaciones"
+                                title=""
                                 options={{
                                     pageSize: 20
                                 }}
@@ -136,7 +137,7 @@ class Liquidaciones extends Component {
                                         searchPlaceholder: 'Buscar'
                                     },
                                     header: {
-                                        actions: 'Estados'
+                                        actions: 'Acciones'
                                     },
                                     body: {
                                         emptyDataSourceMessage: 'No existen resultados',

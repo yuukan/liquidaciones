@@ -40,7 +40,7 @@ class Empresas extends Component {
                                 icons={tableIcons}
                                 columns={this.state.columns}
                                 data={data}
-                                title="Horario Asignado"
+                                title=""
                                 options={{
                                     pageSize: 20
                                 }}
@@ -96,7 +96,7 @@ class Empresas extends Component {
                                         searchPlaceholder: 'Buscar'
                                     },
                                     header: {
-                                        actions: 'Estados'
+                                        actions: 'Acciones'
                                     },
                                     body: {
                                         emptyDataSourceMessage: 'No existen resultados',
