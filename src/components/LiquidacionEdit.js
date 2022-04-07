@@ -809,9 +809,16 @@ const LiquidacionEdit = (props) => {
             headers: { "Content-Type": "application/json" }
         })
             .then(function (resp) {
-                swal("Éxito", "¡Se ha subido la liquidación a SAP!", "success");
-                props.loadLiquidaciones();
-                props.history.push(`/liquidaciones`);
+                if (resp.data === true) {
+                    swal("Éxito", "¡Se ha subido la liquidación a SAP!", "success");
+                    props.loadLiquidaciones();
+                    props.history.push(`/liquidaciones`);
+                } else {
+                    swal("Error", "¡Hay un error al subir a SAP!", "warning")
+                        .then(x => {
+                            setRefresh(refresh + 1);
+                        });
+                }
                 setLoading(false);
             })
             .catch(function (err) {
@@ -1826,7 +1833,7 @@ const LiquidacionEdit = (props) => {
                                                                 ) : ""
                                                         }
                                                         {
-                                                            xmlURL !== '' ?
+                                                            xmlContent !== '' ?
                                                                 (
                                                                     <a className="file-link" href={xmlURL} target="_blank" rel="noreferrer">Ver XML</a>
                                                                 ) : ""

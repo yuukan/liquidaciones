@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 import {
     Edit,
     Delete,
-    Check
+    Check,
+    Warning
 } from '@material-ui/icons/';
 import swal from 'sweetalert';
 import axios from 'axios';
@@ -78,17 +79,23 @@ class Liquidaciones extends Component {
                                 }}
                                 actions={[
                                     rowData => ({
+                                        icon: () => <Warning color="secondary" />,
+                                        tooltip: 'Error en el presupuesto asignado',
+                                        hidden: !(rowData.empresa_id === null || rowData.gasto_id === null)
+                                    }),
+                                    rowData => ({
                                         icon: Edit,
                                         tooltip: 'Editar Liquidación',
-                                        hidden: !(rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4"),
+                                        hidden: !((rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4") && (rowData.empresa_id !== null && rowData.gasto_id !== null)),
                                         onClick: (event, rowData) => {
+                                            // console.log(rowData.empresa_id !== null && rowData.gasto_id !== null);
                                             this.props.history.push("/edit-liquidacion/" + rowData.value);
                                         },
                                     }),
                                     rowData => ({
                                         icon: Check,
                                         tooltip: 'Aprobar Liquidación',
-                                        hidden: (rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4"),
+                                        hidden: (rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4" || rowData.empresa_id === null || rowData.gasto_id === null),
                                         onClick: (event, rowData) => {
                                             this.props.history.push("/edit-liquidacion/" + rowData.value);
                                         },
