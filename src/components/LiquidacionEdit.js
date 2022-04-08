@@ -28,8 +28,7 @@ import moment from "moment";
 import "moment/locale/es";
 import {
     Delete,
-    Edit,
-    Visibility
+    Edit
 } from '@material-ui/icons/';
 import Compressor from 'compressorjs';
 import {
@@ -1394,7 +1393,13 @@ const LiquidacionEdit = (props) => {
                                                                     {
                                                                         facturas.map((key, idx) => {
                                                                             let fe = key[6].split("-");
-                                                                            fe = fe[1] + "/" + fe[0] + "/" + fe[2];
+                                                                            fe = fe[0] + "/" + fe[1] + "/" + fe[2];
+
+                                                                            let blobXML = new Blob([key[19]], { type: 'text/xml' });
+                                                                            let urlXML = ''
+                                                                            if (key[19] !== "") {
+                                                                                urlXML = URL.createObjectURL(blobXML);
+                                                                            }
                                                                             return (
                                                                                 <tr key={idx}>
                                                                                     <td>
@@ -1453,15 +1458,30 @@ const LiquidacionEdit = (props) => {
                                                                                                     </React.Fragment>
                                                                                                 ) :
                                                                                                 (
-                                                                                                    <Button
-                                                                                                        color="primary"
-                                                                                                        variant="contained"
-                                                                                                        type="button"
-                                                                                                        onClick={() => editFactura(idx)}
-                                                                                                        style={{ marginRight: "10px" }}
-                                                                                                    >
-                                                                                                        <Visibility />
-                                                                                                    </Button>
+                                                                                                    <React.Fragment>
+                                                                                                        <a
+                                                                                                            href={URL.createObjectURL(makeblob(key[18]))}
+                                                                                                            target="_blank"
+                                                                                                            rel="noreferrer"
+                                                                                                            className='view-link'
+                                                                                                        >
+                                                                                                            Ver Factura
+                                                                                                        </a>
+                                                                                                        {
+                                                                                                            urlXML !== '' ?
+                                                                                                                (
+                                                                                                                    <a
+                                                                                                                        href={urlXML}
+                                                                                                                        target="_blank"
+                                                                                                                        rel="noreferrer"
+                                                                                                                        className='view-link'
+                                                                                                                    >
+                                                                                                                        Ver XML
+                                                                                                                    </a>
+                                                                                                                ) : ""
+                                                                                                        }
+
+                                                                                                    </React.Fragment>
                                                                                                 )
                                                                                         }
 
