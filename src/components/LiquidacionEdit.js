@@ -108,6 +108,7 @@ const LiquidacionEdit = (props) => {
     const [facturas, setFacturas] = useState([]);
     const [tipo_proveedor, setTipoProveedor] = useState("PJ");
     const [loading, setLoading] = useState(false);
+    const [uid, setUID] = useState(Cookies.get('lu_id'));
 
     const classes = useStyles();
 
@@ -338,6 +339,19 @@ const LiquidacionEdit = (props) => {
         }
     };
 
+    // round half away from zero
+    const round = (num, decimalPlaces = 0) => {
+        if (num < 0)
+            return -round(-num, decimalPlaces);
+        var p = Math.pow(10, decimalPlaces);
+        var n = num * p;
+        var f = n - Math.floor(n);
+        var e = Number.EPSILON * n;
+
+        // Determine whether this fraction is a midpoint value.
+        return (f >= .5 - e) ? Math.ceil(n) / p : Math.floor(n) / p;
+    }
+
     // Función para agregar factura a la tabla
     const agregarFactura = () => {
 
@@ -428,9 +442,16 @@ const LiquidacionEdit = (props) => {
             // let fin = new Date(end + "12:00");
             // fin = fin.getFullYear() + '-' + ("0" + (fin.getMonth() + 1)).slice(-2) + "-" + fin.getDate();
 
+
+            // Quitar impuesto + porcentaje exento
+            let a = parseFloat(total) / (1 + (empresa[0].valor_impuesto / 100) + (subgasto.valor / 100));
+            // Calculo Monto + Impuesto del Resultado
+            let b = round(a * (1 + (empresa[0].valor_impuesto / 100)), 2);
+            let e = parseFloat(total) - b;
+
             let exento = subgasto !== null ?
-                subgasto.tipo === 'cantidad' ? parseFloat(subgasto.valor)
-                    : parseFloat(total) * parseFloat(subgasto.valor) / 100
+                subgasto.tipo === 'cantidad' ? (cantidad / parseFloat(total)) * parseFloat(subgasto.valor)
+                    : e
                 : 0;
 
             let t = [
@@ -523,7 +544,7 @@ const LiquidacionEdit = (props) => {
                 values.fecha_inicio = fechaInicio;
                 values.fecha_fin = fechaFin;
                 values.comentario = comentarios;
-                values.au_usuario_id = Cookies.get('lu_id');
+                values.au_usuario_id = uid;
                 values.total_facturado = totalFacturado;
                 values.no_aplica = noAplica;
                 values.reembolso = reembolso;
@@ -659,8 +680,8 @@ const LiquidacionEdit = (props) => {
         let reembolso = 0;
         for (let i = 0; i < facturas.length; i++) {
             totalFacturado += parseFloat(facturas[i][7]);
-            reembolso += parseFloat(facturas[i][23]);
-            noAplica += parseFloat(facturas[i][24]);
+            reembolso += parseFloat(facturas[i][25]);
+            noAplica += parseFloat(facturas[i][26]);
         }
         setTotalFacturado(totalFacturado);
         setNoAplica(noAplica);
@@ -702,6 +723,7 @@ const LiquidacionEdit = (props) => {
                     );
                     setEstado(resp.data.au_estado_liquidacion_id);
                     setNombreUsuario(resp.data.nombre);
+                    setUID(resp.data.uid);
                     // Get the empresa to get the currency
                     axios({
                         method: 'get',
@@ -1019,7 +1041,7 @@ const LiquidacionEdit = (props) => {
                     <ArrowBackIosIcon />
                 </Link>
                 {
-                    typeof props.match.params.id !== "undefined" ? "Editar liquidación" : "Crear liquidación"
+                    typeof props.match.params.id !== "undefined" ? "Editar liquidación " : "Crear liquidación"
                 }
             </Typography>
             <div className="empresa-container">
@@ -1028,11 +1050,11 @@ const LiquidacionEdit = (props) => {
                         <h2>
                             {
                                 estado === "0" || estado === "2" || estado === "4"
-                                    ? "Datos Liquidación usuario: "
+                                    ? `Datos Liquidación (${id}) usuario: `
                                     : estado === "1" ?
-                                        "Aprobacion (Supervisor) Liquidación usuario: "
+                                        `Aprobacion (Supervisor) Liquidación (${id}) usuario: `
                                         : estado === "3" ?
-                                            "Aprobacion (Contabilidad) Liquidación usuario: "
+                                            `Aprobacion (Contabilidad) Liquidación (${id}) usuario: `
                                             : ""
                             }
                             {nombreUsuario}
@@ -1870,9 +1892,16 @@ const LiquidacionEdit = (props) => {
                                                                         fullWidth
                                                                         type="text"
                                                                         onClick={agregarFactura}
+                                                                        disabled={loading}
                                                                     >
                                                                         Guardar Factura
                                                                     </Button>
+                                                                    {
+                                                                        loading ?
+                                                                            (
+                                                                                <LinearProgress color="secondary" />
+                                                                            ) : ""
+                                                                    }
                                                                 </Grid>
                                                             ) : ""
                                                     }
