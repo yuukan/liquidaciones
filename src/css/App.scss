@@ -44,4 +44,18 @@
     &:hover {
         background: lighten(#1d4b9a, 10);
     }
+    &.rechazar {
+        background: #f50057;
+        cursor: pointer;
+        &:hover {
+            background: darken(#c51162, 10);
+        }
+    }
+    &.ver-rechazo {
+        background: #7b1fa2;
+        cursor: pointer;
+        &:hover {
+            background: lighten(#7b1fa2, 10);
+        }
+    }
 }

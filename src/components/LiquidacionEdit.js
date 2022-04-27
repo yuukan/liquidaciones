@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { useFormik } from 'formik';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Select2 from 'react-select';
-import { makeStyles } from '@material-ui/core/styles';
 import swal from 'sweetalert';
 import axios from 'axios';
 import Grid from '@material-ui/core/Grid';
@@ -35,7 +35,7 @@ import {
     DatePicker,
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers'
-import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, LinearProgress, Radio, RadioGroup } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, LinearProgress, Modal, Radio, RadioGroup } from '@material-ui/core';
 var parseString = require('xml2js').parseString;
 
 moment.locale("es");
@@ -55,7 +55,27 @@ const useStyles = makeStyles((theme) => ({
     noLabel: {
         marginTop: theme.spacing(3),
     },
+    paper: {
+        position: 'absolute',
+        width: 400,
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+    },
 }));
+
+function getModalStyle() {
+    const top = 50;
+    const left = 50;
+
+    return {
+        top: `${top}%`,
+        left: `${left}%`,
+        transform: `translate(-${top}%, -${left}%)`,
+        width: `80%`
+    };
+}
 
 const LiquidacionEdit = (props) => {
     const [refresh, setRefresh] = useState(0);
@@ -102,15 +122,21 @@ const LiquidacionEdit = (props) => {
     const [final, setFinal] = useState(9999);
     const [cantidad, setCantidad] = useState(0.0);
     const [open, setOpen] = useState(false);
+    const [openCuadrar, setOpenCuadrar] = useState(false);
     const [nombreAdd, setNombreAdd] = useState("");
     const [nitAdd, setNitAdd] = useState("");
     // Campos factura
     const [facturas, setFacturas] = useState([]);
+    const [cuadrar, setCuadrar] = useState([]);
     const [tipo_proveedor, setTipoProveedor] = useState("PJ");
     const [loading, setLoading] = useState(false);
     const [uid, setUID] = useState(Cookies.get('lu_id'));
+    const [rejected, setRejected] = useState(false);
+    const [razon_rechazo, setRazon] = useState("");
 
     const classes = useStyles();
+    // getModalStyle is not a pure function, we roll the style only on the first render
+    const [modalStyle] = React.useState(getModalStyle);
 
     const handleClose = () => {
         setOpen(false);
@@ -306,8 +332,8 @@ const LiquidacionEdit = (props) => {
                             setSerie(factura.Serie);
                             setNumero(factura.NoCertificado);
                             setTotal(factura.Total);
-                            // setMoneda(factura.Moneda);
-                            setMoneda("QTZ");
+                            setMoneda(factura.Moneda);
+                            // setMoneda("QTZ");
                             setFecha(factura.Fecha);
                             setFormaPago(factura.FormaPago);
                             setMetodoPago(factura.MetodoPago);
@@ -443,16 +469,25 @@ const LiquidacionEdit = (props) => {
             // fin = fin.getFullYear() + '-' + ("0" + (fin.getMonth() + 1)).slice(-2) + "-" + fin.getDate();
 
 
-            // Quitar impuesto + porcentaje exento
-            let a = parseFloat(total) / (1 + (empresa[0].valor_impuesto / 100) + (subgasto.valor / 100));
-            // Calculo Monto + Impuesto del Resultado
-            let b = round(a * (1 + (empresa[0].valor_impuesto / 100)), 2);
-            let e = parseFloat(total) - b;
+            let e = 0;
+            if (subgasto !== null) {
+                if (subgasto.valor > 0) {
+                    // Quitar impuesto + porcentaje exento
+                    let a = parseFloat(total) / (1 + (empresa[0].valor_impuesto / 100) + (subgasto.valor / 100));
+                    // Calculo Monto + Impuesto del Resultado
+                    let b = round(a * (1 + (empresa[0].valor_impuesto / 100)), 2);
+                    e = parseFloat(total) - b;
+                }
+            }
 
             let exento = subgasto !== null ?
-                subgasto.tipo === 'cantidad' ? (cantidad / parseFloat(total)) * parseFloat(subgasto.valor)
-                    : e
+                subgasto.tipo === 'cantidad' ?
+                    subgasto.valor !== "" ?
+                        round((cantidad * parseFloat(subgasto.valor)), 2)
+                        : 0
+                    : round(e, 2)
                 : 0;
+
 
             let t = [
                 gasto2.value,
@@ -461,7 +496,7 @@ const LiquidacionEdit = (props) => {
                 subgasto !== null ? subgasto.label : "",
                 proveedor.value,
                 proveedor.label,
-                ffactura.toLocaleString().split(",")[0],//Fecha
+                ffactura.toLocaleString('en-US').split(",")[0],//Fecha
                 total,
                 moneda,
                 serie,
@@ -477,8 +512,8 @@ const LiquidacionEdit = (props) => {
                 xmlContent,
                 comentarios2, //20
                 gasto2.frecuencia_codigo,
-                start.toLocaleString().split(",")[0],
-                end.toLocaleString().split(",")[0],
+                start.toLocaleString('en-US').split(",")[0],
+                end.toLocaleString('en-US').split(",")[0],
                 gasto2.au_presupuesto_id,//24
                 gasto2.linea, //25
                 gasto2.tipo, //26
@@ -486,7 +521,8 @@ const LiquidacionEdit = (props) => {
                 subgasto !== null ? subgasto.exento : 0, //28
                 exento, //29
                 parseFloat(total) - exento, //30
-                Cookies.get('lu_id') //31
+                Cookies.get('lu_id'), //31
+                razon_rechazo //32
             ];
 
             let id_factura = -1;
@@ -646,7 +682,7 @@ const LiquidacionEdit = (props) => {
                 });
             setSubgasto(null);
             setProveedor(null);
-            setMoneda(null);
+            setMoneda(empresa[0].moneda_local);
             setFecha(new Date());
             setSerie("");
             setNumero("");
@@ -682,6 +718,9 @@ const LiquidacionEdit = (props) => {
             totalFacturado += parseFloat(facturas[i][7]);
             reembolso += parseFloat(facturas[i][25]);
             noAplica += parseFloat(facturas[i][26]);
+            if (facturas[i][27] !== null && facturas[i][27] !== "") {
+                setRejected(true);
+            }
         }
         setTotalFacturado(totalFacturado);
         setNoAplica(noAplica);
@@ -702,6 +741,7 @@ const LiquidacionEdit = (props) => {
             })
                 .then(function (resp) {
                     setFacturas(resp.data.facturas);
+                    setCuadrar(resp.data.cuadrar);
 
                     setRechazoSupervisor(resp.data.rechazo_supervisor);
                     setRechazoConta(resp.data.rechazo_contabilidad);
@@ -994,6 +1034,8 @@ const LiquidacionEdit = (props) => {
         let url = URL.createObjectURL(blob);
         setXMLURL(url);
         setComentarios2(t[21]);
+        if (t[27] !== false)
+            setRazon(t[27]);
     }
 
     const removeFactura = (idx) => {
@@ -1033,9 +1075,133 @@ const LiquidacionEdit = (props) => {
         }
     }
 
+    const reject = (id) => {
+        swal({
+            text: 'Ingrese la razón del rechazo',
+            content: "input",
+            buttons: ["Cancelar", "Rechazar"],
+        })
+            .then(razon => {
+                if (razon !== null) {
+                    axios({
+                        method: 'post',
+                        url: props.url + 'rechazo-factura/' + id,
+                        data: {
+                            razon: razon
+                        },
+                        responseType: "json",
+                        headers: { "Content-Type": "application/json" }
+                    })
+                        .then(function (resp) {
+                            setRefresh(refresh + 1);
+                        })
+                        .catch(function (err) {
+                            swal("Error", err.response.data.msg, "error");
+                        });
+                }
+                console.log(id, razon);
+            })
+
+    }
+
+    const verRechazo = (razon) => {
+        swal("Rechazo por", razon, "warning");
+    }
 
     return (
         <div className="main-container">
+            <Modal
+                open={openCuadrar}
+                onClose={() => setOpenCuadrar(!openCuadrar)}
+            >
+                <div style={modalStyle} className={classes.paper}>
+                    <div className="table-container">
+                        <Typography variant="h4" component="h6" gutterBottom>
+                            Presupuesto vs Real
+                        </Typography>
+                        {
+                            loading ?
+                                (
+                                    <img src="./images/loading.gif" alt="" />
+                                ) :
+                                (
+                                    <table className="detail-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Gasto</th>
+                                                <th>Tipo</th>
+                                                <th>Frecuencia</th>
+                                                <th>Presupuesto</th>
+                                                <th>Ejecutado</th>
+                                                <th>Disponible</th>
+                                            </tr>
+                                        </thead>
+                                        {
+                                            cuadrar && cuadrar.length > 0
+                                                ?
+                                                (
+                                                    <tbody>
+                                                        {
+                                                            cuadrar.map((key, idx) => {
+                                                                let total = key.tipo_asignacion === "dinero" ?
+                                                                    key.total_real
+                                                                    : key.cantidad_real;
+                                                                if (total === null || total === '') total = 0;
+                                                                return (
+                                                                    <tr key={idx}>
+                                                                        <td>
+                                                                            {key.categoria_gasto_nombre}
+                                                                        </td>
+                                                                        <td>
+                                                                            {key.tipo_asignacion}
+                                                                        </td>
+                                                                        <td>
+                                                                            {key.frecuencia_nombre}
+                                                                        </td>
+                                                                        <td>
+                                                                            {key.asignacion_cantidad}
+                                                                            {
+                                                                                key.asignacion_medida !== '' ? ` ${key.asignacion_medida}` : ''
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            {
+                                                                                total
+                                                                            }
+                                                                        </td>
+                                                                        <td>
+                                                                            {
+                                                                                (key.asignacion_cantidad - total).toLocaleString('en-US', {
+                                                                                    minimumFractionDigits: 2,
+                                                                                    maximumFractionDigits: 2
+                                                                                })
+                                                                            }
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            })
+                                                        }
+                                                    </tbody>
+                                                )
+                                                :
+                                                (
+                                                    <tbody></tbody>
+                                                )
+                                        }
+                                    </table>
+                                )
+                        }
+                        <Button
+                            color="secondary"
+                            variant="contained"
+                            className="close-button-modal"
+                            onClick={() => setOpenCuadrar(false)}
+                        >
+                            Cerrar
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
             <Typography variant="h3" component="h1" gutterBottom>
                 <Link className="link" to="/liquidaciones">
                     <ArrowBackIosIcon />
@@ -1043,6 +1209,14 @@ const LiquidacionEdit = (props) => {
                 {
                     typeof props.match.params.id !== "undefined" ? "Editar liquidación " : "Crear liquidación"
                 }
+                <Button
+                    color="primary"
+                    variant="contained"
+                    className="close-button-modal"
+                    onClick={() => setOpenCuadrar(true)}
+                >
+                    Ver presupuesto
+                </Button>
             </Typography>
             <div className="empresa-container">
                 <form onSubmit={formik.handleSubmit}>
@@ -1160,7 +1334,7 @@ const LiquidacionEdit = (props) => {
                                         value={comentarios}
                                         onChange={handleChange}
                                         multiline
-                                        disabled={!(estado === "0" || estado === "2" || estado === "4")}
+                                        disabled={!(parseInt(estado) === 0 || parseInt(estado) === 2 || parseInt(estado) === 4)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -1292,26 +1466,31 @@ const LiquidacionEdit = (props) => {
                                             ) : ""
                                     }
                                 </Grid>
+
                                 {
-                                    <Grid item xs={6}>
-                                        <Button
-                                            color="secondary"
-                                            variant="contained"
-                                            className="full-button"
-                                            fullWidth
-                                            type="text"
-                                            onClick={enviarRechazoSupervisor}
-                                            disable={loading}
-                                        >
-                                            Rechazar
-                                        </Button>
-                                        {
-                                            loading ?
-                                                (
-                                                    <LinearProgress color="secondary" />
-                                                ) : ""
-                                        }
-                                    </Grid>
+                                    // Si hay facturas rechazadas
+                                    rejected ?
+                                        (
+                                            <Grid item xs={6}>
+                                                <Button
+                                                    color="secondary"
+                                                    variant="contained"
+                                                    className="full-button"
+                                                    fullWidth
+                                                    type="text"
+                                                    onClick={enviarRechazoSupervisor}
+                                                    disable={loading}
+                                                >
+                                                    Rechazar
+                                                </Button>
+                                                {
+                                                    loading ?
+                                                        (
+                                                            <LinearProgress color="secondary" />
+                                                        ) : ""
+                                                }
+                                            </Grid>
+                                        ) : ""
                                 }
                             </Grid>
                         ) : ""
@@ -1339,26 +1518,31 @@ const LiquidacionEdit = (props) => {
                                             ) : ""
                                     }
                                 </Grid>
+
                                 {
-                                    <Grid item xs={6}>
-                                        <Button
-                                            color="secondary"
-                                            variant="contained"
-                                            className="full-button"
-                                            fullWidth
-                                            type="text"
-                                            onClick={enviarRechazoContabilidad}
-                                            disabled={loading}
-                                        >
-                                            Rechazar
-                                        </Button>
-                                        {
-                                            loading ?
-                                                (
-                                                    <LinearProgress color="secondary" />
-                                                ) : ""
-                                        }
-                                    </Grid>
+                                    // Si hay facturas rechazadas
+                                    rejected ?
+                                        (
+                                            <Grid item xs={6}>
+                                                <Button
+                                                    color="secondary"
+                                                    variant="contained"
+                                                    className="full-button"
+                                                    fullWidth
+                                                    type="text"
+                                                    onClick={enviarRechazoContabilidad}
+                                                    disabled={loading}
+                                                >
+                                                    Rechazar
+                                                </Button>
+                                                {
+                                                    loading ?
+                                                        (
+                                                            <LinearProgress color="secondary" />
+                                                        ) : ""
+                                                }
+                                            </Grid>
+                                        ) : ""
                                 }
                             </Grid>
                         ) : ""
@@ -1404,6 +1588,7 @@ const LiquidacionEdit = (props) => {
                                                             <th>Fecha</th>
                                                             <th>Moneda</th>
                                                             <th>Total</th>
+                                                            <th>Cantidad</th>
                                                             <th>Acciones</th>
                                                         </tr>
                                                     </thead>
@@ -1437,6 +1622,9 @@ const LiquidacionEdit = (props) => {
                                                                                     </td>
                                                                                     <td>
                                                                                         {key[1]}
+                                                                                        {
+                                                                                            key[3] !== '' ? ` - ${key[3]}` : ''
+                                                                                        }
                                                                                     </td>
                                                                                     <td>
                                                                                         {key[5]}
@@ -1457,7 +1645,33 @@ const LiquidacionEdit = (props) => {
                                                                                     </td>
                                                                                     <td>
                                                                                         {
-                                                                                            estado === "0" || estado === "2" || estado === "4" ?
+                                                                                            key[17]
+                                                                                        }
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        {
+                                                                                            key[27] !== null && key[27] !== "" ?
+                                                                                                (
+                                                                                                    <span
+                                                                                                        className='view-link ver-rechazo'
+                                                                                                        onClick={() => verRechazo(key[27])}
+                                                                                                    >
+                                                                                                        Ver Razón del rechazo
+                                                                                                    </span>
+                                                                                                ) : ""
+                                                                                        }
+                                                                                        <a
+                                                                                            href={URL.createObjectURL(makeblob(key[18]))}
+                                                                                            target="_blank"
+                                                                                            rel="noreferrer"
+                                                                                            className='view-link'
+                                                                                        >
+                                                                                            Ver Factura
+                                                                                        </a>
+                                                                                        {
+                                                                                            estado === "0" ||
+                                                                                                (estado === "2" && key[27] !== null && key[27] !== "") ||
+                                                                                                (estado === "4" && key[27] !== null && key[27] !== "") ?
                                                                                                 (
                                                                                                     <React.Fragment>
                                                                                                         <Button
@@ -1479,32 +1693,37 @@ const LiquidacionEdit = (props) => {
                                                                                                         </Button>
                                                                                                     </React.Fragment>
                                                                                                 ) :
-                                                                                                (
-                                                                                                    <React.Fragment>
-                                                                                                        <a
-                                                                                                            href={URL.createObjectURL(makeblob(key[18]))}
-                                                                                                            target="_blank"
-                                                                                                            rel="noreferrer"
-                                                                                                            className='view-link'
-                                                                                                        >
-                                                                                                            Ver Factura
-                                                                                                        </a>
-                                                                                                        {
-                                                                                                            urlXML !== '' ?
-                                                                                                                (
-                                                                                                                    <a
-                                                                                                                        href={urlXML}
-                                                                                                                        target="_blank"
-                                                                                                                        rel="noreferrer"
-                                                                                                                        className='view-link'
-                                                                                                                    >
-                                                                                                                        Ver XML
-                                                                                                                    </a>
-                                                                                                                ) : ""
-                                                                                                        }
+                                                                                                estado !== "0" && estado !== "2" && estado !== "4" ?
+                                                                                                    (
+                                                                                                        <React.Fragment>
+                                                                                                            {
+                                                                                                                urlXML !== '' ?
+                                                                                                                    (
+                                                                                                                        <a
+                                                                                                                            href={urlXML}
+                                                                                                                            target="_blank"
+                                                                                                                            rel="noreferrer"
+                                                                                                                            className='view-link'
+                                                                                                                        >
+                                                                                                                            Ver XML
+                                                                                                                        </a>
+                                                                                                                    ) : ""
+                                                                                                            }
 
-                                                                                                    </React.Fragment>
-                                                                                                )
+                                                                                                            {
+                                                                                                                key[27] !== null && key[27] !== "" ?
+                                                                                                                    "" :
+                                                                                                                    (
+                                                                                                                        <span
+                                                                                                                            className='view-link rechazar'
+                                                                                                                            onClick={() => reject(key[22])}
+                                                                                                                        >
+                                                                                                                            Rechazar
+                                                                                                                        </span>
+                                                                                                                    )
+                                                                                                            }
+                                                                                                        </React.Fragment>
+                                                                                                    ) : ""
                                                                                         }
 
                                                                                     </td>
@@ -1546,7 +1765,7 @@ const LiquidacionEdit = (props) => {
                                                 id="gasto2"
                                                 options={gastos}
                                                 placeholder="* Gasto"
-                                                isDisabled={!(estado === "0" || estado === "2" || estado === "4")}
+                                                isDisabled={!(estado === "0" || estado === "2" || estado === "4") || rejected}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -1684,7 +1903,8 @@ const LiquidacionEdit = (props) => {
                                                                     value="usd"
                                                                     control={<Radio />}
                                                                     label="USD"
-                                                                    disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
+                                                                    // disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
+                                                                    disabled={true}
                                                                 />
                                                                 <FormControlLabel
                                                                     value={empresa ? empresa[0].moneda_local : 'MONEDA LOCAL'}
@@ -1910,6 +2130,7 @@ const LiquidacionEdit = (props) => {
                                     }
 
                                 </Grid>
+
                             </div>
                         </div>
                     ) :

@@ -1,4 +1,4 @@
-.user-container{
+.user-container {
     width: 100%;
     padding: 0;
     display: flex;
@@ -17,53 +17,58 @@
             font-weight: bold;
         }
     }
-    .left{
-        width:  calc(40% - 10px); 
+    .left {
+        width: calc(40% - 10px);
         box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
         padding: 25px;
     }
-    .right{
+    .right {
         width: calc(60% - 10px);
         box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
         padding: 25px;
-        .MuiFormControl-root{
+        .MuiFormControl-root {
             width: 100%;
         }
     }
-    .full-button{
+    .full-button {
         margin-top: 50px;
         width: 100%;
     }
 }
-.table-container{
+.table-container {
     width: 100%;
     margin-top: 25px;
-    .detail-table{
+    .detail-table {
         width: 100%;
         font-size: 12px;
-        thead{
-            tr{
-                th{
-                    background: lighten($blue,20);
+        thead {
+            tr {
+                th {
+                    background: lighten($blue, 20);
                     padding: 15px 0;
                     color: white;
                     border: 1px solid white;
                 }
             }
         }
-        tbody{
-            tr{
-                td{
+        tbody {
+            tr {
+                td {
                     background: $lightgray;
                     border: 1px solid white;
                     text-align: center;
+                    padding: 10px;
                 }
             }
         }
     }
 }
-label.manual{
+label.manual {
     margin-bottom: 10px;
     margin-top: 10px;
     color: rgba(0, 0, 0, 0.54);
+}
+.close-button-modal {
+    margin-top: 25px !important;
+    float: right;
 }
