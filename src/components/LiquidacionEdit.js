@@ -1159,14 +1159,20 @@ const LiquidacionEdit = (props) => {
                                                                             {key.frecuencia_nombre}
                                                                         </td>
                                                                         <td>
-                                                                            {key.asignacion_cantidad}
+                                                                            {key.asignacion_cantidad.toLocaleString('en-US', {
+                                                                                minimumFractionDigits: 2,
+                                                                                maximumFractionDigits: 2
+                                                                            })}
                                                                             {
                                                                                 key.asignacion_medida !== '' ? ` ${key.asignacion_medida}` : ''
                                                                             }
                                                                         </td>
                                                                         <td>
                                                                             {
-                                                                                total
+                                                                                total.toLocaleString('en-US', {
+                                                                                    minimumFractionDigits: 2,
+                                                                                    maximumFractionDigits: 2
+                                                                                })
                                                                             }
                                                                         </td>
                                                                         <td>
