@@ -251,6 +251,13 @@ const UserEdit = (props) => {
     const managePresupuestos = (idEmpresa, nombre) => {
         setEmpresaP({ idEmpresa, nombre });
 
+        setPresupuesto(null);
+        setProyecto(null);
+        setCentroC1(null);
+        setCentroC2(null);
+        setCentroC3(null);
+        setCentroC4(null);
+        setCentroC5(null);
         // Get Presupuestos
         axios({
             method: 'post',
