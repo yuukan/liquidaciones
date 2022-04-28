@@ -152,13 +152,14 @@ const LiquidacionEdit = (props) => {
                 data: {
                     nit: nitAdd,
                     nombre: nombreAdd,
-                    tipo_proveedor: tipo_proveedor
+                    tipo_proveedor: tipo_proveedor,
+                    au_empresa_id: empresa[0].id
                 },
                 responseType: "json",
                 headers: { "Content-Type": "application/json" }
             })
                 .then(function (resp) {
-                    props.loadProveedoresApp();
+                    props.loadProveedoresApp(empresa[0].id);
                     if (resp.data.res === -1) {
                         swal("Error", "¡Ya exite un proveedor con ese número de identificación fiscal!", "error");
                     } else {
@@ -302,18 +303,20 @@ const LiquidacionEdit = (props) => {
                             url: props.url + 'proveedor',
                             data: {
                                 nit: emisor.rfc,
-                                nombre: emisor.nombre.trim()
+                                nombre: emisor.nombre.trim(),
+                                au_empresa_id: empresa[0].id
                             },
                             responseType: "json",
                             headers: { "Content-Type": "application/json" }
                         })
                             .then(function (resp) {
-                                props.loadProveedoresApp();
+                                props.loadProveedoresApp(empresa[0].id);
                                 setProveedor({
                                     value: resp.data[0].id,
                                     label: emisor.nombre + ' (' + emisor.rfc + ')',
                                     nombre: emisor.nombre,
-                                    nit: emisor.rfc
+                                    nit: emisor.rfc,
+                                    au_empresa_id: empresa[0].id
                                 });
                                 setLoading(false);
                             })
@@ -394,7 +397,25 @@ const LiquidacionEdit = (props) => {
         } else {
             ffactura = new Date(fecha + " 12:00:00");
         }
+
         let fini = subDays(new Date(fechaInicio), empresa[0].dias_atraso_facturacion_ruta);
+        // dias_atraso_facturacion_depreciacion
+
+        // Obtenemos la info para los calculos
+        let monto_maximo_factura = 0;
+        let tipo_gasto_nombre = "";
+        for (let i = 0; i < props.presupuestos.length; i++) {
+            if (parseInt(props.presupuestos[i].value) === parseInt(presupuesto.value)) {
+                monto_maximo_factura = props.presupuestos[i].monto_maximo_factura;
+                tipo_gasto_nombre = props.presupuestos[i].tipo_gasto_nombre;
+            }
+        }
+
+        // Si es depreciación recalculamos los días de atraso
+        if (tipo_gasto_nombre.toLowerCase() === "depreciación") {
+            fini = subDays(new Date(fechaInicio), empresa[0].dias_atraso_facturacion_depreciacion);
+        }
+
 
         let start = startOfWeek(ffactura, { weekStartsOn: 1 });
         let end = endOfWeek(ffactura, { weekStartsOn: 1 });
@@ -439,6 +460,9 @@ const LiquidacionEdit = (props) => {
         }
         if (total === "") {
             a += "¡Debe ingresar el <strong>total</strong> de la factura!<br><br>";
+        }
+        if (total > monto_maximo_factura) {
+            a += "¡El <strong>total</strong> es mayor a la cantidad máxima por factura!<br><br>";
         }
         if (empresa[0].maneja_xml === 1 && ignorarXML !== 1 && uuid === "") {
             a += "¡Debe ingresar el <strong>UUID</strong> de la factura!<br><br>";
@@ -703,6 +727,7 @@ const LiquidacionEdit = (props) => {
         }
         if (b.name === "subgasto") {
             setSubgasto(option);
+            console.log(option);
         }
         if (b.name === "proveedor") {
             setProveedor(option);
@@ -761,6 +786,7 @@ const LiquidacionEdit = (props) => {
                             "label": resp.data.au_gasto_label
                         }
                     );
+
                     setEstado(resp.data.au_estado_liquidacion_id);
                     setNombreUsuario(resp.data.nombre);
                     setUID(resp.data.uid);
@@ -773,6 +799,7 @@ const LiquidacionEdit = (props) => {
                     })
                         .then(function (resp) {
                             setEmpresa(resp.data);
+                            props.loadProveedoresApp(resp.data[0].id);
                         })
                         .catch(function (err) {
                             console.log(err);
@@ -1872,7 +1899,7 @@ const LiquidacionEdit = (props) => {
                                                     }
 
                                                     {
-                                                        subgasto !== null && subgasto.exento === 1 && subgasto.tipo === 'cantidad' ?
+                                                        subgasto !== null && subgasto.exento === 1 && (subgasto.tipo === 'cantidad' || subgasto.tipo === '') ?
                                                             (
                                                                 <Grid item xs={4}>
                                                                     <label htmlFor="cantidad" className="manual">

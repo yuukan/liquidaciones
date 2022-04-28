@@ -126,7 +126,7 @@ class App extends Component {
     this.loadGastosGrupos();
     // this.loadSAP();
     this.loadRoles();
-    this.loadProveedoresApp();
+    // this.loadProveedoresApp();
     this.loadBancos();
     this.loadCuentas();
     this.loadPresupuestos();
@@ -301,11 +301,11 @@ class App extends Component {
       });
   }
   // Load proveedores app list
-  loadProveedoresApp() {
+  loadProveedoresApp(empresa) {
     let t = this;
     axios({
       method: 'get',
-      url: url + 'proveedores',
+      url: url + 'proveedores/' + empresa,
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })
