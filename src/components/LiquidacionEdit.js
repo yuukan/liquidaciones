@@ -36,7 +36,7 @@ import {
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers'
 import { Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, FormLabel, LinearProgress, Modal, Radio, RadioGroup } from '@material-ui/core';
-var parseString = require('xml2js').parseString;
+const CfdiToJson = require('cfdi-to-json');
 
 moment.locale("es");
 const useStyles = makeStyles((theme) => ({
@@ -276,73 +276,73 @@ const LiquidacionEdit = (props) => {
                 reader.addEventListener('load', function (e) {
                     let xmlContent = e.target.result;
                     setXMLContent(xmlContent);
-                    parseString(
-                        xmlContent,
-                        function (err, result) {
-                            let factura = result['cfdi:Comprobante']['$'];
-                            let receptor = result['cfdi:Comprobante']['cfdi:Receptor'][0]['$'];
-                            let emisor = result['cfdi:Comprobante']['cfdi:Emisor'][0]['$'];
-                            // verificamos el ID Empresa
-                            if (receptor.Rfc.trim() !== empresa[0].no_identificacion_fiscal.trim()) {
-                                swal("Error", "¡Esta factura no trae el identificador fiscal correcto!", "error");
-                                return;
+                    let result = CfdiToJson.parse({
+                        contentXML: xmlContent
+                    });
+                    console.log(result);
+                    let receptor = result.receptor;
+                    let emisor = result.emisor;
+                    // verificamos el ID Empresa
+                    if (receptor.rfc.trim() !== empresa[0].no_identificacion_fiscal.trim()) {
+                        swal("Error", "¡Esta factura no trae el identificador fiscal correcto!", "error");
+                        return;
+                    }
+                    let existe = 0;
+                    for (let i = 0; i < props.proveedoresApp.length; i++) {
+                        if (props.proveedoresApp[i].nit === emisor.rfc) {
+                            existe = 1;
+                            break;
+                        }
+                    }
+                    // Verificamos que exista el proveedor
+                    if (existe === 0) {
+                        setLoading(true);
+                        axios({
+                            method: 'post',
+                            url: props.url + 'proveedor',
+                            data: {
+                                nit: emisor.rfc,
+                                nombre: emisor.nombre.trim()
+                            },
+                            responseType: "json",
+                            headers: { "Content-Type": "application/json" }
+                        })
+                            .then(function (resp) {
+                                props.loadProveedoresApp();
+                                setProveedor({
+                                    value: resp.data[0].id,
+                                    label: emisor.nombre + ' (' + emisor.rfc + ')',
+                                    nombre: emisor.nombre,
+                                    nit: emisor.rfc
+                                });
+                                setLoading(false);
+                            })
+                            .catch(function (err) {
+                                console.log(err);
+                                swal("Error", err.response.data.msg, "error");
+                                setLoading(false);
+                            });
+                    } else {
+                        for (let i = 0; i < props.proveedoresApp.length; i++) {
+                            if (props.proveedoresApp[i].nit === emisor.rfc) {
+                                setProveedor(props.proveedoresApp[i]);
                             }
-                            // Verificamos que exista el proveedor
-                            let existe = 0;
-                            for (let i = 0; i < props.proveedoresApp.length; i++) {
-                                if (props.proveedoresApp[i].nit === emisor.Rfc) {
-                                    existe = 1;
-                                    break;
-                                }
-                            }
-                            if (existe === 0) {
-                                setLoading(true);
-                                axios({
-                                    method: 'post',
-                                    url: props.url + 'proveedor',
-                                    data: {
-                                        nit: emisor.Rfc,
-                                        nombre: emisor.Nombre.trim()
-                                    },
-                                    responseType: "json",
-                                    headers: { "Content-Type": "application/json" }
-                                })
-                                    .then(function (resp) {
-                                        props.loadProveedoresApp();
-                                        setProveedor({
-                                            value: resp.data[0].id,
-                                            label: emisor.Nombre + ' (' + emisor.Rfc + ')',
-                                            nombre: emisor.Nombre,
-                                            nit: emisor.Rfc
-                                        });
-                                        setLoading(false);
-                                    })
-                                    .catch(function (err) {
-                                        console.log(err);
-                                        swal("Error", err.response.data.msg, "error");
-                                        setLoading(false);
-                                    });
-                            } else {
-                                for (let i = 0; i < props.proveedoresApp.length; i++) {
-                                    if (props.proveedoresApp[i].nit === emisor.Rfc) {
-                                        setProveedor(props.proveedoresApp[i]);
-                                    }
-                                }
-                            }
-                            setSerie(factura.Serie);
-                            setNumero(factura.NoCertificado);
-                            setTotal(factura.Total);
-                            setMoneda(factura.Moneda);
-                            // setMoneda("QTZ");
-                            setFecha(factura.Fecha);
-                            setFormaPago(factura.FormaPago);
-                            setMetodoPago(factura.MetodoPago);
-                            setCfdi(receptor.UsoCFDI);
+                        }
+                    }
+                    let serie = typeof result.serie !== "undefined" ? result.serie : "";
+                    setSerie(serie);
+                    setNumero(result.noCertificado);
+                    setTotal(result.total);
+                    if (result.moneda === "MXN") {
+                        result.moneda = "MXP";
+                    }
+                    setMoneda(result.moneda);
+                    setFecha(result.Fecha);
+                    setFormaPago(result.formaPago);
+                    setMetodoPago(result.metodoPago);
+                    setCfdi(receptor.usoCFDI);
 
-                            let uuid = result['cfdi:Comprobante']['cfdi:Complemento'][0]['tfd:TimbreFiscalDigital'][0]['$'].UUID;
-                            setUUID(uuid);
-
-                        });
+                    setUUID(result.timbreFiscal.uuid);
                 });
                 reader.readAsBinaryString(event.target.files[0]);
 
