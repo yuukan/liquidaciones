@@ -340,7 +340,7 @@ const LiquidacionEdit = (props) => {
                         result.moneda = "MXP";
                     }
                     setMoneda(result.moneda);
-                    setFecha(result.Fecha);
+                    setFecha(result.fecha);
                     setFormaPago(result.formaPago);
                     setMetodoPago(result.metodoPago);
                     setCfdi(receptor.usoCFDI);
