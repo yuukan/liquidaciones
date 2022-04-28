@@ -179,7 +179,7 @@ const EmpresaEdit = (props) => {
             ruta_archivos: '',
             usuario_sql: '',
             dias_atraso_facturacion_ruta: '',
-            dias_atraso_facturacion_gastos: '',
+            dias_atraso_facturacion_depreciacion: '',
             dia_efectivo_ajuste: '',
             ruta_archivos_bancos: ''
         },
@@ -271,7 +271,7 @@ const EmpresaEdit = (props) => {
                     formik.setFieldValue('moneda_local', resp.data.moneda_local, false);
                     formik.setFieldValue('moneda_extranjera', resp.data.moneda_extranjera, false);
                     formik.setFieldValue('dias_atraso_facturacion_ruta', resp.data.dias_atraso_facturacion_ruta, false);
-                    formik.setFieldValue('dias_atraso_facturacion_gastos', resp.data.dias_atraso_facturacion_gastos, false);
+                    formik.setFieldValue('dias_atraso_facturacion_depreciacion', resp.data.dias_atraso_facturacion_depreciacion, false);
                     formik.setFieldValue('dia_efectivo_ajuste', resp.data.dia_efectivo_ajuste, false);
                     formik.setFieldValue('ruta_archivos_bancos', resp.data.ruta_archivos_bancos, false);
 
@@ -473,6 +473,19 @@ const EmpresaEdit = (props) => {
                                 error={formik.touched.dias_atraso_facturacion_ruta && Boolean(formik.errors.dias_atraso_facturacion_ruta)}
                             />
                         </FormControl>
+                        <FormControl className={classes.formControl}>
+                            <TextField
+                                fullWidth
+                                id="dias_atraso_facturacion_depreciacion"
+                                name="dias_atraso_facturacion_depreciacion"
+                                label="Días de Atraso en depreciación"
+                                type="number"
+                                value={formik.values.dias_atraso_facturacion_depreciacion}
+                                onChange={formik.handleChange}
+                                error={formik.touched.dias_atraso_facturacion_depreciacion && Boolean(formik.errors.dias_atraso_facturacion_depreciacion)}
+                            />
+                        </FormControl>
+
                         <FormControl className={classes.formControl}>
                             <FormControlLabel
                                 control={
