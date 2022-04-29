@@ -183,7 +183,7 @@ const GastoEdit = (props) => {
                 'descripcion': formik.values.descripcion_sub,
                 'au_gasto_id': id,
                 'exento': exento_sub,
-                'tipo': tipo,
+                'tipo': tipo !== '' ? tipo : 'cantidad',
                 'valor': formik.values.valor_sub
             });
 
@@ -236,7 +236,7 @@ const GastoEdit = (props) => {
             setLleva(false);
             setIgnorar(false);
             setExentoSub(false);
-            setTipo('');
+            setTipo('cantidad');
             setManeja(false);
         }
     }
