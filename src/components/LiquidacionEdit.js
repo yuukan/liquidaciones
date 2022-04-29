@@ -280,7 +280,7 @@ const LiquidacionEdit = (props) => {
                     let result = CfdiToJson.parse({
                         contentXML: xmlContent
                     });
-                    console.log(result);
+
                     let receptor = result.receptor;
                     let emisor = result.emisor;
                     // verificamos el ID Empresa
@@ -461,7 +461,8 @@ const LiquidacionEdit = (props) => {
         if (total === "") {
             a += "¡Debe ingresar el <strong>total</strong> de la factura!<br><br>";
         }
-        if (total > monto_maximo_factura) {
+
+        if (parseFloat(total) > parseFloat(monto_maximo_factura)) {
             a += "¡El <strong>total</strong> es mayor a la cantidad máxima por factura!<br><br>";
         }
         if (empresa[0].maneja_xml === 1 && ignorarXML !== 1 && uuid === "") {
@@ -727,7 +728,6 @@ const LiquidacionEdit = (props) => {
         }
         if (b.name === "subgasto") {
             setSubgasto(option);
-            console.log(option);
         }
         if (b.name === "proveedor") {
             setProveedor(option);
@@ -1126,7 +1126,6 @@ const LiquidacionEdit = (props) => {
                             swal("Error", err.response.data.msg, "error");
                         });
                 }
-                console.log(id, razon);
             })
 
     }
