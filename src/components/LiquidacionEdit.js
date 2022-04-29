@@ -435,6 +435,18 @@ const LiquidacionEdit = (props) => {
             });
             return false;
         }
+
+        let ffin = new Date(fechaFin + ' 23:59:59');
+        if (ffactura > ffin) {
+            let content = document.createElement('div');
+            content.innerHTML = "¡La <strong>fecha de la factura</strong> no es válida para este período!";
+            swal({
+                title: 'Error',
+                content: content,
+                icon: "error",
+            });
+            return false;
+        }
         let a = '';
         if (gasto2.control_kilometraje === 1 && !checkInicialMayor()) {
             return;
