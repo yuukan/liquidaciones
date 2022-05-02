@@ -496,16 +496,6 @@ const LiquidacionEdit = (props) => {
         if (a === "") {
             let temp = [...facturas];
 
-            // ffactura
-            // let f = fecha.split("-");
-            // f = f[2] + "/" + f[1] + "/" + f[0];
-
-            // let ini = new Date(start + "12:00");
-            // ini = ini.getFullYear() + '-' + ("0" + (ini.getMonth() + 1)).slice(-2) + "-" + ini.getDate();
-            // let fin = new Date(end + "12:00");
-            // fin = fin.getFullYear() + '-' + ("0" + (fin.getMonth() + 1)).slice(-2) + "-" + fin.getDate();
-
-
             let e = 0;
             if (subgasto !== null) {
                 if (subgasto.valor > 0) {
@@ -520,7 +510,7 @@ const LiquidacionEdit = (props) => {
             let exento = subgasto !== null ?
                 subgasto.tipo === 'cantidad' ?
                     subgasto.valor !== "" ?
-                        round((cantidad * parseFloat(subgasto.valor)), 2)
+                        round((parseFloat(cantidad) * parseFloat(subgasto.valor)), 2)
                         : 0
                     : round(e, 2)
                 : 0;
@@ -755,9 +745,6 @@ const LiquidacionEdit = (props) => {
             totalFacturado += parseFloat(facturas[i][7]);
             reembolso += parseFloat(facturas[i][25]);
             noAplica += parseFloat(facturas[i][26]);
-            if (facturas[i][27] !== null && facturas[i][27] !== "") {
-                setRejected(true);
-            }
         }
         setTotalFacturado(totalFacturado);
         setNoAplica(noAplica);
