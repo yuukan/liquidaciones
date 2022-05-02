@@ -1860,6 +1860,32 @@ const LiquidacionEdit = (props) => {
                                                             />
                                                         </FormControl>
                                                     </Grid>
+                                                    <Grid item xs={4}>
+                                                        <FormControl component="fieldset">
+                                                            <FormLabel component="legend">* Moneda</FormLabel>
+                                                            <RadioGroup
+                                                                aria-label="moneda"
+                                                                name="moneda"
+                                                                value={moneda}
+                                                                onChange={handleChange}
+                                                                row
+                                                            >
+                                                                <FormControlLabel
+                                                                    value="usd"
+                                                                    control={<Radio />}
+                                                                    label="USD"
+                                                                    // disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
+                                                                    disabled={true}
+                                                                />
+                                                                <FormControlLabel
+                                                                    value={empresa ? empresa[0].moneda_local : 'MONEDA LOCAL'}
+                                                                    control={<Radio />}
+                                                                    label={empresa ? empresa[0].moneda_local : 'Otro'}
+                                                                    disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
+                                                                />
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                    </Grid>
                                                     {
                                                         gasto2 && gasto2.control_kilometraje === 1 ?
                                                             (
@@ -1920,32 +1946,6 @@ const LiquidacionEdit = (props) => {
                                                                     </Grid>
                                                                 ) : ""
                                                     }
-
-                                                    <Grid item xs={4}>
-                                                        <FormControl component="fieldset">
-                                                            <FormLabel component="legend">* Moneda</FormLabel>
-                                                            <RadioGroup
-                                                                aria-label="moneda"
-                                                                name="moneda"
-                                                                value={moneda}
-                                                                onChange={handleChange}
-                                                            >
-                                                                <FormControlLabel
-                                                                    value="usd"
-                                                                    control={<Radio />}
-                                                                    label="USD"
-                                                                    // disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
-                                                                    disabled={true}
-                                                                />
-                                                                <FormControlLabel
-                                                                    value={empresa ? empresa[0].moneda_local : 'MONEDA LOCAL'}
-                                                                    control={<Radio />}
-                                                                    label={empresa ? empresa[0].moneda_local : 'Otro'}
-                                                                    disabled={empresa && empresa[0].maneja_xml === 1 && ignorarXML !== 1}
-                                                                />
-                                                            </RadioGroup>
-                                                        </FormControl>
-                                                    </Grid>
                                                     <Grid item xs={4}>
                                                         <FormControl className={classes.formControl}>
                                                             <label htmlFor="fechaFactura" className="manual">
