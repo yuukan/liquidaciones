@@ -16,13 +16,14 @@ import DescriptionIcon from '@material-ui/icons/Description';
 import MomentUtils from '@date-io/moment';
 import Cookies from 'js-cookie';
 import {
-    endOfWeek,
     format,
     parseISO,
+    endOfWeek,
     startOfWeek,
-    subDays,
     startOfMonth,
-    endOfMonth
+    endOfMonth,
+    subDays,
+    differenceInWeeks
 } from 'date-fns';
 import moment from "moment";
 import "moment/locale/es";
@@ -83,6 +84,7 @@ const LiquidacionEdit = (props) => {
     const [presupuesto, setPresupuesto] = useState(false);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setFechaFin] = useState(new Date());
+    const [numWeeks, setNumWeeks] = useState(new Date());
     const [totalFacturado, setTotalFacturado] = useState(0);
     const [noAplica, setNoAplica] = useState(0);
     const [reembolso, setReembolso] = useState(0);
@@ -779,6 +781,13 @@ const LiquidacionEdit = (props) => {
                     const ff = format(parseISO(resp.data.fecha_fin.split('T')[0]), 'MM/dd/yyyy');
                     setFechaFin(ff);
 
+                    let nw = differenceInWeeks(
+                        new Date(resp.data.fecha_fin),
+                        new Date(resp.data.fecha_inicio),
+                    );
+                    console.log(nw);
+                    setNumWeeks(nw);
+
                     setPresupuesto(
                         {
                             "value": resp.data.au_gasto_id,
@@ -1172,6 +1181,13 @@ const LiquidacionEdit = (props) => {
                                                                     key.total_real
                                                                     : key.cantidad_real;
                                                                 if (total === null || total === '') total = 0;
+
+                                                                let presupuesto = key.asignacion_cantidad;
+
+                                                                if (numWeeks > 0 && key.frecuencia_nombre === "Semanal") {
+                                                                    presupuesto = key.asignacion_cantidad * numWeeks;
+                                                                }
+
                                                                 return (
                                                                     <tr key={idx}>
                                                                         <td>
@@ -1184,7 +1200,7 @@ const LiquidacionEdit = (props) => {
                                                                             {key.frecuencia_nombre}
                                                                         </td>
                                                                         <td>
-                                                                            {key.asignacion_cantidad.toLocaleString('en-US', {
+                                                                            {presupuesto.toLocaleString('en-US', {
                                                                                 minimumFractionDigits: 2,
                                                                                 maximumFractionDigits: 2
                                                                             })}
@@ -1202,7 +1218,7 @@ const LiquidacionEdit = (props) => {
                                                                         </td>
                                                                         <td>
                                                                             {
-                                                                                (key.asignacion_cantidad - total).toLocaleString('en-US', {
+                                                                                (presupuesto - total).toLocaleString('en-US', {
                                                                                     minimumFractionDigits: 2,
                                                                                     maximumFractionDigits: 2
                                                                                 })
@@ -1294,7 +1310,7 @@ const LiquidacionEdit = (props) => {
                                             maxDate={fechaFin}
                                             format="DD/MM/yyyy"
                                             maxDateMessage={`La fecha no puede ser mayor a la fecha Final`}
-                                            disabled={!(estado === "0" || estado === "2" || estado === "4" || id === -1)}
+                                            disabled={!(id === -1)}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
@@ -1311,7 +1327,7 @@ const LiquidacionEdit = (props) => {
                                             minDate={fechaInicio}
                                             minDateMessage={`La fecha no puede ser menor a la fecha Inicial`}
                                             format="DD/MM/yyyy"
-                                            disabled={!(estado === "0" || estado === "2" || estado === "4" || id === -1)}
+                                            disabled={!(id === -1)}
                                         />
                                     </MuiPickersUtilsProvider>
                                 </FormControl>
