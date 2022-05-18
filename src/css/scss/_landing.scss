@@ -38,11 +38,11 @@ h1.welcome {
                 line-height: 30px;
                 font-size: 15px;
                 background: transparent;
-                color: lighten($blue, 40);
+                color: lighten($blue, 60);
                 border: none;
                 border-bottom: 1px solid lighten($blue, 40);
                 &::placeholder {
-                    color: lighten($blue, 40);
+                    color: lighten($blue, 60);
                 }
             }
         }

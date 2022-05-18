@@ -743,14 +743,19 @@ const LiquidacionEdit = (props) => {
         let totalFacturado = 0;
         let noAplica = 0;
         let reembolso = 0;
+        let rej = false;
         for (let i = 0; i < facturas.length; i++) {
             totalFacturado += parseFloat(facturas[i][7]);
             reembolso += parseFloat(facturas[i][25]);
             noAplica += parseFloat(facturas[i][26]);
+            if (facturas[i][27] !== "") {
+                rej = true;
+            }
         }
         setTotalFacturado(totalFacturado);
         setNoAplica(noAplica);
         setReembolso(reembolso);
+        setRejected(rej);
         // return ret;
     }
 
@@ -785,7 +790,6 @@ const LiquidacionEdit = (props) => {
                         new Date(resp.data.fecha_fin),
                         new Date(resp.data.fecha_inicio),
                     );
-                    console.log(nw);
                     setNumWeeks(nw);
 
                     setPresupuesto(

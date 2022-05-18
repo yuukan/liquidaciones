@@ -190,6 +190,38 @@ const UserEdit = (props) => {
             password: ''
         },
         onSubmit: values => {
+            if (
+                values.nombre === ''
+            ) {
+                swal("Error", "¡El nombre es obligatorio!", "error");
+                return false;
+            }
+            if (
+                values.email === ''
+            ) {
+                swal("Error", "¡El email es obligatorio!", "error");
+                return false;
+            }
+            if (
+                typeof props.match.params.id === "undefined" &&
+                values.password === ""
+            ) {
+                swal("Error", "¡Debe de ingresar la contraseña!", "error");
+                return false;
+            }
+            if (
+                supervisor === null
+            ) {
+                swal("Error", "¡El supervisor es obligatorio!", "error");
+                return false;
+            }
+            if (
+                roles === null
+            ) {
+                swal("Error", "¡El rol es obligatorio!", "error");
+                return false;
+            }
+
             values.user_id = id;
             values.empresas = empresas;
             values.supervisor = supervisor;
@@ -199,13 +231,6 @@ const UserEdit = (props) => {
                 values.roles = [roles];
             }
             let data = JSON.stringify(values);
-
-            if (
-                typeof props.match.params.id === "undefined" &&
-                values.password === ""
-            ) {
-                swal("Error", "¡Debe de ingresar la contraseña!", "error");
-            }
 
             setLoading(true);
             if (id === -1) {

@@ -11,7 +11,7 @@ import {
 import swal from 'sweetalert';
 import axios from 'axios';
 import tableIcons from './sub/tableIcons';
-
+import Cookies from 'js-cookie';
 class Liquidaciones extends Component {
 
     constructor(props) {
@@ -58,6 +58,8 @@ class Liquidaciones extends Component {
 
         if (this.props.data) data = this.props.data;
 
+        let user = Cookies.get('lu_id');
+
         return (
             <div className="main-container">
                 <Typography variant="h3" component="h1" gutterBottom>
@@ -86,7 +88,7 @@ class Liquidaciones extends Component {
                                     rowData => ({
                                         icon: Edit,
                                         tooltip: 'Editar Liquidación',
-                                        hidden: !((rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4") && (rowData.empresa_id !== null && rowData.gasto_id !== null)),
+                                        hidden: !((rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4") && (rowData.empresa_id !== null && rowData.gasto_id !== null) && parseInt(user) === parseInt(rowData.id_usuario)),
                                         onClick: (event, rowData) => {
                                             // console.log(rowData.empresa_id !== null && rowData.gasto_id !== null);
                                             this.props.history.push("/edit-liquidacion/" + rowData.value);
@@ -95,7 +97,7 @@ class Liquidaciones extends Component {
                                     rowData => ({
                                         icon: Check,
                                         tooltip: 'Aprobar Liquidación',
-                                        hidden: (rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4" || rowData.empresa_id === null || rowData.gasto_id === null),
+                                        hidden: ((rowData.au_estado_liquidacion_id === "0" || rowData.au_estado_liquidacion_id === "2" || rowData.au_estado_liquidacion_id === "4" || rowData.empresa_id === null || rowData.gasto_id === null) || parseInt(rowData.id_usuario) === parseInt(user)),
                                         onClick: (event, rowData) => {
                                             this.props.history.push("/edit-liquidacion/" + rowData.value);
                                         },
@@ -103,6 +105,7 @@ class Liquidaciones extends Component {
                                     rowData => ({
                                         icon: Delete,
                                         tooltip: 'Eliminar Liquidación',
+                                        hidden: rowData.au_estado_liquidacion_id !== "0",
                                         onClick: (event, rowData) => {
                                             let t = this;
                                             swal({

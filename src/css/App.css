@@ -114,12 +114,12 @@ h1.welcome {
   line-height: 30px;
   font-size: 15px;
   background: transparent;
-  color: #427adb;
+  color: #98b6eb;
   border: none;
   border-bottom: 1px solid #427adb;
 }
 .landing .splash .input-container input::placeholder {
-  color: #427adb;
+  color: #98b6eb;
 }
 .landing .splash .login-btn {
   float: left;
