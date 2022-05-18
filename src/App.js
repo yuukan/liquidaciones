@@ -272,7 +272,7 @@ class App extends Component {
     let t = this;
     axios({
       method: 'get',
-      url: url + 'liquidaciones',
+      url: url + 'liquidaciones/' + Cookies.get('lu_id') + "/" + Cookies.get('lu_rol_id'),
       responseType: "json",
       headers: { "Content-Type": "application/json" }
     })

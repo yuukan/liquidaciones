@@ -38,6 +38,7 @@ class Landing extends Component {
                 Cookies.set('lu_id', resp.data.id, { expires: 1 });
                 Cookies.set('lu_n', resp.data.nombre, { expires: 1 });
                 Cookies.set('lu_rol', resp.data.rol, { expires: 1 });
+                Cookies.set('lu_rol_id', resp.data.rol_id, { expires: 1 });
                 this_.props.changeLogged(true);
                 this_.props.loadAll();
                 // this_.props.setUserPermissions(resp.data.permissions.split(","));
