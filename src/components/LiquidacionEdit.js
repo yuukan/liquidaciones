@@ -135,6 +135,7 @@ const LiquidacionEdit = (props) => {
     const [uid, setUID] = useState(Cookies.get('lu_id'));
     const [rejected, setRejected] = useState(false);
     const [razon_rechazo, setRazon] = useState("");
+    const [supervisor, setSupervisor] = useState(0);
 
     const classes = useStyles();
     // getModalStyle is not a pure function, we roll the style only on the first render
@@ -773,6 +774,7 @@ const LiquidacionEdit = (props) => {
                 .then(function (resp) {
                     setFacturas(resp.data.facturas);
                     setCuadrar(resp.data.cuadrar);
+                    setSupervisor(resp.data.supervisor);
 
                     setRechazoSupervisor(resp.data.rechazo_supervisor);
                     setRechazoConta(resp.data.rechazo_contabilidad);
@@ -1146,6 +1148,8 @@ const LiquidacionEdit = (props) => {
         swal("Rechazo por", razon, "warning");
     }
 
+    let rol_id = parseInt(Cookies.get('lu_rol_id'));
+
     return (
         <div className="main-container">
             <Modal
@@ -1495,7 +1499,7 @@ const LiquidacionEdit = (props) => {
                         ) : ""
                 }
                 {
-                    estado === "1" ?
+                    estado === "1" && rol_id === 1 && parseFloat(supervisor) === parseFloat(uid) ?
                         (
                             <Grid container spacing={3}>
                                 <Grid item xs={6}>
@@ -1520,7 +1524,7 @@ const LiquidacionEdit = (props) => {
 
                                 {
                                     // Si hay facturas rechazadas
-                                    rejected ?
+                                    rejected && rol_id === 1 && parseFloat(supervisor) === parseFloat(uid) ?
                                         (
                                             <Grid item xs={6}>
                                                 <Button
@@ -1547,7 +1551,7 @@ const LiquidacionEdit = (props) => {
                         ) : ""
                 }
                 {
-                    estado === "3" ?
+                    estado === "3" && rol_id === 3 ?
                         (
                             <Grid container spacing={3}>
                                 <Grid item xs={6}>
@@ -1572,7 +1576,8 @@ const LiquidacionEdit = (props) => {
 
                                 {
                                     // Si hay facturas rechazadas
-                                    rejected ?
+                                    rejected && rol_id === 3
+                                        ?
                                         (
                                             <Grid item xs={6}>
                                                 <Button
@@ -1762,16 +1767,24 @@ const LiquidacionEdit = (props) => {
                                                                                                             }
 
                                                                                                             {
-                                                                                                                key[27] !== null && key[27] !== "" ?
-                                                                                                                    "" :
+                                                                                                                rol_id === 3
+                                                                                                                    ||
                                                                                                                     (
-                                                                                                                        <span
-                                                                                                                            className='view-link rechazar'
-                                                                                                                            onClick={() => reject(key[22])}
-                                                                                                                        >
-                                                                                                                            Rechazar
-                                                                                                                        </span>
-                                                                                                                    )
+                                                                                                                        rol_id === 1
+                                                                                                                        &&
+                                                                                                                        parseFloat(supervisor) === parseFloat(uid)
+                                                                                                                    ) ?
+                                                                                                                    key[27] !== null && key[27] !== "" ?
+                                                                                                                        "" :
+                                                                                                                        (
+                                                                                                                            <span
+                                                                                                                                className='view-link rechazar'
+                                                                                                                                onClick={() => reject(key[22])}
+                                                                                                                            >
+                                                                                                                                Rechazar
+                                                                                                                            </span>
+                                                                                                                        )
+                                                                                                                    : ""
                                                                                                             }
                                                                                                         </React.Fragment>
                                                                                                     ) : ""
