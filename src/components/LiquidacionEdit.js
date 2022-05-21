@@ -1149,6 +1149,7 @@ const LiquidacionEdit = (props) => {
     }
 
     let rol_id = parseInt(Cookies.get('lu_rol_id'));
+    let userID = Cookies.get('lu_id');
 
     return (
         <div className="main-container">
@@ -1499,7 +1500,7 @@ const LiquidacionEdit = (props) => {
                         ) : ""
                 }
                 {
-                    estado === "1" && rol_id === 1 && parseFloat(supervisor) === parseFloat(uid) ?
+                    estado === "1" && rol_id === 1 && parseFloat(supervisor) === parseFloat(userID) ?
                         (
                             <Grid container spacing={3}>
                                 <Grid item xs={6}>
@@ -1524,7 +1525,7 @@ const LiquidacionEdit = (props) => {
 
                                 {
                                     // Si hay facturas rechazadas
-                                    rejected && rol_id === 1 && parseFloat(supervisor) === parseFloat(uid) ?
+                                    rejected && rol_id === 1 && parseFloat(supervisor) === parseFloat(userID) ?
                                         (
                                             <Grid item xs={6}>
                                                 <Button
@@ -1772,7 +1773,7 @@ const LiquidacionEdit = (props) => {
                                                                                                                     (
                                                                                                                         rol_id === 1
                                                                                                                         &&
-                                                                                                                        parseFloat(supervisor) === parseFloat(uid)
+                                                                                                                        parseFloat(supervisor) === parseFloat(userID)
                                                                                                                     ) ?
                                                                                                                     key[27] !== null && key[27] !== "" ?
                                                                                                                         "" :
