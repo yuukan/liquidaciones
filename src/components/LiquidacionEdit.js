@@ -1453,17 +1453,23 @@ const LiquidacionEdit = (props) => {
                         (
                             <Grid container spacing={3}>
                                 <Grid item xs={6}>
-                                    <Button
-                                        color="secondary"
-                                        variant="contained"
-                                        className="full-button"
-                                        fullWidth
-                                        type="text"
-                                        disable={loading}
-                                        onClick={() => formik.submitForm()}
-                                    >
-                                        Guardar
-                                    </Button>
+                                    {
+                                        parseFloat(uid) === parseFloat(userID) ?
+                                            (
+                                                <Button
+                                                    color="secondary"
+                                                    variant="contained"
+                                                    className="full-button"
+                                                    fullWidth
+                                                    type="text"
+                                                    disable={loading}
+                                                    onClick={() => formik.submitForm()}
+                                                >
+                                                    Guardar
+                                                </Button>
+
+                                            ) : ""
+                                    }
                                     {
                                         loading ?
                                             (
@@ -1472,7 +1478,7 @@ const LiquidacionEdit = (props) => {
                                     }
                                 </Grid>
                                 {
-                                    id !== -1 ?
+                                    id !== -1 && parseFloat(uid) === parseFloat(userID) ?
                                         (
                                             <Grid item xs={6}>
                                                 <Button
@@ -1740,14 +1746,19 @@ const LiquidacionEdit = (props) => {
                                                                                                         >
                                                                                                             <Edit />
                                                                                                         </Button>
-                                                                                                        <Button
-                                                                                                            color="secondary"
-                                                                                                            variant="contained"
-                                                                                                            type="button"
-                                                                                                            onClick={() => removeFactura(idx)}
-                                                                                                        >
-                                                                                                            <Delete />
-                                                                                                        </Button>
+                                                                                                        {
+                                                                                                            parseFloat(uid) === parseFloat(userID) ?
+                                                                                                                (
+                                                                                                                    <Button
+                                                                                                                        color="secondary"
+                                                                                                                        variant="contained"
+                                                                                                                        type="button"
+                                                                                                                        onClick={() => removeFactura(idx)}
+                                                                                                                    >
+                                                                                                                        <Delete />
+                                                                                                                    </Button>
+                                                                                                                ) : ""
+                                                                                                        }
                                                                                                     </React.Fragment>
                                                                                                 ) :
                                                                                                 estado !== "0" && estado !== "2" && estado !== "4" ?
@@ -1768,12 +1779,17 @@ const LiquidacionEdit = (props) => {
                                                                                                             }
 
                                                                                                             {
-                                                                                                                rol_id === 3
+                                                                                                                (
+                                                                                                                    rol_id === 3
+                                                                                                                    && estado === "3"
+                                                                                                                )
                                                                                                                     ||
                                                                                                                     (
                                                                                                                         rol_id === 1
                                                                                                                         &&
                                                                                                                         parseFloat(supervisor) === parseFloat(userID)
+                                                                                                                        &&
+                                                                                                                        estado === "1"
                                                                                                                     ) ?
                                                                                                                     key[27] !== null && key[27] !== "" ?
                                                                                                                         "" :
@@ -1817,25 +1833,31 @@ const LiquidacionEdit = (props) => {
                                     Factura
                                 </Typography>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={4}>
-                                        <FormControl variant="outlined" className="form-item">
-                                            <label htmlFor="gasto" className="manual">
-                                                Seleccione el gasto
-                                            </label>
-                                            <Select2
-                                                isSearchable={true}
-                                                onChange={handleChangeSelect}
-                                                value={gasto2}
-                                                name="gasto2"
-                                                id="gasto2"
-                                                options={gastos}
-                                                placeholder="* Gasto"
-                                                isDisabled={!(estado === "0" || estado === "2" || estado === "4") || rejected}
-                                            />
-                                        </FormControl>
-                                    </Grid>
                                     {
-                                        gasto2 !== null ?
+                                        parseFloat(uid) === parseFloat(userID) ?
+                                            (
+                                                <Grid item xs={4}>
+                                                    <FormControl variant="outlined" className="form-item">
+                                                        <label htmlFor="gasto" className="manual">
+                                                            Seleccione el gasto
+                                                        </label>
+                                                        <Select2
+                                                            isSearchable={true}
+                                                            onChange={handleChangeSelect}
+                                                            value={gasto2}
+                                                            name="gasto2"
+                                                            id="gasto2"
+                                                            options={gastos}
+                                                            placeholder="* Gasto"
+                                                            isDisabled={!(estado === "0" || estado === "2" || estado === "4") || rejected}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+                                            ) : ""
+                                    }
+
+                                    {
+                                        gasto2 !== null && parseFloat(uid) === parseFloat(userID) ?
                                             (
                                                 <React.Fragment>
                                                     <Grid item xs={4}>
