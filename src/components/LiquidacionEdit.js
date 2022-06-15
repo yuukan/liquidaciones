@@ -1676,7 +1676,7 @@ const LiquidacionEdit = (props) => {
                                                                                         {key[22]}
                                                                                     </td>
                                                                                     <td>
-                                                                                        <a href={URL.createObjectURL(makeblob(key[18]))} target="_blank" rel="noreferrer">
+                                                                                        <a href={key[18] !== '' ? URL.createObjectURL(makeblob(key[18])) : ''} target="_blank" rel="noreferrer">
                                                                                             {
                                                                                                 key[9] !== "" ? key[9] + " - " : ""
                                                                                             }
@@ -1724,7 +1724,7 @@ const LiquidacionEdit = (props) => {
                                                                                                 ) : ""
                                                                                         }
                                                                                         <a
-                                                                                            href={URL.createObjectURL(makeblob(key[18]))}
+                                                                                            href={key[18] !== '' ? URL.createObjectURL(makeblob(key[18])) : ''}
                                                                                             target="_blank"
                                                                                             rel="noreferrer"
                                                                                             className='view-link'
