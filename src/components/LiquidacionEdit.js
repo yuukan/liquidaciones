@@ -240,7 +240,7 @@ const LiquidacionEdit = (props) => {
 
             if (event.target.files.length > 0) {
                 setFactura(event.target.files[0]);
-                if (event.target.files[0].name.split(".")[1] !== "pdf") {
+                if (event.target.files[0].name.split(".")[1].toLowerCase() !== "pdf") {
                     const image = event.target.files[0];
                     new Compressor(image, {
                         quality: 0.6, // 0.6 can also be used, but its not recommended to go below.
