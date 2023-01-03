@@ -66,6 +66,14 @@ const dbTypes = [
         label: 'dst_MSSQL2014'
     },
     {
+        value: 'dst_MSSQL2016',
+        label: 'dst_MSSQL2016'
+    },
+    {
+        value: 'dst_MSSQL2019',
+        label: 'dst_MSSQL2019'
+    },
+    {
         value: 'dst_HANADB',
         label: 'dst_HANADB'
     },
