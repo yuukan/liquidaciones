@@ -182,7 +182,7 @@ header h6 span {
 
 .MuiDrawer-paper {
   background-color: transparent !important;
-  background-image: -webkit-linear-gradient(60deg, #3f51b5 0%, #4e63d5 100%) !important;
+  background-image: -webkit-linear-gradient(60deg, rgb(63, 81, 181) 0%, rgb(78, 99, 213) 100%) !important;
 }
 .MuiDrawer-paper .MuiButtonBase-root,
 .MuiDrawer-paper svg {
@@ -567,7 +567,7 @@ button.margin-fix2 {
   font-weight: 200;
 }
 .swal-content div strong {
-  color: #e31837;
+  color: rgb(227, 24, 55);
   font-weight: 400;
 }
 

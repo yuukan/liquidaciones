@@ -24,10 +24,10 @@ import './css/App.css';
 
 // Fontawesome
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBars, faPrint, faEnvelope, faTrash, faSignIn } from '@fortawesome/pro-solid-svg-icons';
+// import { faBars, faPrint, faEnvelope, faTrash, faSignIn } from '@fortawesome/pro-solid-svg-icons';
 import Liquidaciones from './components/Liquidaciones';
 import LiquidacionEdit from './components/LiquidacionEdit';
-library.add(faBars, faPrint, faEnvelope, faTrash, faSignIn);
+// library.add(faBars, faPrint, faEnvelope, faTrash, faSignIn);
 
 let url = window._url;
 

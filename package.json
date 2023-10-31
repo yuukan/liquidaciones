@@ -9,7 +9,6 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-brands-svg-icons": "^5.14.0",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "@fortawesome/pro-solid-svg-icons": "^5.14.0",
     "@fortawesome/react-fontawesome": "^0.1.9",
     "@material-ui/pickers": "^3.3.10",
     "cfdi-to-json": "^2.0.7",
@@ -19,11 +18,11 @@
     "i": "^0.3.6",
     "js-cookie": "^3.0.1",
     "moment": "^2.29.1",
-    "npm": "^6.14.7",
+    "npm": "^10.2.1",
     "npm-run-all": "^4.1.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^2.1.8",
+    "react-scripts": "^5.0.1",
     "sass": "^1.47.0"
   },
   "scripts": {
@@ -40,7 +39,6 @@
     "@devexpress/dx-react-core": "^2.7.0",
     "@devexpress/dx-react-grid": "^2.7.0",
     "@devexpress/dx-react-grid-material-ui": "^2.7.0",
-    "@fortawesome/fontawesome-pro": "^5.14.0",
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
     "axios": "^0.21.1",
@@ -48,7 +46,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-react": "^7.20.5",
     "image-conversion": "^1.1.9",
-    "material-table": "^1.67.1",
+    "material-table": "^1.63.0",
     "qrcode.react": "^0.9.3",
     "react-datepicker": "^3.6.0",
     "react-hook-form": "^5.4.2",
@@ -56,7 +54,7 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^3.1.0",
     "react-social-login": "^3.4.6",
-    "recharts": "^1.8.5",
+    "recharts": "^2.9.0",
     "sweetalert": "^2.1.2"
   },
   "browserslist": [
